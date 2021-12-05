@@ -1,9 +1,3 @@
-workspace(name = "rules_buf")
-
-load("//:repo.bzl", "rules_buf_toolchains")
-
-rules_buf_toolchains()
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
@@ -21,3 +15,22 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 
 rules_proto_toolchains()
+
+local_repository(
+    name = "rules_buf",
+    path = "../",
+)
+
+load("@rules_buf//:repo.bzl", "rules_buf_toolchains")
+
+rules_buf_toolchains()
+
+
+load("@rules_buf//:image.bzl", "buf_image")
+
+buf_image(
+    name = "petapis",
+    module = "buf.build/alex/petapis",
+    commit = "ed11b653d2f74267a3fa009f7c37f69a",
+    sha256 = "e824b046b36047fd4d13f23919cbe3fe09653a28de5a5b5940a1a219aac3c44d",
+)

@@ -1,33 +1,91 @@
 # rules_buf
 
+Bazel rules for buf.
 
-## Lint POC 
+## Setup 
 
-Uses `bazel aspects` to lint proto files. 
+Depends on [rules_proto](https://github.com/bazelbuild/rules_proto) and should be loaded before this. (Temporary solution, will be inclued in dependencides before release)
+
+```starlark
+local_repository(
+    name = "rules_buf",
+    path = "../",
+)
+
+load("@rules_buf//:repo.bzl", "rules_buf_toolchains")
+
+rules_buf_toolchains()
+```
+
+See `example` folder for a basic setup.
+
+## Image
+
+`buf_image` repo rule provides a way to reference a buf image from BSR with byte-to-byte reproducability.
+
+In a `WORKSPACE` file one can depend on a buf image at a specific commit.
+```starlark
+load("@rules_buf//:image.bzl", "buf_image")
+
+buf_image(
+    name = "petapis",
+    module = "buf.build/alex/petapis",
+    commit = "ed11b653d2f74267a3fa009f7c37f69a",
+    sha256 = "e824b046b36047fd4d13f23919cbe3fe09653a28de5a5b5940a1a219aac3c44d",
+)
+```
+
+In the future we can expose an image archive similar to github repo archives. This will allows us to use more standard repo rules such as `http_file` to fetch images.
+
+## Linting
 
 Depends on `rules_proto` for `FileDescriptorSet` and invokes using `protoc` and lint plugin, `protoc-gen-buf-lint`.
 
-Aspect is defined in `lint.bzl`
+Lint test (`buf_lint_test`) is defined in `lint.bzl`. 
 
-Invoke `lint` aspect from repo root:
-```bash
-bazel build //example:example_proto --aspects lint.bzl%buf_lint_aspect --output_groups=lint_out
+```starlark
+buf_lint_test(
+    name = "lint",
+    except_rules = [
+        "PACKAGE_VERSION_SUFFIX",
+        "FIELD_LOWER_SNAKE_CASE",
+        "SERVICE_SUFFIX",
+    ],
+    target = ":pet_v1_proto",
+    use_rules = [
+        "DEFAULT",
+    ],
+)
 ```
 
-Output should contain a single line of lint error starring with `--buf-lint_out` as shown below.
+Provides all the options of the plugin except for `ignore` and `ignore_only`. These can be solved by creating seperate rules with limited files akin to `bazel`
 
-Output:
+## Breaking change detection
 
+Depends on `rules_proto` for `FileDescriptorSet` and invokes using `protoc` and lint plugin, `protoc-gen-buf-lint`.
+
+Breaking test (`buf_breaking_test`) is defined in `break.bzl`. 
+
+```starlark
+buf_breaking_test(
+    name = "breaking",
+    against = "@petapis//image:file",
+    target = ":pet_v1_proto",
+)
 ```
-INFO: Analyzed target //example:example_proto (0 packages loaded, 0 targets configured).
-INFO: Found 1 target...
-ERROR: /Users/srikrsna/Developer/buf/rules_buf/example/BUILD:1:14: Action example/lint.txt failed: (Exit 1): protoc failed: error executing command bazel-out/darwin_arm64-opt-exec-2B5CBBC6/bin/external/protobuf/protoc '--plugin=protoc-gen-buf-lint=external/protoc_gen_buf_lint/file/downloaded' --descriptor_set_in ... (remaining 3 argument(s) skipped)
 
-Use --sandbox_debug to see verbose messages from the sandbox
---buf-lint_out: example/example.proto:1:1:Package name "example" should be suffixed with a correctly formed version, such as "example.v1".
-Aspect //:lint.bzl%buf_lint_aspect of //example:example_proto failed to build
-Use --verbose_failures to see the command lines of failed build steps.
-INFO: Elapsed time: 0.199s, Critical Path: 0.08s
-INFO: 2 processes: 2 internal.
-FAILED: Build did NOT complete successfully
-```
+Notice that here a buf image is being referenced created using the the `buf_image` repo rule.
+
+Provides all the options of the plugin except for `ignore` and `ignore_only`. These can be solved by creating seperate rules with limited files akin to `bazel`
+
+## Toolchains
+
+Provides bazel toolchains for `buf`, `protoc-gen-buf-breaking`, and `protoc-gen-buf-lint`. 
+
+They can accessed at `@rules_buf//tools/buf:toolchain_type`, `@rules_buf//tools/protoc-gen-buf-breaking:toolchain_type`, and `@rules_buf//tools/protoc-gen-buf-lint:toolchain_type`
+
+Supports `darwin` - `arm64/x86_64`, `windows` - `arm64/x86_64`, `linux` - `amd64/aarch64` (Github releases of buf)
+
+## Tests
+
+All rules have been tested manually on `darwin/arm64` (M1 Mac). Linux and Windows are implemented but yet to be tested. Automated tests need to be explored.
