@@ -16,6 +16,6 @@ toolchain_type(name = "toolchain_type")
 
 declare_toolchains(
     name = "protoc_gen_buf_breaking_toolchain_declaration",
+    cmd = "protoc-gen-buf-breaking",
     toolchain = protoc_gen_buf_breaking_toolchain,
-    cmd = "protoc-gen-buf-breaking"
 )

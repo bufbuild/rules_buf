@@ -17,6 +17,6 @@ bzl_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":platfoms"
+        ":platfoms",
     ],
 )

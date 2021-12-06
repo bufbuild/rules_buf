@@ -1,4 +1,9 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/bufbuild/rules_go
+# gazelle:exclude example/**
+gazelle(name = "gazelle")
 
 bzl_library(
     name = "utils",
@@ -17,8 +22,8 @@ bzl_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":utils",
         ":image",
+        ":utils",
         "@rules_proto//proto:defs.bzl",
     ],
 )
@@ -44,4 +49,3 @@ bzl_library(
         "@rules_proto//proto:defs.bzl",
     ],
 )
-

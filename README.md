@@ -1,6 +1,6 @@
 # rules_buf
 
-Bazel rules for buf.
+Bazel rules and Gazelle extension for buf
 
 ## Setup 
 
@@ -89,3 +89,13 @@ Supports `darwin` - `arm64/x86_64`, `windows` - `arm64/x86_64`, `linux` - `amd64
 ## Tests
 
 All rules have been tested manually on `darwin/arm64` (M1 Mac). Linux and Windows are implemented but yet to be tested. Automated tests need to be explored.
+
+
+## Gazelle Extension
+
+The repo also has Gazelle extension for auto generating the lint and breaking change detection rules. Just add the target `@rules_buf//gazelle/buf:buf` to `gazelle` languages. See example folder.
+
+It automatically picks up `buf.yaml/buf.mod` file from repo root. It supports the following command line options,
+
+* `buf_config` path to `buf.yaml` file relative to repo root
+* `buf_breaking_image` file target of buf image to check against

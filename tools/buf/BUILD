@@ -13,5 +13,8 @@ bzl_library(
 )
 
 toolchain_type(name = "toolchain_type")
-declare_toolchains(name = "buf_toolchain_declaration", toolchain = buf_toolchain)
 
+declare_toolchains(
+    name = "buf_toolchain_declaration",
+    toolchain = buf_toolchain,
+)
