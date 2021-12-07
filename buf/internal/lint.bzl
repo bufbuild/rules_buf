@@ -1,3 +1,5 @@
+"""Defines buf_lint_test rule"""
+
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 
 BufLintInfo = provider(
@@ -103,7 +105,6 @@ def _buf_lint_test_impl(ctx):
     deps = proto_info.transitive_descriptor_sets.to_list()
     deps.append(proto_info.direct_descriptor_set)
 
-    # {protoc} '--buf-lint_opt={config}' --plugin=protoc-gen-buf-lint={protoc_gen_buf_lint}  --descriptor_set_in {deps} --buf-lint_out=. {targets}'
     script = "{protoc} '--buf-lint_opt={config}' --plugin=protoc-gen-buf-lint={protoc_gen_buf_lint}  --descriptor_set_in {deps} --buf-lint_out=. {targets}".format(
         protoc = ctx.executable._protoc.short_path,
         protoc_gen_buf_lint = ctx.toolchains[_TOOLCHAIN].cli.short_path,

@@ -1,9 +1,5 @@
 workspace(name = "rules_buf")
 
-load("//:repo.bzl", "rules_buf_toolchains")
-
-rules_buf_toolchains()
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(

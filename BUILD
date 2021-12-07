@@ -3,7 +3,9 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 
 # gazelle:prefix github.com/bufbuild/rules_go
 # gazelle:exclude example/**
-gazelle(name = "gazelle")
+gazelle(
+    name = "gazelle",
+)
 
 bzl_library(
     name = "utils",
