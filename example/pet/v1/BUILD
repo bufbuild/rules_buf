@@ -1,5 +1,4 @@
-load("@rules_buf//:lint.bzl", "buf_lint_test")
-load("@rules_buf//:break.bzl", "buf_breaking_test")
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_lint_test")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 package(default_visibility = ["//:__subpackages__"])

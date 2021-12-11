@@ -21,7 +21,9 @@ local_repository(
     path = "../",
 )
 
-load("@rules_buf//:repo.bzl", "rules_buf_toolchains")
+load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_toolchains")
+
+rules_buf_dependencies()
 
 rules_buf_toolchains()
 
@@ -55,11 +57,11 @@ go_register_toolchains(version = "1.17.2")
 
 gazelle_dependencies()
 
-load("@rules_buf//:image.bzl", "buf_image")
+load("@rules_buf//buf:defs.bzl", "buf_image")
 
 buf_image(
     name = "petapis",
-    commit = "ed11b653d2f74267a3fa009f7c37f69a",
+    commit = "7e040f51304842f6b55fdea26225ac16",
     module = "buf.build/alex/petapis",
-    sha256 = "e824b046b36047fd4d13f23919cbe3fe09653a28de5a5b5940a1a219aac3c44d",
+    sha256 = "e1f6c061df3bda1f79b2814a63c8ef59d9384354383df2336a1e87e1f2605e8c",
 )

@@ -42,7 +42,7 @@ func main() {
 		var sum, bin string
 		fmt.Sscanf(line, "%s %s", &sum, &bin)
 
-		url := fmt.Sprintf("https://github.com/bufbuild/buf/releases/download/%s", bin)
+		url := fmt.Sprintf("https://github.com/bufbuild/buf/releases/download/%s/%s", *bufVersion, bin)
 
 		bin = strings.ToLower(bin)
 		// Bazel defines macOS as osx
@@ -53,6 +53,7 @@ func main() {
 		fmt.Printf("\t%q: {\n", bin)
 		fmt.Printf("\t\t\"sha256\": %q,\n", sum)
 		fmt.Printf("\t\t\"urls\": [%q],\n", url)
+		fmt.Printf("\t\t\"executable\": True,\n")
 		fmt.Println("\t},")
 	}
 	fmt.Println("}")

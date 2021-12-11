@@ -1,6 +1,6 @@
 """Defines buf_image repo rule"""
 
-load("@bazel_tools//build_defs:utils.bzl", "update_attrs")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "update_attrs")
 
 _BUF_IMAGE_BUILD = """
 package(default_visibility = ["//visibility:public"])
@@ -76,37 +76,37 @@ buf_image = repository_rule(
             allow_single_file = True,
         ),
         "_buf_osx_arm64": attr.label(
-            default = "@buf_osx_arm64//file:downloaded",
+            default = "@buf-osx-arm64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,
         ),
         "_buf_osx_x86_64": attr.label(
-            default = "@buf_osx_x86_64//file:downloaded",
+            default = "@buf-osx-x86_64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,
         ),
         "_buf_linux_x86_64": attr.label(
-            default = "@buf_linux_x86_64//file:downloaded",
+            default = "@buf-linux-x86_64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,
         ),
         "_buf_linux_aarch64": attr.label(
-            default = "@buf_linux_aarch64//file:downloaded",
+            default = "@buf-linux-aarch64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,
         ),
         "_buf_windows_arm64": attr.label(
-            default = "@buf_windows_arm64//file:downloaded",
+            default = "@buf-windows-arm64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,
         ),
         "_buf_windows_x86_64": attr.label(
-            default = "@buf_windows_x86_64//file:downloaded",
+            default = "@buf-windows-x86_64//file:downloaded",
             executable = True,
             cfg = "exec",
             allow_files = True,

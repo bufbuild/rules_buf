@@ -56,7 +56,7 @@ buf_lint_aspect = aspect(
     attr_aspects = ["deps"],
     attrs = {
         "_protoc": attr.label(
-            default = "@protobuf//:protoc",
+            default = "@com_github_protocolbuffers_protobuf//:protoc",
             executable = True,
             cfg = "exec",
         ),
