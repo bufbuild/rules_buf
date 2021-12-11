@@ -4,20 +4,30 @@ Bazel rules and Gazelle extension for buf
 
 ## Setup 
 
-Depends on [rules_proto](https://github.com/bazelbuild/rules_proto) and should be loaded before this. (Temporary solution, will be inclued in dependencides before release)
-
+Include the following snippet in the Workspace file to setup `rules_buf`
 ```starlark
 local_repository(
     name = "rules_buf",
     path = "../",
 )
 
-load("@rules_buf//:repo.bzl", "rules_buf_toolchains")
+load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_toolchains")
+
+rules_buf_dependencies()
 
 rules_buf_toolchains()
+
+# rules_proto
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
 ```
 
 See `example` folder for a basic setup.
+
+Depends on [rules_proto](https://github.com/bazelbuild/rules_proto). To use a specific version load it before calling rules_buf_dependencies()
 
 ## Image
 
