@@ -19,6 +19,15 @@ func (lintRule) Kind() string {
 func (lintRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
 		MatchAttrs: []string{"target"},
+		MergeableAttrs: map[string]bool{
+			"use_rules":                                true,
+			"except_rules":                             true,
+			"service_suffix":                           true,
+			"allow_comment_ignores":                    true,
+			"enum_zero_value_suffix":                   true,
+			"rpc_allow_same_request_response":          true,
+			"rpc_allow_google_protobuf_empty_requests": true,
+		},
 	}
 }
 

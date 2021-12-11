@@ -19,6 +19,14 @@ func (breakingRule) Kind() string {
 func (breakingRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
 		MatchAttrs: []string{"target"},
+		MergeableAttrs: map[string]bool{
+			"against":                  true,
+			"use_rules":                true,
+			"except_rules":             true,
+			"exclude_imports":          true,
+			"limit_to_input_files":     true,
+			"ignore_unstable_packages": true,
+		},
 	}
 }
 
@@ -59,7 +67,7 @@ func (breakingRule) GenRule(pr *rule.Rule, c *Config) (*rule.Rule, interface{}) 
 		}
 
 		if breaking.IgnoreUnstablePackages != nil {
-			r.SetAttr("RpcAllowGoogleProtobufEmptyResponses", *breaking.IgnoreUnstablePackages)
+			r.SetAttr("ignore_unstable_packages", *breaking.IgnoreUnstablePackages)
 		}
 	}
 
