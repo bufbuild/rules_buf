@@ -24,7 +24,7 @@ func (breakingRule) KindInfo() rule.KindInfo {
 
 func (breakingRule) LoadInfo() rule.LoadInfo {
 	return rule.LoadInfo{
-		Name:    "@rules_buf//:break.bzl",
+		Name:    "@rules_buf//buf:defs.bzl",
 		Symbols: []string{breakingRuleKind},
 	}
 }

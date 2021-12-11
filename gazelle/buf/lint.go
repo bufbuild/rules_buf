@@ -24,7 +24,7 @@ func (lintRule) KindInfo() rule.KindInfo {
 
 func (lintRule) LoadInfo() rule.LoadInfo {
 	return rule.LoadInfo{
-		Name:    "@rules_buf//:lint.bzl",
+		Name:    "@rules_buf//buf:defs.bzl",
 		Symbols: []string{lintRuleKind},
 	}
 }

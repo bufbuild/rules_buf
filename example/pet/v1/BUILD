@@ -1,6 +1,5 @@
-load("@rules_buf//:break.bzl", "buf_breaking_test")
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_lint_test")
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_buf//:lint.bzl", "buf_lint_test")
 
 package(default_visibility = ["//:__subpackages__"])
 
@@ -15,7 +14,6 @@ buf_lint_test(
     except_rules = [
         "PACKAGE_VERSION_SUFFIX",
         "FIELD_LOWER_SNAKE_CASE",
-        "SERVICE_SUFFIX",
     ],
     target = ":petv1_proto",
     use_rules = ["DEFAULT"],

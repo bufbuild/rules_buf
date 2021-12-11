@@ -83,8 +83,17 @@ func (*bufLang) Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.Remote
 
 func (l *bufLang) Loads() []rule.LoadInfo {
 	var loadInfos []rule.LoadInfo
-	for _, li := range l.rules {
-		loadInfos = append(loadInfos, li.LoadInfo())
+	loadInfoMap := map[string]rule.LoadInfo{}
+	for _, r := range l.rules {
+		temp := r.LoadInfo()
+		li := loadInfoMap[temp.Name]
+		li.Name = temp.Name
+		li.Symbols = append(li.Symbols, temp.Symbols...)
+		loadInfoMap[temp.Name] = li
+	}
+
+	for _, v := range loadInfoMap {
+		loadInfos = append(loadInfos, v)
 	}
 	return loadInfos
 }
