@@ -4,24 +4,20 @@ package(default_visibility = ["//visibility:public"])
 
 bzl_library(
     name = "defs",
-    srcs = [
-        "defs.bzl",
-    ],
+    srcs = ["defs.bzl"],
     deps = [
-        "//buf/internal:break.bzl",
-        "//buf/internal:image.bzl",
-        "//buf/internal:lint.bzl",
+        "//buf/internal:break",
+        "//buf/internal:image",
+        "//buf/internal:lint",
     ],
 )
 
 bzl_library(
     name = "repositories",
-    srcs = [
-        "repositories.bzl",
-    ],
+    srcs = ["repositories.bzl"],
     deps = [
-        "//buf/internal:dependencies.bzl",
-        "//tools:toolchain.bzl",
+        "//buf/internal:dependencies",
+        "//tools:toolchain",
         "@bazel_tools//tools/build_defs/repo:http.bzl",
         "@bazel_tools//tools/build_defs/repo:utils.bzl",
     ],

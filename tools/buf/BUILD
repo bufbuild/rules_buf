@@ -4,9 +4,7 @@ load(":toolchain.bzl", "buf_toolchain")
 
 bzl_library(
     name = "toolchain",
-    srcs = [
-        "toolchain.bzl",
-    ],
+    srcs = ["toolchain.bzl"],
     visibility = ["//visibility:public"],
     deps = [
     ],

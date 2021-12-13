@@ -2,12 +2,30 @@ package buf
 
 import (
 	"fmt"
+	"io/fs"
+	"log"
+	"os"
+	"path"
 	"strings"
 
+	"github.com/bazelbuild/bazel-gazelle/config"
+	"github.com/bazelbuild/bazel-gazelle/label"
+	"github.com/bazelbuild/bazel-gazelle/language"
+	"github.com/bazelbuild/bazel-gazelle/repo"
+	"github.com/bazelbuild/bazel-gazelle/resolve"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 )
 
 const breakingRuleKind = "buf_breaking_test"
+
+type BreakingConfig struct {
+	Use                    []string `json:"use,omitempty" yaml:"use,omitempty"`
+	Except                 []string `json:"except,omitempty" yaml:"except,omitempty"`
+	IgnoreUnstablePackages *bool    `json:"ignore_unstable_packages,omitempty" yaml:"ignore_unstable_packages,omitempty"`
+
+	Ignore     []string            `json:"ignore,omitempty" yaml:"ignore,omitempty"`
+	IgnoreOnly map[string][]string `json:"ignore_only,omitempty" yaml:"ignore_only,omitempty"`
+}
 
 type breakingRule struct {
 }
@@ -18,7 +36,7 @@ func (breakingRule) Kind() string {
 
 func (breakingRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
-		MatchAttrs: []string{"target"},
+		MatchAttrs: []string{"targets"},
 		MergeableAttrs: map[string]bool{
 			"against":                  true,
 			"ignore":                   true,
@@ -28,6 +46,9 @@ func (breakingRule) KindInfo() rule.KindInfo {
 			"exclude_imports":          true,
 			"limit_to_input_files":     true,
 			"ignore_unstable_packages": true,
+		},
+		ResolveAttrs: map[string]bool{
+			"targets": true,
 		},
 	}
 }
@@ -39,18 +60,102 @@ func (breakingRule) LoadInfo() rule.LoadInfo {
 	}
 }
 
-// GenRule returns a list of rules that need be generated for each `proto_library` rule.
-func (breakingRule) GenRule(pr *rule.Rule, c *Config) (*rule.Rule, interface{}) {
-	if c.BreakingImageTarget == "" {
-		return nil, nil
+func (br breakingRule) GenerateRules(args language.GenerateArgs) (res language.GenerateResult) {
+	cfg := GetConfig(args.Config)
+	// Skip if no target to check against
+	if cfg.BreakingImageTarget == "" {
+		return
 	}
 
-	r := rule.NewRule("buf_breaking_test", fmt.Sprintf("%s_breaking", pr.Name()))
+	// Breaking rules are applied to individual packages (package mode), module root is ignored
+	if cfg.BreakingLimitToInputFiles {
+		protoLibRules := getRulesOfKind(args.OtherGen, "proto_library")
+		for _, plr := range protoLibRules {
+			res.Gen = append(res.Gen, br.genRule(plr.Name(), cfg))
+			res.Imports = append(res.Imports, struct{}{})
+		}
 
-	r.SetAttr("target", fmt.Sprintf(":%s", pr.Name()))
+		if args.File != nil {
+			breakingRules := getRulesOfKind(args.File.Rules, breakingRuleKind)
+			for _, r := range breakingRules {
+				targets := r.AttrStrings("targets")
+				// Allow if generated package mode and target belongs to current package
+				if len(targets) == 1 && protoLibRules[targets[0]] != nil {
+					continue
+				}
+
+				res.Empty = append(res.Empty, r)
+			}
+		}
+
+		return
+	}
+
+	// In module mode delete all
+	if args.File != nil {
+		breakingRules := getRulesOfKind(args.File.Rules, breakingRuleKind)
+		for _, r := range breakingRules {
+			res.Empty = append(res.Empty, r)
+		}
+	}
+
+	if !cfg.ModuleRoot {
+		return
+	}
+
+	// Module mode and is module root
+
+	// targets := getProtoLibTargets(args)
+
+	genRule := br.genRule("buf", cfg)
+	genRule.SetAttr("targets", []string{})
+
+	res.Gen = append(res.Gen, genRule)
+	res.Imports = append(res.Imports, getProtoLibImports(args))
+
+	return
+}
+
+func (breakingRule) Resolve(c *config.Config, ix *resolve.RuleIndex, _ *repo.RemoteCache, r *rule.Rule, importsRaw interface{}, from label.Label) {
+	if r.Kind() != breakingRuleKind {
+		return
+	}
+
+	imports, ok := importsRaw.([]string)
+	if !ok {
+		return
+	}
+
+	var targets []string
+	for _, imp := range imports {
+		results := ix.FindRulesByImportWithConfig(
+			c,
+			resolve.ImportSpec{
+				Lang: "proto",
+				Imp:  imp,
+			},
+			"proto",
+		)
+
+		if len(results) == 0 {
+			log.Printf("unable to resolve proto dependency: %s", imp)
+		}
+
+		for _, res := range results {
+			targets = append(targets, res.Label.Rel(from.Repo, from.Pkg).String())
+		}
+	}
+
+	r.SetAttr("targets", targets)
+}
+
+func (breakingRule) genRule(name string, c *Config) *rule.Rule {
+	r := rule.NewRule(breakingRuleKind, fmt.Sprintf("%s_breaking", name))
+
+	r.SetAttr("targets", []string{fmt.Sprintf(":%s", name)})
 	r.SetAttr("against", c.BreakingImageTarget)
 
-	if !c.BreakingExludeImports {
+	if !c.BreakingExcludeImports {
 		r.SetAttr("exclude_imports", false)
 	}
 
@@ -81,11 +186,75 @@ func (breakingRule) GenRule(pr *rule.Rule, c *Config) (*rule.Rule, interface{}) 
 		}
 	}
 
-	return r, struct{}{}
+	return r
 }
 
-// ShouldRemoveRule determines if this rule should be removed from the file. Typically rules generated in the previous run.
-func (breakingRule) ShouldRemoveRule(r *rule.Rule, protoRules map[string]*rule.Rule) bool {
-	target := strings.TrimPrefix(r.AttrString("target"), ":")
-	return protoRules[target] == nil
+/* Alternative implementation for module mode build generation
+func getProtoLibTargets(args language.GenerateArgs) []string {
+	var targets []string
+
+	pl := proto.NewLanguage()
+
+	log.SetOutput(&bytes.Buffer{})
+	walk.Walk(
+		args.Config.Clone(),
+		[]config.Configurer{pl},
+		args.Subdirs,
+		walk.UpdateSubdirsMode,
+		func(dir, rel string, c *config.Config, update bool, f *rule.File, subdirs, regularFiles, genFiles []string) {
+			gr := pl.GenerateRules(language.GenerateArgs{
+				Config:       c,
+				Dir:          dir,
+				Rel:          rel,
+				File:         f,
+				Subdirs:      subdirs,
+				RegularFiles: regularFiles,
+				GenFiles:     genFiles,
+			})
+
+			for _, r := range gr.Gen {
+				targets = append(targets, fmt.Sprintf("//%s:%s", rel, r.Name()))
+			}
+		},
+	)
+	log.SetOutput(os.Stdout)
+
+	return targets
+}
+*/
+
+func getProtoLibImports(args language.GenerateArgs) []string {
+	targetMap := map[string]string{}
+	cfg := GetConfig(args.Config)
+
+	fs.WalkDir(os.DirFS(args.Dir), ".", func(p string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		if !strings.HasSuffix(d.Name(), ".proto") {
+			return nil
+		}
+
+		dir := path.Dir(p)
+
+		if cfg.Module != nil && cfg.Module.Build != nil {
+			for _, exclude := range cfg.Module.Build.Excludes {
+				if strings.HasPrefix(dir, exclude) {
+					return nil
+				}
+			}
+		}
+
+		targetMap[dir] = p
+
+		return nil
+	})
+
+	targets := make([]string, 0, len(targetMap))
+	for _, t := range targetMap {
+		targets = append(targets, t)
+	}
+
+	return targets
 }

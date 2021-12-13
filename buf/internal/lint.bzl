@@ -86,6 +86,7 @@ buf_lint_rule = rule(
 )
 
 def _buf_lint_test_impl(ctx):
+    proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
     config = json.encode({
         "input_config": {
             "version": "v1",
@@ -104,19 +105,46 @@ def _buf_lint_test_impl(ctx):
         },
     })
 
-    return protoc_plugin_test(ctx, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config)
+    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config)
 
 buf_lint_test = rule(
     implementation = _buf_lint_test_impl,
+    doc = """
+This lints protocol buffers using `buf lint`. For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
+
+Example:
+    This rule works alongside `proto_library` rule.
+
+    load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+    load("@rules_proto//proto:defs.bzl", "proto_library")
+
+    proto_library(
+        name = "foo_proto",
+        srcs = ["pet.proto"],
+        deps = ["@go_googleapis//google/type:datetime_proto"],
+    )
+
+    buf_lint_test(
+        name = "foo_proto_lint",
+        except_rules = [
+            "PACKAGE_VERSION_SUFFIX",
+            "FIELD_LOWER_SNAKE_CASE",
+        ],
+        targets = [":foo_proto"],
+        use_rules = ["DEFAULT"],
+    )
+    
+    """,
     attrs = {
         "_protoc": attr.label(
             default = "@com_github_protocolbuffers_protobuf//:protoc",
             executable = True,
             cfg = "exec",
         ),
-        "target": attr.label(
+        "targets": attr.label_list(
             providers = [ProtoInfo],
             mandatory = True,
+            doc = "`proto_library` targets that should be linted",
         ),
         # buf config attrs
         "use_rules": attr.string_list(

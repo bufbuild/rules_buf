@@ -1,8 +1,6 @@
 package buf
 
 import (
-	"fmt"
-
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/label"
 	"github.com/bazelbuild/bazel-gazelle/language"
@@ -18,10 +16,12 @@ type bufRule interface {
 	KindInfo() rule.KindInfo
 	// LoadInfo returns the LoadInfo for this rule
 	LoadInfo() rule.LoadInfo
-	// GenRule returns a list of rules that need be generated for each `proto_library` rule.
-	GenRule(protoRule *rule.Rule, c *Config) (*rule.Rule, interface{})
-	// ShouldRemoveRule determines if this rule should be removed from the file. Typically rules generated in the previous run.
-	ShouldRemoveRule(r *rule.Rule, protoRules map[string]*rule.Rule) bool
+	// GenerateRules returns a list of rules that need be generated for each bazel package.
+	GenerateRules(args language.GenerateArgs) language.GenerateResult
+}
+
+type resolver interface {
+	Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.RemoteCache, r *rule.Rule, imports interface{}, from label.Label)
 }
 
 const lang = "buf"
@@ -66,19 +66,21 @@ func (l *bufLang) Kinds() map[string]rule.KindInfo {
 }
 
 func (*bufLang) Imports(c *config.Config, r *rule.Rule, f *rule.File) []resolve.ImportSpec {
-	return []resolve.ImportSpec{
-		{
-			Lang: lang,
-			Imp:  fmt.Sprintf("//%s:%s", f.Pkg, r.Name()),
-		},
-	}
+	return nil
 }
 
 func (*bufLang) Embeds(r *rule.Rule, from label.Label) []label.Label {
 	return nil
 }
 
-func (*bufLang) Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.RemoteCache, r *rule.Rule, imports interface{}, from label.Label) {
+func (l *bufLang) Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.RemoteCache, r *rule.Rule, imports interface{}, from label.Label) {
+	for _, br := range l.rules {
+		resolver, ok := br.(resolver)
+		if !ok {
+			continue
+		}
+		resolver.Resolve(c, ix, rc, r, imports, from)
+	}
 }
 
 func (l *bufLang) Loads() []rule.LoadInfo {
@@ -99,46 +101,28 @@ func (l *bufLang) Loads() []rule.LoadInfo {
 }
 
 func (l *bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResult {
-	var (
-		genRules   []*rule.Rule
-		emptyRules []*rule.Rule
-		imports    []interface{}
-		protoRules = make(map[string]*rule.Rule)
-	)
-
-	cfg := GetConfig(args.Config)
-
-	for _, pr := range args.OtherGen {
-		if pr.Kind() != "proto_library" {
-			continue
-		}
-		protoRules[pr.Name()] = pr
-
-		for _, bufRule := range l.rules {
-			r, i := bufRule.GenRule(pr, cfg)
-			if r != nil {
-				genRules = append(genRules, r)
-				imports = append(imports, i)
-			}
-		}
+	agr := language.GenerateResult{}
+	for _, r := range l.rules {
+		res := r.GenerateRules(args)
+		agr.Gen = append(agr.Gen, res.Gen...)
+		agr.Imports = append(agr.Imports, res.Imports...)
+		agr.Empty = append(agr.Empty, res.Empty...)
 	}
-
-	if args.File != nil {
-		for _, r := range args.File.Rules {
-			bufRule := l.ruleMap[r.Kind()]
-			if bufRule == nil || !bufRule.ShouldRemoveRule(r, protoRules) {
-				continue
-			}
-
-			emptyRules = append(emptyRules, r)
-		}
-	}
-
-	return language.GenerateResult{
-		Gen:     genRules,
-		Empty:   emptyRules,
-		Imports: imports,
-	}
+	return agr
 }
 
 func (*bufLang) Fix(c *config.Config, f *rule.File) {}
+
+// getRulesOfKind returns all the rules of a kind in a map with their names as keys
+func getRulesOfKind(rules []*rule.Rule, kind string) map[string]*rule.Rule {
+	kindRules := map[string]*rule.Rule{}
+	for _, r := range rules {
+		if r.Kind() != kind {
+			continue
+		}
+
+		kindRules[r.Name()] = r
+	}
+
+	return kindRules
+}

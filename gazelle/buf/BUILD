@@ -8,15 +8,17 @@ go_library(
         "gazelle.go",
         "lint.go",
     ],
-    importpath = "github.com/bufbuild/rules_go/gazelle/buf",
+    importpath = "github.com/bufbuild/rules_buf/gazelle/buf",
     visibility = ["//visibility:public"],
     deps = [
         "@bazel_gazelle//config:go_default_library",
         "@bazel_gazelle//label:go_default_library",
         "@bazel_gazelle//language:go_default_library",
+        "@bazel_gazelle//language/proto:go_default_library",
         "@bazel_gazelle//repo:go_default_library",
         "@bazel_gazelle//resolve:go_default_library",
         "@bazel_gazelle//rule:go_default_library",
+        "@bazel_gazelle//walk:go_default_library",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
 )
