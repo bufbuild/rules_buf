@@ -1,11 +1,11 @@
 """Defines buf_lint_breaking rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
+load(":common.bzl", "protoc_plugin_test")
 
 _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-breaking:toolchain_type"))
 
 def _buf_breaking_test_impl(ctx):
-    proto_info = ctx.attr.target[ProtoInfo]
     config = json.encode({
         "against_input": ctx.file.against.path,
         "limit_to_input_files": ctx.attr.limit_to_input_files,
@@ -20,33 +20,7 @@ def _buf_breaking_test_impl(ctx):
         },
     })
 
-    deps = proto_info.transitive_descriptor_sets.to_list()
-    deps.append(proto_info.direct_descriptor_set)
-
-    script = "{protoc} '--buf-breaking_opt={config}' --plugin=protoc-gen-buf-breaking={protoc_gen_buf_breaking}  --descriptor_set_in {deps} --buf-breaking_out=. {targets}".format(
-        protoc = ctx.executable._protoc.short_path,
-        protoc_gen_buf_breaking = ctx.toolchains[_TOOLCHAIN].cli.short_path,
-        config = config,
-        deps = ":".join([f.short_path for f in deps]),
-        targets = " ".join([f.short_path for f in proto_info.direct_sources]),
-    )
-
-    ctx.actions.write(
-        output = ctx.outputs.executable,
-        content = script,
-        is_executable = True,
-    )
-
-    files = [ctx.executable._protoc, ctx.file.against, ctx.toolchains[_TOOLCHAIN].cli] + deps + proto_info.direct_sources
-    runfiles = ctx.runfiles(
-        files = files,
-    )
-
-    return [
-        DefaultInfo(
-            runfiles = runfiles,
-        ),
-    ]
+    return protoc_plugin_test(ctx, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, [ctx.file.against])
 
 buf_breaking_test = rule(
     implementation = _buf_breaking_test_impl,
@@ -84,6 +58,13 @@ buf_breaking_test = rule(
         "exclude_imports": attr.bool(
             default = True,
             doc = "https://docs.buf.build/breaking/protoc-plugin",
+        ),
+        "ignore": attr.string_list(
+            default = [],
+            doc = "https://docs.buf.build/lint/configuration#ignore",
+        ),
+        "ignore_only": attr.string_list_dict(
+            doc = "https://docs.buf.build/lint/configuration#ignore_only",
         ),
     },
     toolchains = [_TOOLCHAIN],

@@ -1,6 +1,7 @@
 """Defines buf_lint_test rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
+load(":common.bzl", "protoc_plugin_test")
 
 BufLintInfo = provider(
     fields = {
@@ -85,7 +86,6 @@ buf_lint_rule = rule(
 )
 
 def _buf_lint_test_impl(ctx):
-    proto_info = ctx.attr.target[ProtoInfo]
     config = json.encode({
         "input_config": {
             "version": "v1",
@@ -98,37 +98,13 @@ def _buf_lint_test_impl(ctx):
                 "rpc_allow_google_protobuf_empty_requests": ctx.attr.rpc_allow_google_protobuf_empty_requests,
                 "rpc_allow_google_protobuf_empty_responses": ctx.attr.rpc_allow_google_protobuf_empty_responses,
                 "service_suffix": ctx.attr.service_suffix,
+                "ignore": ctx.attr.ignore,
+                "ignore_only": ctx.attr.ignore_only,
             },
         },
     })
 
-    deps = proto_info.transitive_descriptor_sets.to_list()
-    deps.append(proto_info.direct_descriptor_set)
-
-    script = "{protoc} '--buf-lint_opt={config}' --plugin=protoc-gen-buf-lint={protoc_gen_buf_lint}  --descriptor_set_in {deps} --buf-lint_out=. {targets}".format(
-        protoc = ctx.executable._protoc.short_path,
-        protoc_gen_buf_lint = ctx.toolchains[_TOOLCHAIN].cli.short_path,
-        config = config,
-        deps = ":".join([f.short_path for f in deps]),
-        targets = " ".join([f.path for f in proto_info.direct_sources]),
-    )
-
-    ctx.actions.write(
-        output = ctx.outputs.executable,
-        content = script,
-        is_executable = True,
-    )
-
-    files = [ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli] + deps + proto_info.direct_sources
-    runfiles = ctx.runfiles(
-        files = files,
-    )
-
-    return [
-        DefaultInfo(
-            runfiles = runfiles,
-        ),
-    ]
+    return protoc_plugin_test(ctx, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config)
 
 buf_lint_test = rule(
     implementation = _buf_lint_test_impl,
@@ -171,6 +147,13 @@ buf_lint_test = rule(
         "service_suffix": attr.string(
             default = "Service",
             doc = "https://docs.buf.build/lint/configuration#service_suffix",
+        ),
+        "ignore": attr.string_list(
+            default = [],
+            doc = "https://docs.buf.build/lint/configuration#ignore",
+        ),
+        "ignore_only": attr.string_list_dict(
+            doc = "https://docs.buf.build/lint/configuration#ignore_only",
         ),
     },
     toolchains = [_TOOLCHAIN],

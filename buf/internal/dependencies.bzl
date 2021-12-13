@@ -1,4 +1,4 @@
-"""Buf toolchain dependencies"""
+"""rules_buf dependencies"""
 
 buf_toolchains_dependecies = {
     "buf-osx-arm64": {

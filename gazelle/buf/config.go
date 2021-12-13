@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -46,13 +47,18 @@ type LintConfig struct {
 	RpcAllowGoogleProtobufEmptyRequests  *bool `json:"rpc_allow_google_protobuf_empty_requests,omitempty" yaml:"rpc_allow_google_protobuf_empty_requests,omitempty"`
 	RpcAllowGoogleProtobufEmptyResponses *bool `json:"rpc_allow_google_protobuf_empty_responses,omitempty" yaml:"rpc_allow_google_protobuf_empty_responses,omitempty"`
 
-	ServiceSuffix *string `json:"service_suffix,omitempty" yaml:"service_suffix,omitempty"`
+	ServiceSuffix *string             `json:"service_suffix,omitempty" yaml:"service_suffix,omitempty"`
+	Ignore        []string            `json:"ignore,omitempty" yaml:"ignore,omitempty"`
+	IgnoreOnly    map[string][]string `json:"ignore_only,omitempty" yaml:"ignore_only,omitempty"`
 }
 
 type BreakingConfig struct {
 	Use                    []string `json:"use,omitempty" yaml:"use,omitempty"`
 	Except                 []string `json:"except,omitempty" yaml:"except,omitempty"`
 	IgnoreUnstablePackages *bool    `json:"ignore_unstable_packages,omitempty" yaml:"ignore_unstable_packages,omitempty"`
+
+	Ignore     []string            `json:"ignore,omitempty" yaml:"ignore,omitempty"`
+	IgnoreOnly map[string][]string `json:"ignore_only,omitempty" yaml:"ignore_only,omitempty"`
 }
 
 func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, c *config.Config) {
@@ -67,29 +73,14 @@ func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, c *config.Confi
 func (*bufLang) CheckFlags(flagSet *flag.FlagSet, c *config.Config) error {
 	cfg := GetConfig(c)
 
-	if cfg.configFilePath == "" {
-		for _, file := range []string{"buf.yaml", "buf.mod"} {
-			bc, err := readConfig(filepath.Join(c.RepoRoot, file))
-			if errors.Is(err, fs.ErrNotExist) {
-				continue
-			}
-			if err != nil {
-				return fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", file, err)
-			}
-
-			cfg.Module = bc
-			break
-		}
-
-		// Reverts to default config on individual rules
-		return nil
+	configPath := ""
+	if cfg.configFilePath != "" {
+		configPath = filepath.Join(c.RepoRoot, cfg.configFilePath)
 	}
-
-	bc, err := readConfig(filepath.Join(c.RepoRoot, cfg.configFilePath))
+	bc, err := loadAtPathOrDefault(c.RepoRoot, configPath)
 	if err != nil {
-		return fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", cfg.configFilePath, err)
+		return err
 	}
-
 	cfg.Module = bc
 
 	return nil
@@ -98,20 +89,28 @@ func (*bufLang) CheckFlags(flagSet *flag.FlagSet, c *config.Config) error {
 func (*bufLang) KnownDirectives() []string { return []string{"buf_config"} }
 func (*bufLang) Configure(c *config.Config, rel string, f *rule.File) {
 	cfg := GetConfig(c)
-	if f == nil {
-		return
-	}
+	configPath := ""
 
-	for _, d := range f.Directives {
-		switch d.Key {
-		case "buf_config":
-			cfg.configFilePath = d.Value
-			bc, err := readConfig(filepath.Join(c.RepoRoot, cfg.configFilePath))
-			if err == nil {
-				cfg.Module = bc
+	if f != nil { // Look for directives if BUILD file exists
+		for _, d := range f.Directives {
+			switch d.Key {
+			case "buf_config":
+				configPath = filepath.Join(c.RepoRoot, rel, d.Value)
 			}
 		}
 	}
+
+	bc, err := loadAtPathOrDefault(filepath.Join(c.RepoRoot, rel), configPath)
+	if err != nil {
+		log.Println(err)
+	}
+	if bc == nil {
+		return
+	}
+
+	log.Println(rel, bc.Lint.Ignore)
+
+	cfg.Module = bc
 }
 
 func readConfig(file string) (*ModuleConfig, error) {
@@ -141,4 +140,27 @@ func parseJsonOrYaml(data []byte, v interface{}) error {
 	}
 
 	return nil
+}
+
+func loadAtPathOrDefault(wd string, path string) (*ModuleConfig, error) {
+	if path != "" {
+		return readConfig(path)
+	}
+
+	for _, file := range []string{
+		"buf.yaml",
+		"buf.mod",
+	} {
+		bc, err := readConfig(filepath.Join(wd, file))
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", file, err)
+		}
+
+		return bc, nil
+	}
+
+	return nil, nil
 }

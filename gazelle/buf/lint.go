@@ -20,12 +20,14 @@ func (lintRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
 		MatchAttrs: []string{"target"},
 		MergeableAttrs: map[string]bool{
-			"use_rules":                                true,
-			"except_rules":                             true,
-			"service_suffix":                           true,
-			"allow_comment_ignores":                    true,
-			"enum_zero_value_suffix":                   true,
-			"rpc_allow_same_request_response":          true,
+			"ignore":                          true,
+			"ignore_only":                     true,
+			"use_rules":                       true,
+			"except_rules":                    true,
+			"service_suffix":                  true,
+			"allow_comment_ignores":           true,
+			"enum_zero_value_suffix":          true,
+			"rpc_allow_same_request_response": true,
 			"rpc_allow_google_protobuf_empty_requests": true,
 		},
 	}
@@ -52,6 +54,14 @@ func (lintRule) GenRule(pr *rule.Rule, c *Config) (*rule.Rule, interface{}) {
 
 		if len(lint.Except) > 0 {
 			r.SetAttr("except_rules", lint.Except)
+		}
+
+		if len(lint.Ignore) > 0 {
+			r.SetAttr("ignore", lint.Ignore)
+		}
+
+		if len(lint.IgnoreOnly) > 0 {
+			r.SetAttr("ignore_only", lint.IgnoreOnly)
 		}
 
 		if lint.ServiceSuffix != nil {

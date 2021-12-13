@@ -21,6 +21,8 @@ func (breakingRule) KindInfo() rule.KindInfo {
 		MatchAttrs: []string{"target"},
 		MergeableAttrs: map[string]bool{
 			"against":                  true,
+			"ignore":                   true,
+			"ignore_only":              true,
 			"use_rules":                true,
 			"except_rules":             true,
 			"exclude_imports":          true,
@@ -64,6 +66,14 @@ func (breakingRule) GenRule(pr *rule.Rule, c *Config) (*rule.Rule, interface{}) 
 
 		if len(breaking.Except) > 0 {
 			r.SetAttr("except_rules", breaking.Except)
+		}
+
+		if len(breaking.Ignore) > 0 {
+			r.SetAttr("ignore", breaking.Ignore)
+		}
+
+		if len(breaking.IgnoreOnly) > 0 {
+			r.SetAttr("ignore_only", breaking.IgnoreOnly)
 		}
 
 		if breaking.IgnoreUnstablePackages != nil {
