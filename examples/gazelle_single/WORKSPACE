@@ -1,6 +1,11 @@
-workspace(name = "rules_buf")
+workspace(name = "gazelle_single")
 
-load("//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_toolchains")
+local_repository(
+    name = "rules_buf",
+    path = "../..",
+)
+
+load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_toolchains")
 
 rules_buf_dependencies()
 
@@ -14,27 +19,7 @@ rules_proto_toolchains()
 
 # Dev and Test Dependecies
 
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-load("@bazel_skylib//lib:unittest.bzl", "register_unittest_toolchains")
-
-bazel_skylib_workspace()
-
-register_unittest_toolchains()
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "io_bazel_stardoc",
-    sha256 = "c9794dcc8026a30ff67cf7cf91ebe245ca294b20b071845d12c192afe243ad72",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/stardoc/releases/download/0.5.0/stardoc-0.5.0.tar.gz",
-        "https://github.com/bazelbuild/stardoc/releases/download/0.5.0/stardoc-0.5.0.tar.gz",
-    ],
-)
-
-load("@io_bazel_stardoc//:setup.bzl", "stardoc_repositories")
-
-stardoc_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
@@ -56,9 +41,12 @@ http_archive(
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-load("//:go_deps.bzl", "go_dependencies")
+load("@rules_buf//:go_deps.bzl", "go_dependencies")
+load("//:buf_deps.bzl", "buf_dependencies")
 
-# gazelle:repository_macro go_deps.bzl%go_dependencies
+# gazelle:repository_macro buf_deps.bzl%buf_dependencies
+buf_dependencies()
+
 go_dependencies()
 
 go_rules_dependencies()
@@ -66,12 +54,3 @@ go_rules_dependencies()
 go_register_toolchains(version = "1.17.2")
 
 gazelle_dependencies()
-
-load("//buf/internal:repo.bzl", "buf_repository")
-
-buf_repository(
-    name = "petapis",
-    commit = "84a33a06f0954823a6f2a089fb1bb82e",
-    # digest = "b2-R0Bsh2iHWjadTWa9EsYYyqQ1FeZ-fdkPgtyEJ_vYJvc=",
-    module = "buf.build/acme/petapis",
-)

@@ -14,13 +14,13 @@ gazelle_binary(
 # gazelle:exclude example/**
 gazelle(
     name = "gazelle",
-    # gazelle = ":gazelle-skylib",
+    gazelle = ":gazelle-skylib",
 )
 
 bzl_library(
     name = "go_deps",
     srcs = ["go_deps.bzl"],
-    visibility = ["//:__pkg__"],
+    visibility = ["//visibility:public"],
     deps = ["@bazel_gazelle//:deps"],
 )
 

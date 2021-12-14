@@ -85,7 +85,12 @@ func (l *bufLang) Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.Remo
 
 func (l *bufLang) Loads() []rule.LoadInfo {
 	var loadInfos []rule.LoadInfo
-	loadInfoMap := map[string]rule.LoadInfo{}
+	loadInfoMap := map[string]rule.LoadInfo{
+		"@rules_buf//buf:defs.bzl": {
+			Name:    "@rules_buf//buf:defs.bzl",
+			Symbols: []string{"buf_repository"},
+		},
+	}
 	for _, r := range l.rules {
 		temp := r.LoadInfo()
 		li := loadInfoMap[temp.Name]
@@ -112,6 +117,11 @@ func (l *bufLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 }
 
 func (*bufLang) Fix(c *config.Config, f *rule.File) {}
+
+// func (*bufLang) UpdateRepos(args language.UpdateReposArgs) language.UpdateReposResult {
+// 	log.Println(args)
+// 	return language.UpdateReposResult{}
+// }
 
 // getRulesOfKind returns all the rules of a kind in a map with their names as keys
 func getRulesOfKind(rules []*rule.Rule, kind string) map[string]*rule.Rule {

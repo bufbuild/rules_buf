@@ -1,0 +1,9 @@
+version: v1
+deps:
+  - buf.build/acme/petapis
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"log"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
@@ -105,8 +104,6 @@ func (br breakingRule) GenerateRules(args language.GenerateArgs) (res language.G
 
 	// Module mode and is module root
 
-	// targets := getProtoLibTargets(args)
-
 	genRule := br.genRule("buf", cfg)
 	genRule.SetAttr("targets", []string{})
 
@@ -126,7 +123,7 @@ func (breakingRule) Resolve(c *config.Config, ix *resolve.RuleIndex, _ *repo.Rem
 		return
 	}
 
-	var targets []string
+	targetMap := map[string]bool{}
 	for _, imp := range imports {
 		results := ix.FindRulesByImportWithConfig(
 			c,
@@ -142,10 +139,14 @@ func (breakingRule) Resolve(c *config.Config, ix *resolve.RuleIndex, _ *repo.Rem
 		}
 
 		for _, res := range results {
-			targets = append(targets, res.Label.Rel(from.Repo, from.Pkg).String())
+			targetMap[res.Label.Rel(from.Repo, from.Pkg).String()] = true
 		}
 	}
 
+	targets := make([]string, 0, len(targetMap))
+	for t := range targetMap {
+		targets = append(targets, t)
+	}
 	r.SetAttr("targets", targets)
 }
 
@@ -189,44 +190,10 @@ func (breakingRule) genRule(name string, c *Config) *rule.Rule {
 	return r
 }
 
-/* Alternative implementation for module mode build generation
-func getProtoLibTargets(args language.GenerateArgs) []string {
-	var targets []string
-
-	pl := proto.NewLanguage()
-
-	log.SetOutput(&bytes.Buffer{})
-	walk.Walk(
-		args.Config.Clone(),
-		[]config.Configurer{pl},
-		args.Subdirs,
-		walk.UpdateSubdirsMode,
-		func(dir, rel string, c *config.Config, update bool, f *rule.File, subdirs, regularFiles, genFiles []string) {
-			gr := pl.GenerateRules(language.GenerateArgs{
-				Config:       c,
-				Dir:          dir,
-				Rel:          rel,
-				File:         f,
-				Subdirs:      subdirs,
-				RegularFiles: regularFiles,
-				GenFiles:     genFiles,
-			})
-
-			for _, r := range gr.Gen {
-				targets = append(targets, fmt.Sprintf("//%s:%s", rel, r.Name()))
-			}
-		},
-	)
-	log.SetOutput(os.Stdout)
-
-	return targets
-}
-*/
-
 func getProtoLibImports(args language.GenerateArgs) []string {
-	targetMap := map[string]string{}
 	cfg := GetConfig(args.Config)
 
+	var targets []string
 	fs.WalkDir(os.DirFS(args.Dir), ".", func(p string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
@@ -236,25 +203,17 @@ func getProtoLibImports(args language.GenerateArgs) []string {
 			return nil
 		}
 
-		dir := path.Dir(p)
-
 		if cfg.Module != nil && cfg.Module.Build != nil {
 			for _, exclude := range cfg.Module.Build.Excludes {
-				if strings.HasPrefix(dir, exclude) {
+				if strings.HasPrefix(p, exclude) {
 					return nil
 				}
 			}
 		}
 
-		targetMap[dir] = p
-
+		targets = append(targets, p)
 		return nil
 	})
-
-	targets := make([]string, 0, len(targetMap))
-	for _, t := range targetMap {
-		targets = append(targets, t)
-	}
 
 	return targets
 }
