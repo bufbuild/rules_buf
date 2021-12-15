@@ -56,22 +56,13 @@ http_archive(
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-load("//:go_deps.bzl", "go_dependencies")
+load("//gazelle/buf:repositories.bzl", "gazelle_buf_dependencies")
 
-# gazelle:repository_macro go_deps.bzl%go_dependencies
-go_dependencies()
+# gazelle:repository_macro gazelle/buf/repositories.bzl%gazelle_buf_dependencies
+gazelle_buf_dependencies()
 
 go_rules_dependencies()
 
 go_register_toolchains(version = "1.17.2")
 
 gazelle_dependencies()
-
-load("//buf/internal:repo.bzl", "buf_repository")
-
-buf_repository(
-    name = "petapis",
-    commit = "84a33a06f0954823a6f2a089fb1bb82e",
-    # digest = "b2-R0Bsh2iHWjadTWa9EsYYyqQ1FeZ-fdkPgtyEJ_vYJvc=",
-    module = "buf.build/acme/petapis",
-)

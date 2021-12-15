@@ -2,6 +2,20 @@
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "update_attrs")
 
+_DOC = """
+`buf_repository` downloads a [buf module](https://docs.buf.build/bsr/overview#module) and generates `BUILD` files. It currently generates a single `proto_library` target with all the proto files inside a module. The target is named as `default_proto_library`.
+
+**Example**
+```starlark
+# `proto_library` target can referenced using "@build_buf_acme_petapis//:default_proto_library"
+buf_repository(
+    name = "build_buf_acme_petapis",
+    module = "buf.build/acme/petapis",
+    commit = "84a33a06f0954823a6f2a089fb1bb82e,    
+)
+```
+"""
+
 _BUF_IMAGE_BUILD = """
 package(default_visibility = ["//visibility:public"])
 filegroup(
@@ -20,6 +34,20 @@ proto_library(
     srcs = glob(["{prefix}/**/*.proto"]),
     strip_import_prefix = "{prefix}",
     deps = [
+        # Well known types
+        # TODO(skrishna): Should we parse files and understand which ones are needed?
+        "@com_google_protobuf//:wrappers_proto",
+        "@com_google_protobuf//:type_proto",
+        "@com_google_protobuf//:timestamp_proto",
+        "@com_google_protobuf//:struct_proto",
+        "@com_google_protobuf//:source_context_proto",
+        "@com_google_protobuf//:field_mask_proto",
+        "@com_google_protobuf//:empty_proto",
+        "@com_google_protobuf//:duration_proto",
+        "@com_google_protobuf//:descriptor_proto",
+        "@com_google_protobuf//:compiler_plugin_proto",
+        "@com_google_protobuf//:api_proto",
+        "@com_google_protobuf//:any_proto",
         {deps}
     ],
 )
@@ -123,14 +151,27 @@ def _buf_image_imp(ctx):
 
 buf_repository = repository_rule(
     implementation = _buf_image_imp,
+    doc = _DOC,
     attrs = {
-        "module": attr.string(mandatory = True),
-        "commit": attr.string(mandatory = True),
-        "digest": attr.string(),
+        "module": attr.string(
+            mandatory = True,
+            doc = "The name of the module on bsr. Example: `buf.build/acme/petapis`",
+        ),
+        "commit": attr.string(
+            mandatory = True,
+            doc = """commit/revision of the module on BSR to download""",
+        ),
+        "digest": attr.string(
+            doc = """The digest of module contents. `buf_repository` will verify the downloaded module matches this digest. A value for digest will be suggested if one is not provided.
+
+A value for digest can also be found in the `buf.lock` file. If you can't find the `buf.lock` file please run `buf mod update`.
+            """,
+        ),
         "buf": attr.label(
             executable = True,
             cfg = "exec",
             allow_single_file = True,
+            doc = "The buf cli to use to fetch the buf modules. Use this to override the default version provided by this repo",
         ),
         "_buf_osx_arm64": attr.label(
             default = "@buf-osx-arm64//file:downloaded",

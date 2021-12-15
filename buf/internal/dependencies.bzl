@@ -1,6 +1,6 @@
 """rules_buf dependencies"""
 
-buf_toolchains_dependecies = {
+buf_toolchains_dependencies = {
     "buf-osx-arm64": {
         "sha256": "9ea62047c4b27f8ba076726de4f36f94985c9914bdd7d79f3273aa17dfe70d11",
         "urls": ["https://github.com/bufbuild/buf/releases/download/v1.0.0-rc8/buf-Darwin-arm64"],

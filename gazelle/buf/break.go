@@ -104,6 +104,8 @@ func (br breakingRule) GenerateRules(args language.GenerateArgs) (res language.G
 
 	// Module mode and is module root
 
+	// TODO(skrishna): Can this be simplified to one `proto_library` with glob pattern and one `buf_breaking_test`?
+
 	genRule := br.genRule("buf", cfg)
 	genRule.SetAttr("targets", []string{})
 

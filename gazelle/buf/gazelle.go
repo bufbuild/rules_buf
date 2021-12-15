@@ -118,11 +118,6 @@ func (l *bufLang) GenerateRules(args language.GenerateArgs) language.GenerateRes
 
 func (*bufLang) Fix(c *config.Config, f *rule.File) {}
 
-// func (*bufLang) UpdateRepos(args language.UpdateReposArgs) language.UpdateReposResult {
-// 	log.Println(args)
-// 	return language.UpdateReposResult{}
-// }
-
 // getRulesOfKind returns all the rules of a kind in a map with their names as keys
 func getRulesOfKind(rules []*rule.Rule, kind string) map[string]*rule.Rule {
 	kindRules := map[string]*rule.Rule{}

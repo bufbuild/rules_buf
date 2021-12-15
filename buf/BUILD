@@ -9,6 +9,7 @@ bzl_library(
         "//buf/internal:break",
         "//buf/internal:image",
         "//buf/internal:lint",
+        "//buf/internal:repo",
     ],
 )
 

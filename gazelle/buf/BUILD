@@ -1,4 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 
 go_library(
     name = "buf",
@@ -20,4 +21,11 @@ go_library(
         "@bazel_gazelle//rule:go_default_library",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
+)
+
+bzl_library(
+    name = "repositories",
+    srcs = ["repositories.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["@bazel_gazelle//:deps"],
 )

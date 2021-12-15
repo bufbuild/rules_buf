@@ -66,6 +66,7 @@ def _buf_image_imp(ctx):
 
 buf_image = repository_rule(
     implementation = _buf_image_imp,
+    doc = "`buf_image` creates a buf image file against a buf module. It can be accessed by //@foo/image:file. This one will be superseded see `buf_repository`",
     attrs = {
         "module": attr.string(mandatory = True),
         "commit": attr.string(mandatory = True),

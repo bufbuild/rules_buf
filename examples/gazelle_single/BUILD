@@ -29,6 +29,6 @@ gazelle(
 buf_lint_test(
     name = "petapis_proto_lint",
     targets = [
-        "@build_buf_acme_petapis//:default_proto_library"
-    ]    
+        "@build_buf_acme_petapis//:default_proto_library",
+    ],
 )
