@@ -11,7 +11,7 @@ _DOC = """
 buf_repository(
     name = "build_buf_acme_petapis",
     module = "buf.build/acme/petapis",
-    commit = "84a33a06f0954823a6f2a089fb1bb82e,    
+    commit = "84a33a06f0954823a6f2a089fb1bb82e",    
 )
 ```
 """
