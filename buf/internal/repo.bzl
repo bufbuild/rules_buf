@@ -54,7 +54,7 @@ proto_library(
 """
 
 def _get_deps(lock_file):
-    """buf.lock deps parser"""
+    # """buf.lock deps parser"""
     lines = lock_file.splitlines()
     deps = []
     last_dep = None
@@ -121,8 +121,8 @@ def _buf_image_imp(ctx):
     if res.return_code != 0:
         fail("failed with code: {}, error: {}".format(res.return_code, res.stderr))
 
-    digest = ctx.read("cache/v1/module/sum/{}/{}".format(ctx.attr.module, ctx.attr.commit))
-    lock_file = ctx.read("cache/v1/module/data/{}/{}/buf.lock".format(ctx.attr.module, ctx.attr.commit))
+    # digest = ctx.read("cache/v1/module/sum/{}/{}".format(ctx.attr.module, ctx.attr.commit))
+    # lock_file = ctx.read("cache/v1/module/data/{}/{}/buf.lock".format(ctx.attr.module, ctx.attr.commit))
     deps = _get_deps(lock_file)
 
     repo_names = [
@@ -142,7 +142,7 @@ def _buf_image_imp(ctx):
         _PROTO_LIBRARY_BUILD.format(
             name = "default_proto_library",
             prefix = "cache/v1/module/data/{}/{}".format(ctx.attr.module, ctx.attr.commit),
-            deps = ", ".join(repo_names),
+            # deps = ", ".join(repo_names),
         ),
     )
 

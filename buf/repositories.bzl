@@ -18,5 +18,5 @@ def rules_buf_toolchains():
     """An utility method to load all buf toolchains."""
 
     register_toolchains("buf")
-    register_toolchains("protoc-gen-buf-breaking")
-    register_toolchains("protoc-gen-buf-lint")
+    # register_toolchains("protoc-gen-buf-breaking")
+    # register_toolchains("protoc-gen-buf-lint")

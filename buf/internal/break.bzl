@@ -69,7 +69,7 @@ buf_breaking_test = rule(
             allow_single_file = True,
             doc = "The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. `rules_buf` provides a repository rule(`buf_image`) to reference an image from the buf schema registry",
         ),
-        # buf config attrs
+        # # buf config attrs
         "use_rules": attr.string_list(
             default = ["FILE"],
             doc = "https://docs.buf.build/breaking/configuration#use",

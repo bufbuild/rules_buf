@@ -70,7 +70,7 @@ buf_lint_test = rule(
             mandatory = True,
             doc = "`proto_library` targets that should be linted",
         ),
-        # buf config attrs
+        # # buf config attrs
         "use_rules": attr.string_list(
             default = ["DEFAULT"],
             doc = "https://docs.buf.build/lint/configuration#use",
