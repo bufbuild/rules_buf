@@ -68,9 +68,14 @@ Gazelle can be used to import modules from a `buf.lock` file. Preliminary versio
 - Pass bazel's timeout to lint and breaking tests
 - Male gazelle understand `buf.work.yaml` for dependency resolution. It already supports multiple `buf.yaml` in a workspace.
 - Make `buf_repository` use bazel's cache. (HINT: `go_repository` already does something similar)
+- Both lint and breaking rules list all the options for ease of configurability. Gazelle reads the `buf.yaml` and sets all these attributes. It would be nice if the plugins supported accepting the config file directly they we can directly reference the file.
 
-### Grey Areas
+### Open Questions
 
 - `buf generate`
 - Managed mode
 - Should modules loaded with `buf_repository` be granular? It is treated as a single `proto_library` target.
+- `gazelle` right now references all `proto_library` targets to create a single breaking rule. It can be simpler to just add a `proto_library` rule using a glob pattern and reference that.
+- The `buf_repository` rule currently uses a custom parser written in starlark to read `buf.lock` file. The alternative is to run `gazelle` as part of the rule (similar to `go_repository`) but this would mean anyone using `go_repository` will need to depend on `rule_go` and `gazelle`.
+- Explore a way where buf can be used directly instead of protoc plugins
+- It would be nice to have a http endpoint on BSR to download the image file similar to github archive. This will make images reproducable and cacheable.
