@@ -10,5 +10,5 @@ go_library(
 go_binary(
     name = "generate_deps",
     embed = [":generate_deps_lib"],
-    visibility = ["//private:__subpackages__"],
+    visibility = ["//:__subpackages__"],
 )

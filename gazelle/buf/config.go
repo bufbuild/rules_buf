@@ -19,7 +19,7 @@ import (
 
 type Config struct {
 	// buf.yaml
-	Module *ModuleConfig
+	Module *BufModule
 
 	// Global Flags
 	LogLevel    string
@@ -33,7 +33,7 @@ type Config struct {
 	ModuleRoot bool
 }
 
-type ModuleConfig struct {
+type BufModule struct {
 	Version  string          `json:"version,omitempty" yaml:"version,omitempty"`
 	Name     string          `json:"name,omitempty" yaml:"name,omitempty"`
 	Deps     []string        `json:"deps,omitempty" yaml:"deps,omitempty"`
@@ -130,13 +130,13 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 	return &cfg
 }
 
-func readConfig(file string) (*ModuleConfig, error) {
+func readConfig(file string) (*BufModule, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
 
-	var cfg ModuleConfig
+	var cfg BufModule
 	return &cfg, parseJsonOrYaml(data, &cfg)
 }
 
@@ -163,7 +163,7 @@ func parseJsonOrYaml(data []byte, v interface{}) error {
 	return nil
 }
 
-func loadDefaultConfig(wd string) (*ModuleConfig, error) {
+func loadDefaultConfig(wd string) (*BufModule, error) {
 	for _, file := range []string{
 		"buf.yaml",
 		"buf.mod",

@@ -29,3 +29,10 @@ bzl_library(
     visibility = ["//visibility:public"],
     deps = ["@bazel_gazelle//:deps"],
 )
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["@rules_proto//proto:defs"],
+)

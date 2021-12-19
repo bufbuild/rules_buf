@@ -32,7 +32,7 @@ func main() {
 
 	sumScanner := bufio.NewScanner(res.Body)
 
-	fmt.Println("buf_toolchains_dependecies = {")
+	fmt.Println("buf_toolchains_dependencies = {")
 	for sumScanner.Scan() {
 		line := sumScanner.Text()
 		if strings.HasSuffix(line, ".tar.gz") {

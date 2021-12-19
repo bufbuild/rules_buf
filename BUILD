@@ -13,7 +13,7 @@ gazelle_binary(
 # gazelle:exclude example/**
 gazelle(
     name = "gazelle",
-    gazelle = ":gazelle-skylib",
+    # gazelle = ":gazelle-skylib",
 )
 
 gazelle(
@@ -39,4 +39,10 @@ stardoc(
     deps = [
         "//buf:defs",
     ],
+)
+
+
+alias(
+    name = "generate_deps",
+    actual = "//buf/internal/generate_deps:generate_deps"
 )

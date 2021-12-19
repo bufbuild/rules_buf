@@ -3,8 +3,8 @@ package buf
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/language"
@@ -12,7 +12,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type BufLockFile struct {
+const repoRule = "buf_module"
+
+type BufWorkspace struct {
+	Version     string   `json:"version,omitempty" yaml:"version,omitempty"`
+	Directories []string `json:"directories,omitempty" yaml:"directories,omitempty"`
+}
+
+type BufLock struct {
 	Version string               `json:"version,omitempty" yaml:"version,omitempty"`
 	Deps    []*BufLockDependency `json:"deps,omitempty" yaml:"deps,omitempty"`
 }
@@ -26,70 +33,135 @@ type BufLockDependency struct {
 }
 
 func (*bufLang) CanImport(path string) bool {
-	if _, err := readBufLock(path); err != nil {
-		// Log if not a parsing error
-		tp := &yaml.TypeError{}
-		if !errors.As(err, &tp) {
-			log.Println(err)
-		}
-		return false
+	file := filepath.Base(path)
+	switch file {
+	case "buf.yaml", "buf.mod", "buf.lock", "buf.work.yaml":
+		return true
 	}
 
-	return true
+	return false
 }
 
 func (*bufLang) ImportRepos(args language.ImportReposArgs) language.ImportReposResult {
-	lockFile, _ := readBufLock(args.Path)
+	file := filepath.Base(args.Path)
 
-	gen := getRepoRulesFromLockFile(lockFile)
+	var res language.ImportReposResult
+	switch file {
+	case "buf.yaml", "buf.mod", "buf.lock":
+		res = importSingleRepo(args)
+	case "buf.work.yaml":
+		res = importWorkspaceRepo(args)
+	default:
+		panic("should never panic!")
+	}
 
-	var empty []*rule.Rule
+	if res.Error != nil {
+		return res
+	}
+
 	if args.Prune {
 		genNamesSet := make(map[string]bool)
-		for _, r := range gen {
+		for _, r := range res.Gen {
 			genNamesSet[r.Name()] = true
 		}
 		for _, r := range args.Config.Repos {
-			if name := r.Name(); r.Kind() == "buf_repository" && !genNamesSet[name] {
-				empty = append(empty, rule.NewRule("buf_repository", name))
+			if name := r.Name(); r.Kind() == repoRule && !genNamesSet[name] {
+				res.Empty = append(res.Empty, rule.NewRule(repoRule, name))
 			}
 		}
 	}
-	return language.ImportReposResult{Gen: gen, Empty: empty}
+
+	return res
 }
 
-func getRepoRulesFromLockFile(lockFile *BufLockFile) []*rule.Rule {
-	gen := make([]*rule.Rule, 0, len(lockFile.Deps))
-	for _, dep := range lockFile.Deps {
-		r := rule.NewRule(
-			"buf_repository",
-			strings.Join(append(reverse(strings.Split(dep.Remote, ".")), dep.Owner, dep.Repository), "_"),
-		)
-		r.SetAttr("commit", dep.Commit)
-		r.SetAttr("digest", dep.Digest)
-		r.SetAttr("module", fmt.Sprintf("%s/%s/%s", dep.Remote, dep.Owner, dep.Repository))
-		gen = append(gen, r)
+func importSingleRepo(args language.ImportReposArgs) language.ImportReposResult {
+	dir := filepath.Dir(args.Path)
+
+	mod, err := loadDefaultConfig(dir)
+	if err != nil {
+		return language.ImportReposResult{
+			Error: err,
+		}
 	}
-	return gen
+
+	if mod.Name == "" {
+		return language.ImportReposResult{
+			Error: fmt.Errorf("buf module is missing the name attibute. It is required for gazelle"),
+		}
+	}
+
+	var lock BufLock
+	if err := readYamlFile(filepath.Join(dir, "buf.lock"), &lock); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			err = fmt.Errorf("unable to locate buf.lock, please run buf mod update, err: %v", err)
+		}
+
+		return language.ImportReposResult{
+			Error: err,
+		}
+	}
+
+	r := getRepoRuleFromLockFile(&lock, getBazelTargetFromModule(mod.Name))
+	return language.ImportReposResult{
+		Gen: []*rule.Rule{r},
+	}
 }
 
-func readBufLock(path string) (*BufLockFile, error) {
+func importWorkspaceRepo(args language.ImportReposArgs) language.ImportReposResult {
+	var work BufWorkspace
+	if err := readYamlFile(args.Path, &work); err != nil {
+		return language.ImportReposResult{
+			Error: err,
+		}
+	}
+
+	gen := make([]*rule.Rule, 0, len(work.Directories))
+	for _, dir := range work.Directories {
+		dirArgs := args
+		dirArgs.Path = filepath.Join(filepath.Dir(args.Path), dir, "buf.yaml")
+
+		res := importSingleRepo(dirArgs)
+		if res.Error != nil {
+			return language.ImportReposResult{Error: res.Error}
+		}
+
+		gen = append(gen, res.Gen...)
+	}
+
+	return language.ImportReposResult{Gen: gen}
+}
+
+func getRepoRuleFromLockFile(lock *BufLock, name string) *rule.Rule {
+	deps := make([]string, 0, len(lock.Deps))
+	for _, dep := range lock.Deps {
+		deps = append(deps, fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit))
+	}
+
+	r := rule.NewRule(repoRule, name)
+	r.SetAttr("deps", deps)
+
+	return r
+}
+
+func readYamlFile(path string, v interface{}) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var lockFile BufLockFile
-	if err := yaml.Unmarshal(data, &lockFile); err != nil {
-		return nil, err
-	}
-
-	return &lockFile, nil
+	return yaml.Unmarshal(data, v)
 }
 
-func reverse(s []string) []string {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
+// convert module name to bazel target
+// Ex: buf.build/acme/petapis -> build_buf_acme_petapis
+func getBazelTargetFromModule(name string) string {
+	nameSegs := strings.Split(name, "/")
+	remSegs := strings.Split(nameSegs[0], ".")
+
+	remote := remSegs[len(remSegs)-1]
+	for i := len(remSegs) - 2; i >= 0; i-- {
+		remote += "_" + remSegs[i]
 	}
-	return s
+
+	return remote + "_" + nameSegs[1] + "_" + nameSegs[2]
 }

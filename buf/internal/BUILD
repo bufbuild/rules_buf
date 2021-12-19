@@ -24,6 +24,12 @@ bzl_library(
 )
 
 bzl_library(
+    name = "dep",
+    srcs = ["dep.bzl"],
+    deps = ["@bazel_tools//tools/build_defs/repo:utils.bzl"],
+)
+
+bzl_library(
     name = "lint",
     srcs = ["lint.bzl"],
     deps = [
