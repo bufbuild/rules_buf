@@ -3,9 +3,12 @@ syntax = "proto3";
 package pets.v1;
 
 import "google/protobuf/duration.proto";
+import "validate/validate.proto";
 
 message Pet {
-  string id = 1;
+  string id = 1 [ (validate.rules).string = {
+    pattern : "^[^[0-9]A-Za-z]+( [^[0-9]A-Za-z]+)*$",
+  } ];
   string name = 2;
   google.protobuf.Duration duration = 3;
 }

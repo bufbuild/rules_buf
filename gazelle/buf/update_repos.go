@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const repoRule = "buf_module"
+const repoRuleKind = "buf_module"
 
 type BufWorkspace struct {
 	Version     string   `json:"version,omitempty" yaml:"version,omitempty"`
@@ -65,8 +65,8 @@ func (*bufLang) ImportRepos(args language.ImportReposArgs) language.ImportReposR
 			genNamesSet[r.Name()] = true
 		}
 		for _, r := range args.Config.Repos {
-			if name := r.Name(); r.Kind() == repoRule && !genNamesSet[name] {
-				res.Empty = append(res.Empty, rule.NewRule(repoRule, name))
+			if name := r.Name(); r.Kind() == repoRuleKind && !genNamesSet[name] {
+				res.Empty = append(res.Empty, rule.NewRule(repoRuleKind, name))
 			}
 		}
 	}
@@ -137,7 +137,7 @@ func getRepoRuleFromLockFile(lock *BufLock, name string) *rule.Rule {
 		deps = append(deps, fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit))
 	}
 
-	r := rule.NewRule(repoRule, name)
+	r := rule.NewRule(repoRuleKind, name)
 	r.SetAttr("deps", deps)
 
 	return r

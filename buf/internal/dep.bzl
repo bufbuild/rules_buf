@@ -48,7 +48,6 @@ def _buf_dependecies_impl(ctx):
             fail("failed with code: {}, error: {}".format(res.return_code, res.stderr))
 
     ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name), executable = False)
-    ctx.file("BUILD", """# gazelle:map_kind proto_library proto_library {}""".format(str(Label("//gazelle/buf:defs.bzl"))), executable = False)
 
     # Copied from `go_repository` rule
     _gazelle = "@bazel_gazelle_go_repository_tools//:bin/gazelle{}".format(_executable_extension(ctx))

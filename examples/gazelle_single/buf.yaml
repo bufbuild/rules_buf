@@ -2,6 +2,7 @@ version: v1
 name: buf.build/bazel-examples/gazelle-single
 deps:
   - buf.build/acme/petapis
+  - buf.build/envoyproxy/protoc-gen-validate
 lint:
   use:
     - DEFAULT

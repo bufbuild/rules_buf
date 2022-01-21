@@ -88,7 +88,7 @@ func (l *bufLang) Loads() []rule.LoadInfo {
 	loadInfoMap := map[string]rule.LoadInfo{
 		"@rules_buf//buf:defs.bzl": {
 			Name:    "@rules_buf//buf:defs.bzl",
-			Symbols: []string{repoRule},
+			Symbols: []string{repoRuleKind},
 		},
 	}
 	for _, r := range l.rules {

@@ -18,12 +18,12 @@ gazelle(
 
 gazelle(
     name = "gazelle_update_repos",
-    command = "update-repos",
     args = [
         "-from_file=go.mod",
         "-prune",
         "-to_macro=gazelle/buf/repositories.bzl%gazelle_buf_dependencies",
-    ]
+    ],
+    command = "update-repos",
 )
 
 stardoc(
@@ -41,8 +41,7 @@ stardoc(
     ],
 )
 
-
 alias(
     name = "generate_deps",
-    actual = "//buf/internal/generate_deps:generate_deps"
+    actual = "//buf/internal/generate_deps:generate_deps",
 )
