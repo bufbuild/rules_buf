@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
+	"github.com/bazelbuild/bazel-gazelle/label"
+	"github.com/bazelbuild/bazel-gazelle/language"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 	"gopkg.in/yaml.v3"
 )
@@ -31,15 +33,14 @@ type Config struct {
 	BreakingLimitToInputFiles bool
 
 	ModuleRoot bool
+	ConfigFile label.Label
 }
 
 type BufModule struct {
-	Version  string          `json:"version,omitempty" yaml:"version,omitempty"`
-	Name     string          `json:"name,omitempty" yaml:"name,omitempty"`
-	Deps     []string        `json:"deps,omitempty" yaml:"deps,omitempty"`
-	Build    *BuildConfig    `json:"build,omitempty" yaml:"build,omitempty"`
-	Lint     *LintConfig     `json:"lint,omitempty" yaml:"lint,omitempty"`
-	Breaking *BreakingConfig `json:"breaking,omitempty" yaml:"breaking,omitempty"`
+	Version string       `json:"version,omitempty" yaml:"version,omitempty"`
+	Name    string       `json:"name,omitempty" yaml:"name,omitempty"`
+	Deps    []string     `json:"deps,omitempty" yaml:"deps,omitempty"`
+	Build   *BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
 }
 
 type BuildConfig struct {
@@ -57,8 +58,6 @@ func (*bufLang) CheckFlags(flagSet *flag.FlagSet, c *config.Config) error { retu
 
 func (*bufLang) KnownDirectives() []string {
 	return []string{
-		"buf_config",
-
 		"buf_log_level",
 		"buf_log_format",
 		"buf_error_format",
@@ -78,13 +77,14 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 	cfg := *GetConfig(c)
 
 	cfg.ModuleRoot = false
-	bc, err := loadDefaultConfig(filepath.Join(c.RepoRoot, rel))
+	bc, file, err := loadDefaultConfig(filepath.Join(c.RepoRoot, rel))
 	if err != nil {
 		log.Println("error trying to load default config", err)
 	}
 	if bc != nil {
 		cfg.Module = bc
 		cfg.ModuleRoot = true
+		cfg.ConfigFile = label.New("", rel, file)
 	}
 
 	if f == nil {
@@ -93,15 +93,6 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 
 	for _, d := range f.Directives {
 		switch d.Key {
-		case "buf_config":
-			configPath := filepath.Join(c.RepoRoot, rel, d.Value)
-			bc, err := readConfig(configPath)
-			if err != nil {
-				log.Fatalf("unable to find buf config file at %s, directive specified in %s", configPath, rel)
-			}
-
-			cfg.Module = bc
-			cfg.ModuleRoot = true
 		// Global Options
 		case "buf_log_level":
 			cfg.LogLevel = d.Value
@@ -109,6 +100,7 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 			cfg.LogFormat = d.Value
 		case "buf_error_format":
 			cfg.ErrorFormat = d.Value
+
 		// Breaking config
 		case "buf_breaking_against":
 			cfg.BreakingImageTarget = d.Value
@@ -118,10 +110,10 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 				log.Fatalf("buf_breaking_exclude_imports directive should be a boolean got: %s", d.Value)
 			}
 			cfg.BreakingExcludeImports = value
-		case "breaking_limit_to_input_files":
+		case "buf_breaking_limit_to_input_files":
 			value, err := strconv.ParseBool(strings.TrimSpace(d.Value))
 			if err != nil {
-				log.Fatalf("breaking_limit_to_input_files directive should be a boolean got: %s", d.Value)
+				log.Fatalf("buf_breaking_limit_to_input_files directive should be a boolean got: %s", d.Value)
 			}
 			cfg.BreakingLimitToInputFiles = value
 		}
@@ -163,7 +155,7 @@ func parseJsonOrYaml(data []byte, v interface{}) error {
 	return nil
 }
 
-func loadDefaultConfig(wd string) (*BufModule, error) {
+func loadDefaultConfig(wd string) (*BufModule, string, error) {
 	for _, file := range []string{
 		"buf.yaml",
 		"buf.mod",
@@ -173,11 +165,60 @@ func loadDefaultConfig(wd string) (*BufModule, error) {
 			continue
 		}
 		if err != nil {
-			return nil, fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", file, err)
+			return nil, "", fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", file, err)
 		}
 
-		return bc, nil
+		return bc, file, nil
 	}
 
-	return nil, nil
+	return nil, "", nil
+}
+
+const configRuleKind = "buf_config"
+
+type configRule struct {
+}
+
+func (configRule) Kind() string {
+	return configRuleKind
+}
+
+func (configRule) KindInfo() rule.KindInfo {
+	return rule.KindInfo{
+		MatchAttrs: []string{"config"},
+	}
+}
+
+func (configRule) LoadInfo() rule.LoadInfo {
+	return rule.LoadInfo{
+		Name:    "@rules_buf//buf:defs.bzl",
+		Symbols: []string{configRuleKind},
+	}
+}
+
+func (configRule) GenerateRules(args language.GenerateArgs) (res language.GenerateResult) {
+	cfg := GetConfig(args.Config)
+
+	fmt.Println(args.Rel, cfg.ModuleRoot)
+
+	var configRule *rule.Rule
+	if cfg.ModuleRoot {
+		configRule := rule.NewRule(configRuleKind, "")
+		configRule.SetAttr("config", cfg.ConfigFile.Rel("", args.Rel).Name)
+		res.Gen = append(res.Gen, configRule)
+		res.Imports = append(res.Imports, struct{}{})
+	}
+
+	if args.File != nil {
+		configRules := getRulesOfKind(args.File.Rules, configRuleKind)
+		for _, r := range configRules {
+			if configRule != nil && r.AttrString("config") == configRule.AttrString("config") {
+				continue
+			}
+
+			res.Empty = append(res.Empty, r)
+		}
+	}
+
+	return
 }

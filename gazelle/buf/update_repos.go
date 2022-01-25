@@ -77,7 +77,7 @@ func (*bufLang) ImportRepos(args language.ImportReposArgs) language.ImportReposR
 func importSingleRepo(args language.ImportReposArgs) language.ImportReposResult {
 	dir := filepath.Dir(args.Path)
 
-	mod, err := loadDefaultConfig(dir)
+	mod, _, err := loadDefaultConfig(dir)
 	if err != nil {
 		return language.ImportReposResult{
 			Error: err,

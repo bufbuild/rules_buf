@@ -2,28 +2,13 @@ package buf
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/language"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 )
 
 const lintRuleKind = "buf_lint_test"
-
-type LintConfig struct {
-	Use    []string `json:"use,omitempty" yaml:"use,omitempty"`
-	Except []string `json:"except,omitempty" yaml:"except,omitempty"`
-
-	EnumZeroValueSuffix *string `json:"enum_zero_value_suffix,omitempty" yaml:"enum_zero_value_suffix,omitempty"`
-	AllowCommentIgnores *bool   `json:"allow_comment_ignores,omitempty" yaml:"allow_comment_ignores,omitempty"`
-
-	RpcAllowSameRequestResponse          *bool `json:"rpc_allow_same_request_response,omitempty" yaml:"rpc_allow_same_request_response,omitempty"`
-	RpcAllowGoogleProtobufEmptyRequests  *bool `json:"rpc_allow_google_protobuf_empty_requests,omitempty" yaml:"rpc_allow_google_protobuf_empty_requests,omitempty"`
-	RpcAllowGoogleProtobufEmptyResponses *bool `json:"rpc_allow_google_protobuf_empty_responses,omitempty" yaml:"rpc_allow_google_protobuf_empty_responses,omitempty"`
-
-	ServiceSuffix *string             `json:"service_suffix,omitempty" yaml:"service_suffix,omitempty"`
-	Ignore        []string            `json:"ignore,omitempty" yaml:"ignore,omitempty"`
-	IgnoreOnly    map[string][]string `json:"ignore_only,omitempty" yaml:"ignore_only,omitempty"`
-}
 
 type lintRule struct {
 }
@@ -36,15 +21,7 @@ func (lintRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
 		MatchAttrs: []string{"targets"},
 		MergeableAttrs: map[string]bool{
-			"ignore":                          true,
-			"ignore_only":                     true,
-			"use_rules":                       true,
-			"except_rules":                    true,
-			"service_suffix":                  true,
-			"allow_comment_ignores":           true,
-			"enum_zero_value_suffix":          true,
-			"rpc_allow_same_request_response": true,
-			"rpc_allow_google_protobuf_empty_requests": true,
+			"config": true,
 		},
 	}
 }
@@ -58,6 +35,12 @@ func (lintRule) LoadInfo() rule.LoadInfo {
 
 func (lr lintRule) GenerateRules(args language.GenerateArgs) (res language.GenerateResult) {
 	cfg := GetConfig(args.Config)
+
+	for _, exclude := range cfg.Module.Build.Excludes {
+		if strings.Contains(args.Rel, exclude) {
+			return
+		}
+	}
 
 	protoLibRules := getRulesOfKind(args.OtherGen, "proto_library")
 	for _, plr := range protoLibRules {
@@ -92,47 +75,8 @@ func (lintRule) genRule(name string, c *Config) *rule.Rule {
 
 	r.SetAttr("targets", []string{fmt.Sprintf(":%s", name)})
 
-	if c.Module != nil && c.Module.Lint != nil {
-		lint := c.Module.Lint
-		if len(lint.Use) > 0 {
-			r.SetAttr("use_rules", lint.Use)
-		}
-
-		if len(lint.Except) > 0 {
-			r.SetAttr("except_rules", lint.Except)
-		}
-
-		if len(lint.Ignore) > 0 {
-			r.SetAttr("ignore", lint.Ignore)
-		}
-
-		if len(lint.IgnoreOnly) > 0 {
-			r.SetAttr("ignore_only", lint.IgnoreOnly)
-		}
-
-		if lint.ServiceSuffix != nil {
-			r.SetAttr("service_suffix", *lint.ServiceSuffix)
-		}
-
-		if lint.AllowCommentIgnores != nil {
-			r.SetAttr("allow_comment_ignores", *lint.AllowCommentIgnores)
-		}
-
-		if lint.EnumZeroValueSuffix != nil {
-			r.SetAttr("enum_zero_value_suffix", *lint.EnumZeroValueSuffix)
-		}
-
-		if lint.RpcAllowSameRequestResponse != nil {
-			r.SetAttr("rpc_allow_same_request_response", *lint.RpcAllowSameRequestResponse)
-		}
-
-		if lint.RpcAllowGoogleProtobufEmptyRequests != nil {
-			r.SetAttr("rpc_allow_google_protobuf_empty_requests", *lint.RpcAllowGoogleProtobufEmptyRequests)
-		}
-
-		if lint.RpcAllowGoogleProtobufEmptyResponses != nil {
-			r.SetAttr("rpc_allow_google_protobuf_empty_responses", *lint.RpcAllowGoogleProtobufEmptyResponses)
-		}
+	if c.Module != nil {
+		r.SetAttr("config", c.ConfigFile.String())
 	}
 
 	return r

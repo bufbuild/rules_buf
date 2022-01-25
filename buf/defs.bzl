@@ -25,6 +25,9 @@ load("//buf/internal:image.bzl", _buf_image = "buf_image")
 load("//buf/internal:lint.bzl", _buf_lint_test = "buf_lint_test")
 load("//buf/internal:repo.bzl", _buf_repository = "buf_repository")
 load("//buf/internal:dep.bzl", _buf_dependencies = "buf_dependencies")
+load("//buf/internal:config.bzl", _buf_config = "buf_config")
+
+buf_config = _buf_config
 
 buf_breaking_test = _buf_breaking_test
 buf_lint_test = _buf_lint_test

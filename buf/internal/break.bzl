@@ -26,7 +26,7 @@ buf_breaking_test(
     # Image file to check against
     against = "@build_buf_foo_foo//:file",
     targets = [":foo_proto"],
-    use_rules = ["DEFAULT"],
+    config = ":buf.yaml",
 )
 ```
 """
@@ -36,20 +36,13 @@ _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-breaking:toolchain_type"))
 def _buf_breaking_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
     config = json.encode({
-        "against_input": ctx.file.against.path,
+        "against_input": ctx.file.against.short_path,
         "limit_to_input_files": ctx.attr.limit_to_input_files,
         "exclude_imports": ctx.attr.exclude_imports,
-        "input_config": {
-            "version": "v1",
-            "breaking": {
-                "use": ctx.attr.use_rules,
-                "except": ctx.attr.except_rules,
-                "ignore_unstable_packages": ctx.attr.ignore_unstable_packages,
-            },
-        },
+        "input_config": ctx.file.config.short_path,
     })
 
-    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, [ctx.file.against])
+    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, [ctx.file.against, ctx.file.config])
 
 buf_breaking_test = rule(
     implementation = _buf_breaking_test_impl,
@@ -69,33 +62,17 @@ buf_breaking_test = rule(
             allow_single_file = True,
             doc = "The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. `rules_buf` provides a repository rule(`buf_image`) to reference an image from the buf schema registry",
         ),
-        # buf config attrs
-        "use_rules": attr.string_list(
-            default = ["FILE"],
-            doc = "https://docs.buf.build/breaking/configuration#use",
-        ),
-        "except_rules": attr.string_list(
-            default = [],
-            doc = "https://docs.buf.build/breaking/configuration#except",
+        "config": attr.label(
+            allow_single_file = True,
+            doc = "`buf.yaml` file",
         ),
         "limit_to_input_files": attr.bool(
             default = True,
             doc = "https://docs.buf.build/breaking/protoc-plugin",
         ),
-        "ignore_unstable_packages": attr.bool(
-            default = False,
-            doc = "https://docs.buf.build/breaking/configuration#ignore_unstable_packages",
-        ),
         "exclude_imports": attr.bool(
             default = True,
             doc = "https://docs.buf.build/breaking/protoc-plugin",
-        ),
-        "ignore": attr.string_list(
-            default = [],
-            doc = "https://docs.buf.build/breaking/configuration#ignore",
-        ),
-        "ignore_only": attr.string_list_dict(
-            doc = "https://docs.buf.build/breaking/configuration#ignore_only",
         ),
     },
     toolchains = [_TOOLCHAIN],

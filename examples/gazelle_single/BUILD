@@ -1,5 +1,5 @@
 load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
-load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+load("@rules_buf//buf:defs.bzl", "buf_config", "buf_lint_test")
 
 gazelle_binary(
     name = "gazelle-buf",
@@ -32,3 +32,5 @@ buf_lint_test(
         "@build_buf_acme_petapis//:default_proto_library",
     ],
 )
+
+buf_config(config = "buf.yaml")

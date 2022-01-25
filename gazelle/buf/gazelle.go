@@ -36,6 +36,7 @@ func NewLanguage() language.Language {
 	rules := []bufRule{
 		lintRule{},
 		breakingRule{},
+		configRule{},
 	}
 	ruleMap := make(map[string]bufRule)
 	for _, r := range rules {

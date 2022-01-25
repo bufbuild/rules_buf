@@ -17,15 +17,6 @@ import (
 
 const breakingRuleKind = "buf_breaking_test"
 
-type BreakingConfig struct {
-	Use                    []string `json:"use,omitempty" yaml:"use,omitempty"`
-	Except                 []string `json:"except,omitempty" yaml:"except,omitempty"`
-	IgnoreUnstablePackages *bool    `json:"ignore_unstable_packages,omitempty" yaml:"ignore_unstable_packages,omitempty"`
-
-	Ignore     []string            `json:"ignore,omitempty" yaml:"ignore,omitempty"`
-	IgnoreOnly map[string][]string `json:"ignore_only,omitempty" yaml:"ignore_only,omitempty"`
-}
-
 type breakingRule struct {
 }
 
@@ -37,14 +28,9 @@ func (breakingRule) KindInfo() rule.KindInfo {
 	return rule.KindInfo{
 		MatchAttrs: []string{"targets"},
 		MergeableAttrs: map[string]bool{
-			"against":                  true,
-			"ignore":                   true,
-			"ignore_only":              true,
-			"use_rules":                true,
-			"except_rules":             true,
-			"exclude_imports":          true,
-			"limit_to_input_files":     true,
-			"ignore_unstable_packages": true,
+			"against":              true,
+			"exclude_imports":      true,
+			"limit_to_input_files": true,
 		},
 		ResolveAttrs: map[string]bool{
 			"targets": true,
@@ -166,27 +152,8 @@ func (breakingRule) genRule(name string, c *Config) *rule.Rule {
 		r.SetAttr("limit_to_input_files", false)
 	}
 
-	if c.Module != nil && c.Module.Breaking != nil {
-		breaking := c.Module.Breaking
-		if len(breaking.Use) > 0 {
-			r.SetAttr("use_rules", breaking.Use)
-		}
-
-		if len(breaking.Except) > 0 {
-			r.SetAttr("except_rules", breaking.Except)
-		}
-
-		if len(breaking.Ignore) > 0 {
-			r.SetAttr("ignore", breaking.Ignore)
-		}
-
-		if len(breaking.IgnoreOnly) > 0 {
-			r.SetAttr("ignore_only", breaking.IgnoreOnly)
-		}
-
-		if breaking.IgnoreUnstablePackages != nil {
-			r.SetAttr("ignore_unstable_packages", *breaking.IgnoreUnstablePackages)
-		}
+	if c.Module != nil {
+		r.SetAttr("config", c.ConfigFile.String())
 	}
 
 	return r

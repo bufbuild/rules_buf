@@ -30,6 +30,6 @@ go_library(
 
 buf_lint_test(
     name = "pets_v1_proto_lint",
+    config = "//:buf.yaml",
     targets = [":pets_v1_proto"],
-    use_rules = ["DEFAULT"],
 )
