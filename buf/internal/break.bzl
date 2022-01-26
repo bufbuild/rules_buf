@@ -64,7 +64,7 @@ buf_breaking_test = rule(
         ),
         "config": attr.label(
             allow_single_file = True,
-            doc = "`buf.yaml` file",
+            doc = "The `buf.yaml` file",
         ),
         "limit_to_input_files": attr.bool(
             default = True,

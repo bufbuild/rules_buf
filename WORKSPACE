@@ -66,12 +66,3 @@ go_rules_dependencies()
 go_register_toolchains(version = "1.17.2")
 
 gazelle_dependencies()
-
-load("//buf:defs.bzl", "buf_module")
-
-buf_module(
-    name = "root",
-    deps = [
-        "buf.build/googleapis/googleapis:565b29b77a0842f7a64aa99218c65966",
-    ],
-)

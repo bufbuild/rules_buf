@@ -54,7 +54,7 @@ buf_lint_test = rule(
         ),
         "config": attr.label(
             allow_single_file = True,
-            doc = "`buf.yaml` file",
+            doc = "The `buf.yaml` file",
         ),
     },
     toolchains = [_TOOLCHAIN],

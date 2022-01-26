@@ -33,8 +33,8 @@ stardoc(
     symbol_names = [
         "buf_lint_test",
         "buf_breaking_test",
-        "buf_repository",
-        "buf_image",
+        # "buf_repository",
+        # "buf_image",
     ],
     deps = [
         "//buf:defs",
