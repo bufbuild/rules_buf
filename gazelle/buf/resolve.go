@@ -26,14 +26,7 @@ func (*bufLang) CrossResolve(c *config.Config, ix *resolve.RuleIndex, imp resolv
 		return nil
 	}
 
-	bazelDirs, err := fs.Glob(os.DirFS(c.RepoRoot), "bazel-*")
-	if err != nil {
-		fmt.Println("unable to traverse filesystem", err)
-	}
-
-	bazelDirsJson, _ := json.Marshal(bazelDirs)
-	config := fmt.Sprintf(`{"version":"v1","build": {"excludes": %s}}`, bazelDirsJson)
-
+	// TODO: Rather than repo root load from nearest buf.yaml
 	var repoRule *rule.Rule
 	for _, repo := range c.Repos {
 		if repo.Kind() != repoRuleKind {
@@ -47,13 +40,13 @@ func (*bufLang) CrossResolve(c *config.Config, ix *resolve.RuleIndex, imp resolv
 		return nil
 	}
 
-	allFiles, err := bufLsAll(c.RepoRoot, config)
+	allFiles, err := bufLsAll(c.RepoRoot)
 	if err != nil {
 		fmt.Println("error running buf ls-files", err)
 		return nil
 	}
 
-	inputFiles, err := bufLs(c.RepoRoot, config)
+	inputFiles, err := bufLs(c.RepoRoot)
 	if err != nil {
 		fmt.Println("error running buf ls-files", err)
 		return nil
@@ -91,11 +84,28 @@ func difference(a, b []string) []string {
 }
 
 func findBuf() string {
-	// TODO: change to get from within bazel
+	// TODO: change to get from within bazel, use the `bazel` package in `rules_go`
 	return "buf"
 }
 
-var bufLs = func(dir, config string) ([]string, error) {
+var bufLs = func(dir string, args ...string) ([]string, error) {
+	bazelDirs, err := fs.Glob(os.DirFS(dir), "bazel-*")
+	if err != nil {
+		fmt.Println("unable to traverse filesystem", err)
+	}
+
+	module, _, err := loadDefaultConfig(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	if module != nil && module.Build != nil {
+		bazelDirs = append(bazelDirs, module.Build.Excludes...)
+	}
+
+	bazelDirsJson, _ := json.Marshal(bazelDirs)
+	config := fmt.Sprintf(`{"version":"v1","build": {"excludes": %s}}`, bazelDirsJson)
+
 	out, err := runBufCommand(dir, "ls-files", "--as-import-paths", "--config", (config))
 	if err != nil {
 		return nil, err
@@ -104,13 +114,8 @@ var bufLs = func(dir, config string) ([]string, error) {
 	return parseLsOut(out), nil
 }
 
-var bufLsAll = func(dir, config string) ([]string, error) {
-	out, err := runBufCommand(dir, "ls-files", "--as-import-paths", "--include-imports", "--config", (config))
-	if err != nil {
-		return nil, err
-	}
-
-	return parseLsOut(out), nil
+var bufLsAll = func(dir string) ([]string, error) {
+	return bufLs(dir, "--include-imports")
 }
 
 func parseLsOut(out []byte) []string {

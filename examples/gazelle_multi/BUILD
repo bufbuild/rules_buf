@@ -34,5 +34,3 @@ buf_lint_test(
         "@build_buf_acme_petapis//:default_proto_library",
     ],
 )
-
-exports_files(["buf.yaml"])
