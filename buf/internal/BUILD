@@ -6,7 +6,7 @@ bzl_library(
     name = "break",
     srcs = ["break.bzl"],
     deps = [
-        ":common",
+        ":plugin",
         "@rules_proto//proto:defs",
     ],
 )
@@ -38,14 +38,14 @@ bzl_library(
     name = "lint",
     srcs = ["lint.bzl"],
     deps = [
-        ":common",
+        ":plugin",
         "@rules_proto//proto:defs",
     ],
 )
 
 bzl_library(
-    name = "common",
-    srcs = ["common.bzl"],
+    name = "plugin",
+    srcs = ["plugin.bzl"],
 )
 
 bzl_library(

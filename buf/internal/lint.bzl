@@ -1,7 +1,7 @@
 """Defines buf_lint_test rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-load(":common.bzl", "protoc_plugin_test")
+load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
 This lints protocol buffers using `buf lint`. For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.

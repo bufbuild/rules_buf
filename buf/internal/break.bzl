@@ -1,7 +1,7 @@
 """Defines buf_breaking_test rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-load(":common.bzl", "protoc_plugin_test")
+load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
 This checks protocol buffers for breaking changes using `buf breaking`. For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
