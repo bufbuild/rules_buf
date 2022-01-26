@@ -4,7 +4,7 @@ Bazel rules for buf
 
 ## Setup 
 
-Include the following snippet in the Workspace file to setup `rules_buf`
+Include the following snippet in the Workspace file to setup `rules_buf`. Refer to release notes of a specific version for setup instructions.
 ```starlark
 local_repository(
     name = "rules_buf",
@@ -32,13 +32,12 @@ Depends on [rules_proto](https://github.com/bazelbuild/rules_proto). To use a sp
 ## List of rules
 - [buf_lint_test](/buf#buf_lint_test)
 - [buf_breaking_test](/buf#buf_lint_test)
-- [buf_repository](/buf#buf_repository)
 
 ## Gazelle Extension
 
-The repo also has Gazelle extension for auto generating the lint and breaking change detection rules. In addition to generating test rules it can also be used to manage protocol buffer dependencies powered by the buf schema registry.
+The repo also has Gazelle extension for auto generating the lint and breaking change detection rules.
 
-Please refer the [gazelle readme](/gazelle/buf) for detailed info on various actions and options possible.
+Please refer to the [gazelle readme](/gazelle/buf) for detailed info on various actions and options possible.
 
 ## Toolchains
 
