@@ -14,7 +14,6 @@ import (
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/label"
-	"github.com/bazelbuild/bazel-gazelle/language"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 	"gopkg.in/yaml.v3"
 )
@@ -172,53 +171,4 @@ func loadDefaultConfig(wd string) (*BufModule, string, error) {
 	}
 
 	return nil, "", nil
-}
-
-const configRuleKind = "buf_config"
-
-type configRule struct {
-}
-
-func (configRule) Kind() string {
-	return configRuleKind
-}
-
-func (configRule) KindInfo() rule.KindInfo {
-	return rule.KindInfo{
-		MatchAttrs: []string{"config"},
-	}
-}
-
-func (configRule) LoadInfo() rule.LoadInfo {
-	return rule.LoadInfo{
-		Name:    "@rules_buf//buf:defs.bzl",
-		Symbols: []string{configRuleKind},
-	}
-}
-
-func (configRule) GenerateRules(args language.GenerateArgs) (res language.GenerateResult) {
-	cfg := GetConfig(args.Config)
-
-	fmt.Println(args.Rel, cfg.ModuleRoot)
-
-	var configRule *rule.Rule
-	if cfg.ModuleRoot {
-		configRule := rule.NewRule(configRuleKind, "")
-		configRule.SetAttr("config", cfg.ConfigFile.Rel("", args.Rel).Name)
-		res.Gen = append(res.Gen, configRule)
-		res.Imports = append(res.Imports, struct{}{})
-	}
-
-	if args.File != nil {
-		configRules := getRulesOfKind(args.File.Rules, configRuleKind)
-		for _, r := range configRules {
-			if configRule != nil && r.AttrString("config") == configRule.AttrString("config") {
-				continue
-			}
-
-			res.Empty = append(res.Empty, r)
-		}
-	}
-
-	return
 }

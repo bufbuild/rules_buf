@@ -36,9 +36,11 @@ func (lintRule) LoadInfo() rule.LoadInfo {
 func (lr lintRule) GenerateRules(args language.GenerateArgs) (res language.GenerateResult) {
 	cfg := GetConfig(args.Config)
 
-	for _, exclude := range cfg.Module.Build.Excludes {
-		if strings.Contains(args.Rel, exclude) {
-			return
+	if cfg.Module != nil && cfg.Module.Build != nil {
+		for _, exclude := range cfg.Module.Build.Excludes {
+			if strings.Contains(args.Rel, exclude) {
+				return
+			}
 		}
 	}
 

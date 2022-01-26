@@ -1,5 +1,6 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
 
 go_library(
     name = "buf",
@@ -32,9 +33,33 @@ bzl_library(
     deps = ["@bazel_gazelle//:deps"],
 )
 
-bzl_library(
-    name = "defs",
-    srcs = ["defs.bzl"],
-    visibility = ["//visibility:public"],
-    deps = ["@rules_proto//proto:defs"],
+# This gazelle binary is used exclusively for testing the gazelle language
+# extension.
+gazelle_binary(
+    name = "gazelle-buf",
+    languages = [
+        "@bazel_gazelle//language/proto:go_default_library",
+        ":buf",
+    ],
+    visibility = [
+        # Also make the binary available in the root of the repo for use, but
+        # not externally.
+        "//:__pkg__",
+    ],
+)
+
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle-buf",
+)
+
+go_test(
+    name = "buf_test",
+    srcs = ["gazelle_test.go"],
+    data = [":gazelle-buf"] + glob(["testdata/**"]),
+    embed = [":buf"],
+    deps = [
+        "@bazel_gazelle//testtools:go_default_library",
+        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
+    ],
 )
