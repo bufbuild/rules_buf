@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package acme.payment.v2;
-
-message Order {
-  string order_id = 1;
-  string recipient_id = 2;
-}

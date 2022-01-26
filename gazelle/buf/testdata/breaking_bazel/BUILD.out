@@ -1,2 +1,0 @@
-# gazelle:buf_breaking_against //:against_file
-# gazelle:buf_breaking_limit_to_input_files True
