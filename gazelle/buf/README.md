@@ -4,8 +4,6 @@
 
 - Generate `buf_lint_test` rules.
 - Generate `buf_lint_breaking` rule(s).
-- Import dependencies from `buf.lock` files into bazel **`WORKSPACE`** file
-- Automatically look for `buf.yaml` and configure the rules accordingly.
 
 ## Setup
 
@@ -50,7 +48,6 @@ These directives are rule agnostic and impact all the rules.
 
 | Directive | Description | Default Value | 
 | -- | -- | -- |
-| `# gazelle buf_config buf.yaml` | path to `buf.yaml` relative to root. Can be added multiple times in non overlapping file trees. Defaults to look for buf.yaml in each package  | `buf.yaml/buf.mod` |
 | `# gazelle buf_log_level level` | Tweak buf's log level (`verbose`, `debug`, `error`) | `error` |
 | `# gazelle buf_log_format format` | Tweak buf's log format (`json`, `plain`, `color`) | `color` |
 | `# gazelle buf_error_format format` | Tweak buf's error format (`json`, `plain`, `color`) | `color` |
@@ -108,13 +105,3 @@ To mitigate this it is recommend to run gazelle in module mode(default).
 ### Module mode
 
 In this mode only one `buf_breaking_test` rule is added for each `buf.yaml` file. This will check all the `proto_library` that come under a buf module. Unlike package mode, any deleted files/packages can be caught.
-
-## Importing dependencies
-
-For each dependency on BSR buf `gazelle update-repos` can generate or update these rules automatically from a `buf.lock` file.
-
-```bash
-gazelle update-repos --from_file=buf.lock -prune -to_macro=buf_deps.bzl%buf_dependencies
-```
-
-This generates a workspace macro and calls it in the `WORKSPACE` file. The macro lists all the dependencies in the buf.lock file using `buf_repository` rule.
