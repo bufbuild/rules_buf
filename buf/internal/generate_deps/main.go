@@ -10,11 +10,19 @@ import (
 	"strings"
 )
 
-func main() {
-	var (
-		bufVersion = flag.String("buf-version", "", "Buf version [required]")
-	)
+var (
+	bufVersion = flag.String("buf-version", "", "Buf version [required]")
+)
 
+const dependecyTemplate = `
+  %q: {
+    "sha256": %q,
+    "urls": [%q],
+    "executable": True,
+  },
+`
+
+func main() {
 	log.SetFlags(0)
 	log.SetOutput(os.Stderr)
 
@@ -32,7 +40,8 @@ func main() {
 
 	sumScanner := bufio.NewScanner(res.Body)
 
-	fmt.Println("buf_toolchains_dependencies = {")
+	var buffer strings.Builder
+	fmt.Fprintln(&buffer, "buf_toolchains_dependencies = {")
 	for sumScanner.Scan() {
 		line := sumScanner.Text()
 		if strings.HasSuffix(line, ".tar.gz") {
@@ -50,11 +59,15 @@ func main() {
 		// Windows binaries are suffixed with .exe. This only effects the targets name and the binary will continue to have the suffix.
 		bin = strings.TrimSuffix(bin, ".exe")
 
-		fmt.Printf("\t%q: {\n", bin)
-		fmt.Printf("\t\t\"sha256\": %q,\n", sum)
-		fmt.Printf("\t\t\"urls\": [%q],\n", url)
-		fmt.Printf("\t\t\"executable\": True,\n")
-		fmt.Println("\t},")
+		fmt.Fprintf(
+			&buffer,
+			dependecyTemplate,
+			bin,
+			sum,
+			url,
+		)
 	}
-	fmt.Println("}")
+	fmt.Fprintln(&buffer, "}")
+
+	fmt.Print(buffer.String())
 }
