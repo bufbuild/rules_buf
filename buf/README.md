@@ -46,7 +46,7 @@ proto_library(
 
 buf_breaking_test(
     name = "foo_proto_breaking",
-    # Image file to check against
+    # Image file to check against. Please refer to https://docs.buf.build/reference/images.
     against = "@build_buf_foo_foo//:file",
     targets = [":foo_proto"],
     config = ":buf.yaml",
@@ -62,8 +62,8 @@ buf_breaking_test(
 | <a id="buf_breaking_test-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
 | <a id="buf_breaking_test-against"></a>against |  The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. <code>rules_buf</code> provides a repository rule(<code>buf_image</code>) to reference an image from the buf schema registry   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | required |  |
 | <a id="buf_breaking_test-config"></a>config |  The <code>buf.yaml</code> file   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | optional | None |
-| <a id="buf_breaking_test-exclude_imports"></a>exclude_imports |  https://docs.buf.build/breaking/protoc-plugin   | Boolean | optional | True |
-| <a id="buf_breaking_test-limit_to_input_files"></a>limit_to_input_files |  https://docs.buf.build/breaking/protoc-plugin   | Boolean | optional | True |
+| <a id="buf_breaking_test-exclude_imports"></a>exclude_imports |  Checks are limited to the source files excluding imports from breaking change detection. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details   | Boolean | optional | True |
+| <a id="buf_breaking_test-limit_to_input_files"></a>limit_to_input_files |  Checks are limited to input files. If a file gets deleted that will not be caught. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details   | Boolean | optional | True |
 | <a id="buf_breaking_test-targets"></a>targets |  <code>proto_library</code> targets to check for breaking changes   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | optional | [] |
 
 

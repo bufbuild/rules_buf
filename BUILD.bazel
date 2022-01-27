@@ -1,8 +1,8 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
 # gazelle:prefix github.com/bufbuild/rules_buf
-# gazelle:exclude example/**
 gazelle(
     name = "gazelle",
 )
@@ -32,5 +32,9 @@ stardoc(
 
 alias(
     name = "generate_deps",
-    actual = "//buf/internal/generate_deps:generate_deps",
+    actual = "//buf/internal/cmd/generate_deps:generate_deps",
+)
+
+buildifier(
+    name = "buildifier",
 )

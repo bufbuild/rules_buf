@@ -27,7 +27,7 @@ proto_library(
 
 buf_breaking_test(
     name = "foo_proto_breaking",
-    # Image file to check against
+    # Image file to check against. Please refer to https://docs.buf.build/reference/images.
     against = "@build_buf_foo_foo//:file",
     targets = [":foo_proto"],
     config = ":buf.yaml",
@@ -46,7 +46,14 @@ def _buf_breaking_test_impl(ctx):
         "input_config": ctx.file.config.short_path,
     })
 
-    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, [ctx.file.against, ctx.file.config])
+    return protoc_plugin_test(
+        ctx,
+        proto_infos,
+        ctx.executable._protoc,
+        ctx.toolchains[_TOOLCHAIN].cli,
+        config,
+        [ctx.file.against, ctx.file.config],
+    )
 
 buf_breaking_test = rule(
     implementation = _buf_breaking_test_impl,
@@ -64,19 +71,19 @@ buf_breaking_test = rule(
         "against": attr.label(
             mandatory = True,
             allow_single_file = True,
-            doc = "The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. `rules_buf` provides a repository rule(`buf_image`) to reference an image from the buf schema registry",
+            doc = """The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. `rules_buf` provides a repository rule(`buf_image`) to reference an image from the buf schema registry""",
         ),
         "config": attr.label(
             allow_single_file = True,
-            doc = "The `buf.yaml` file",
+            doc = """The `buf.yaml` file""",
         ),
         "limit_to_input_files": attr.bool(
             default = True,
-            doc = "https://docs.buf.build/breaking/protoc-plugin",
+            doc = """Checks are limited to input files. If a file gets deleted that will not be caught. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details""",
         ),
         "exclude_imports": attr.bool(
             default = True,
-            doc = "https://docs.buf.build/breaking/protoc-plugin",
+            doc = """Checks are limited to the source files excluding imports from breaking change detection. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details""",
         ),
     },
     toolchains = [_TOOLCHAIN],
