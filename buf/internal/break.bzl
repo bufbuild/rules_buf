@@ -4,9 +4,13 @@ load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
-This checks protocol buffers for breaking changes using `buf breaking`. For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
+This checks protocol buffers for breaking changes using `buf breaking`. 
+For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
 
-**NOTE**: In order to truly check breaking changes this rule should be used to check all `proto_library` targets that come under a [buf module](https://docs.buf.build/bsr/overview#module). Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
+**NOTE**: 
+In order to truly check breaking changes this rule should be used to check all `proto_library` targets that come under a [buf module](https://docs.buf.build/bsr/overview#module). 
+Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. 
+Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
 
 **Example**
 

@@ -13,6 +13,7 @@ The rules work alongside `proto_library` rule. They support,
 Use [gazelle](/gazelle/buf) to auto generate all of these rules based on `buf.yaml`.
 
 
+
 <a id="#buf_breaking_test"></a>
 
 ## buf_breaking_test
@@ -22,9 +23,13 @@ buf_breaking_test(<a href="#buf_breaking_test-name">name</a>, <a href="#buf_brea
 </pre>
 
 
-This checks protocol buffers for breaking changes using `buf breaking`. For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
+This checks protocol buffers for breaking changes using `buf breaking`. 
+For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
 
-**NOTE**: In order to truly check breaking changes this rule should be used to check all `proto_library` targets that come under a [buf module](https://docs.buf.build/bsr/overview#module). Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
+**NOTE**: 
+In order to truly check breaking changes this rule should be used to check all `proto_library` targets that come under a [buf module](https://docs.buf.build/bsr/overview#module). 
+Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. 
+Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
 
 **Example**
 
@@ -56,7 +61,7 @@ buf_breaking_test(
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="buf_breaking_test-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
 | <a id="buf_breaking_test-against"></a>against |  The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. <code>rules_buf</code> provides a repository rule(<code>buf_image</code>) to reference an image from the buf schema registry   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | required |  |
-| <a id="buf_breaking_test-config"></a>config |  <code>buf.yaml</code> file   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | optional | None |
+| <a id="buf_breaking_test-config"></a>config |  The <code>buf.yaml</code> file   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | optional | None |
 | <a id="buf_breaking_test-exclude_imports"></a>exclude_imports |  https://docs.buf.build/breaking/protoc-plugin   | Boolean | optional | True |
 | <a id="buf_breaking_test-limit_to_input_files"></a>limit_to_input_files |  https://docs.buf.build/breaking/protoc-plugin   | Boolean | optional | True |
 | <a id="buf_breaking_test-targets"></a>targets |  <code>proto_library</code> targets to check for breaking changes   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | optional | [] |
@@ -71,7 +76,8 @@ buf_lint_test(<a href="#buf_lint_test-name">name</a>, <a href="#buf_lint_test-co
 </pre>
 
 
-This lints protocol buffers using `buf lint`. For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
+This lints protocol buffers using `buf lint`.
+For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
 
 **Example**
 
@@ -101,7 +107,7 @@ buf_lint_test(
 | Name  | Description | Type | Mandatory | Default |
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="buf_lint_test-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/docs/build-ref.html#name">Name</a> | required |  |
-| <a id="buf_lint_test-config"></a>config |  <code>buf.yaml</code> file   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | optional | None |
+| <a id="buf_lint_test-config"></a>config |  The <code>buf.yaml</code> file   | <a href="https://bazel.build/docs/build-ref.html#labels">Label</a> | optional | None |
 | <a id="buf_lint_test-targets"></a>targets |  <code>proto_library</code> targets that should be linted   | <a href="https://bazel.build/docs/build-ref.html#labels">List of labels</a> | required |  |
 
 

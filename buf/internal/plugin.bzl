@@ -1,4 +1,4 @@
-"""Common utilities used across buf rules"""
+"""protoc plugin based test rule"""
 
 def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_include = []):
     """protoc_plugin_test creates a script file for a generic protoc plugin

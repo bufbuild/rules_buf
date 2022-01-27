@@ -6,10 +6,8 @@ bzl_library(
     name = "defs",
     srcs = ["defs.bzl"],
     deps = [
-        "//buf/internal:break",
-        "//buf/internal:image",
-        "//buf/internal:lint",
-        "//buf/internal:repo",
+        "//buf/internal:break",        
+        "//buf/internal:lint",        
     ],
 )
 
