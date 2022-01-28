@@ -56,6 +56,10 @@ http_archive(
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("//gazelle/buf:repositories.bzl", "gazelle_buf_dependencies")
+
+# gazelle:repository_macro gazelle/buf/repositories.bzl%gazelle_buf_dependencies
+gazelle_buf_dependencies()
 
 go_rules_dependencies()
 

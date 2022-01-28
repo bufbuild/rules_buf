@@ -1,0 +1,12 @@
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
+
+# gazelle:buf_breaking_against //:against_file
+# gazelle:proto_strip_import_prefix /fooapis
+
+buf_breaking_test(
+    name = "buf_breaking",
+    against = "//:against_file",
+    config = "//fooapis:buf.yaml",
+    limit_to_input_files = False,
+    targets = ["//fooapis/foo/v1:foo_proto"],
+)

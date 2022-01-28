@@ -1,0 +1,2 @@
+# gazelle:buf_breaking_against //:against_file
+# gazelle:proto_strip_import_prefix /fooapis

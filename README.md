@@ -38,6 +38,12 @@ Depends on [rules_proto](https://github.com/bazelbuild/rules_proto). To use a sp
 - [buf_lint_test](/buf#buf_lint_test)
 - [buf_breaking_test](/buf#buf_lint_test)
 
+## Gazelle Extension
+
+The repo also has Gazelle extension for auto generating the lint and breaking change detection rules.
+
+Please refer to the [gazelle readme](/gazelle/buf) for detailed info on various actions and options possible.
+
 ## Toolchains
 
 - [buf](/tools)
