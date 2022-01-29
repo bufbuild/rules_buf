@@ -9,6 +9,8 @@ import (
 	"github.com/bazelbuild/bazel-gazelle/rule"
 )
 
+const lang = "buf"
+
 type bufRule interface {
 	// Kind of the buf rule, Ex: buf_lint_test.
 	Kind() string
@@ -24,18 +26,15 @@ type resolver interface {
 	Resolve(c *config.Config, ix *resolve.RuleIndex, rc *repo.RemoteCache, r *rule.Rule, imports interface{}, from label.Label)
 }
 
-const lang = "buf"
-
 type bufLang struct {
 	rules   []bufRule
 	ruleMap map[string]bufRule
 }
 
-// NewLanguage is called by Gazelle to install this language extension in a binary.
-func NewLanguage() language.Language {
+func newBufLang() *bufLang {
 	rules := []bufRule{
-		lintRule{},
-		breakingRule{},
+		newLintRule(),
+		newBreakingRule(),
 	}
 	ruleMap := make(map[string]bufRule)
 	for _, r := range rules {
@@ -86,7 +85,6 @@ func (l *bufLang) Loads() []rule.LoadInfo {
 		li.Symbols = append(li.Symbols, temp.Symbols...)
 		loadInfoMap[temp.Name] = li
 	}
-
 	loadInfos := make([]rule.LoadInfo, 0, len(loadInfoMap))
 	for _, v := range loadInfoMap {
 		loadInfos = append(loadInfos, v)
@@ -117,6 +115,5 @@ func getRulesOfKind(rules []*rule.Rule, kind string) map[string]*rule.Rule {
 
 		kindRules[r.Name()] = r
 	}
-
 	return kindRules
 }

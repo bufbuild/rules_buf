@@ -3,7 +3,7 @@
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) extension for `rules_buf`. It can,
 
 - Generate `buf_lint_test` rules.
-- Generate `buf_lint_breaking` rule(s).
+- Generate `buf_lint_breaking` rules.
 
 ## Setup
 
@@ -22,7 +22,6 @@ gazelle_buf_dependencies()
 Then in the root `BUILD` file, add the following targets
 ```starlark
 load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
-load("@rules_buf//buf:defs.bzl", "buf_lint_test")
 
 gazelle_binary(
     name = "gazelle-buf",    
@@ -60,7 +59,7 @@ It will pick up the config from the nearest `buf.yaml` file it can find going up
 
 `buf_breaking_test` can run in two different modes
 
-### Module mode
+### Module mode (Preferred)
 
 In this mode only one `buf_breaking_test` rule is added for each `buf.yaml` file. This will check all the `proto_library` that come under a buf module. Unlike package mode, any deleted files/packages can be caught.
 

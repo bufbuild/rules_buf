@@ -18,30 +18,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Config struct {
-	// buf.yaml
-	Module *BufModule
-
-	BreakingImageTarget       string
-	BreakingExcludeImports    bool
-	BreakingLimitToInputFiles bool
-
-	ModuleRoot bool
-	ConfigFile label.Label
-}
-
-type BufModule struct {
-	Version string       `json:"version,omitempty" yaml:"version,omitempty"`
-	Name    string       `json:"name,omitempty" yaml:"name,omitempty"`
-	Build   *BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
-}
-
-type BuildConfig struct {
-	Excludes []string `json:"excludes,omitempty" yaml:"excludes,omitempty"`
-}
-
 func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, c *config.Config) {
-	SetConfig(c, &Config{
+	SetConfigForGazelleConfig(c, &Config{
 		BreakingExcludeImports:    true,
 		BreakingLimitToInputFiles: false,
 	})
@@ -59,12 +37,11 @@ func (*bufLang) KnownDirectives() []string {
 
 func (*bufLang) Configure(c *config.Config, rel string, f *rule.File) {
 	cfg := loadConfig(c, rel, f)
-	SetConfig(c, cfg)
+	SetConfigForGazelleConfig(c, cfg)
 }
 
 func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
-	cfg := *GetConfig(c)
-
+	cfg := *GetConfigForGazelleConfig(c)
 	cfg.ModuleRoot = false
 	bc, file, err := loadDefaultConfig(filepath.Join(c.RepoRoot, rel))
 	if err != nil {
@@ -75,11 +52,9 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 		cfg.ModuleRoot = true
 		cfg.ConfigFile = label.New("", rel, file)
 	}
-
 	if f == nil {
 		return &cfg
 	}
-
 	for _, d := range f.Directives {
 		switch d.Key {
 		case "buf_breaking_against":
@@ -98,8 +73,19 @@ func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
 			cfg.BreakingLimitToInputFiles = value
 		}
 	}
-
 	return &cfg
+}
+
+func getConfigForGazelleConfig(c *config.Config) *Config {
+	cfg := c.Exts[lang]
+	if cfg != nil {
+		return cfg.(*Config)
+	}
+	return nil
+}
+
+func setConfigForGazelleConfig(c *config.Config, cfg *Config) {
+	c.Exts[lang] = cfg
 }
 
 func readConfig(file string) (*BufModule, error) {
@@ -107,22 +93,8 @@ func readConfig(file string) (*BufModule, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	var cfg BufModule
 	return &cfg, parseJsonOrYaml(data, &cfg)
-}
-
-func GetConfig(c *config.Config) *Config {
-	cfg := c.Exts[lang]
-	if cfg != nil {
-		return cfg.(*Config)
-	}
-
-	return nil
-}
-
-func SetConfig(c *config.Config, cfg *Config) {
-	c.Exts[lang] = cfg
 }
 
 func parseJsonOrYaml(data []byte, v interface{}) error {
@@ -131,7 +103,6 @@ func parseJsonOrYaml(data []byte, v interface{}) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -150,7 +121,6 @@ func loadDefaultConfig(wd string) (*BufModule, string, error) {
 
 		return bc, file, nil
 	}
-
 	return nil, "", nil
 }
 
@@ -162,6 +132,5 @@ func isWithinExcludes(cfg *Config, path string) bool {
 			}
 		}
 	}
-
 	return false
 }

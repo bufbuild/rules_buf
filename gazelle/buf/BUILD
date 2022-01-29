@@ -7,10 +7,11 @@ load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
 go_library(
     name = "buf",
     srcs = [
-        "break.go",
+        "breaking_rule.go",
+        "buf.go",
+        "buf_lang.go",
         "config.go",
-        "gazelle.go",
-        "lint.go",
+        "lint_rule.go",
     ],
     importpath = "github.com/bufbuild/rules_buf/gazelle/buf",
     visibility = ["//visibility:public"],
@@ -54,11 +55,12 @@ gazelle(
 
 go_test(
     name = "buf_test",
-    srcs = ["gazelle_test.go"],
+    srcs = ["buf_test.go"],
     data = [":gazelle-buf"] + glob(["testdata/**"]),
     embed = [":buf"],
     deps = [
         "@bazel_gazelle//testtools:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",
     ],
 )
