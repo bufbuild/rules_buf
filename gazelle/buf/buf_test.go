@@ -40,7 +40,7 @@ func testRunGazelle(t *testing.T, name string) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		gazellePath := findGazelle(t)
-		inputs, goldens := getTestData(t, path.Join("testdata", name))
+		inputs, goldens := getTestData(t, path.Join("gazelle/buf/testdata", name))
 		dir, cleanup := testtools.CreateFiles(t, inputs)
 		defer cleanup()
 		cmd := exec.Command(gazellePath, "-build_file_name=BUILD")
@@ -54,8 +54,10 @@ func testRunGazelle(t *testing.T, name string) {
 }
 
 func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens []testtools.FileSpec) {
+	t.Helper()
 	allFiles, err := bazel.ListRunfiles()
 	require.NoError(t, err, "bazel.ListRunfiles()")
+	require.True(t, len(allFiles) > 0, "0 runfiles")
 	for _, f := range allFiles {
 		if !strings.HasPrefix(f.ShortPath, dir) {
 			continue
@@ -86,6 +88,7 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 			goldens = append(goldens, fileSpec)
 		}
 	}
+	require.True(t, len(inputs) > 0, "0 inputs read")
 	// Add workspace for gazelle to work
 	inputs = append(inputs, testtools.FileSpec{
 		Path:    "WORKSPACE",
