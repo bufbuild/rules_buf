@@ -57,10 +57,9 @@ go_test(
     name = "buf_test",
     srcs = ["buf_test.go"],
     data = [":gazelle-buf"] + glob(["testdata/**"]),
-    embed = [":buf"],
     deps = [
         "@bazel_gazelle//testtools:go_default_library",
-        "@com_github_stretchr_testify//require:go_default_library",
+        "@com_github_stretchr_testify//require",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",
     ],
 )

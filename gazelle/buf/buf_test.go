@@ -1,8 +1,11 @@
-package buf
+// buf_test runs gazelle binary with buf langugae extension installed
+// alongside the default ones. It runs in each directory in testdata
+package buf_test
 
 import (
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"testing"
 
@@ -11,79 +14,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testDataPath = "gazelle/buf/testdata/"
-
-// TestGazelleExtension runs gazelle binary with buf langugae extension installed
-// alongside the default ones. It runs in each directory in testdata
-func TestGazelleExtension(t *testing.T) {
-	gazellePath := findGazelle(t)
-	files, err := bazel.ListRunfiles()
-	require.NoError(t, err, "bazel.ListRunfiles()")
-	tests := map[string][]bazel.RunfileEntry{}
-	for _, f := range files {
-		if !strings.HasPrefix(f.ShortPath, testDataPath) {
-			continue
-		}
-		relativePath := strings.TrimPrefix(f.ShortPath, testDataPath)
-		parts := strings.SplitN(relativePath, "/", 2)
-		if len(parts) < 2 {
-			// It must be the directory itself
-			continue
-		}
-		tests[parts[0]] = append(tests[parts[0]], f)
-	}
-	require.True(t, len(tests) > 0, "no tests found")
-	for name, files := range tests {
-		testCase(t, name, gazellePath, files)
-	}
+func TestLint(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "lint")
 }
 
-func testCase(t *testing.T, name string, gazellePath string, files []bazel.RunfileEntry) {
+func TestBreaking(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "breaking_module")
+	testRunGazelle(t, "breaking_package")
+}
+
+func TestExcludes(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "excludes_module")
+	testRunGazelle(t, "excludes_package")
+}
+
+func TestWorkspaces(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "workspace")
+}
+
+func testRunGazelle(t *testing.T, name string) {
 	t.Run(name, func(t *testing.T) {
-		var inputs, goldens []testtools.FileSpec
-		for _, f := range files {
-			path := f.Path
-			trim := testDataPath + name + "/"
-			shortPath := strings.TrimPrefix(f.ShortPath, trim)
-			info, err := os.Stat(path)
-			require.NoErrorf(t, err, "os.Stat(%q)", path)
-			// Skip dirs.
-			if info.IsDir() {
-				continue
-			}
-			content, err := os.ReadFile(path)
-			require.NoErrorf(t, err, "ioutil.ReadFile(%q)", path)
-			// Now trim the common prefix off.
-			if strings.HasSuffix(shortPath, ".in") {
-				inputs = append(inputs, testtools.FileSpec{
-					Path:    strings.TrimSuffix(shortPath, ".in"),
-					Content: string(content),
-				})
-			} else if strings.HasSuffix(shortPath, ".out") {
-				goldens = append(goldens, testtools.FileSpec{
-					Path:    strings.TrimSuffix(shortPath, ".out"),
-					Content: string(content),
-				})
-			} else {
-				inputs = append(inputs, testtools.FileSpec{
-					Path:    shortPath,
-					Content: string(content),
-				})
-				goldens = append(goldens, testtools.FileSpec{
-					Path:    shortPath,
-					Content: string(content),
-				})
-			}
-		}
-		// Add workspace for gazelle to work
-		inputs = append(inputs, testtools.FileSpec{
-			Path:    "WORKSPACE",
-			Content: "",
-		})
-		goldens = append(goldens, testtools.FileSpec{
-			Path:    "WORKSPACE",
-			Content: "",
-		})
+		t.Parallel()
+		gazellePath := findGazelle(t)
+		inputs, goldens := getTestData(t, path.Join("testdata", name))
 		dir, cleanup := testtools.CreateFiles(t, inputs)
 		defer cleanup()
 		cmd := exec.Command(gazellePath, "-build_file_name=BUILD")
@@ -94,6 +51,51 @@ func testCase(t *testing.T, name string, gazellePath string, files []bazel.Runfi
 		require.NoErrorf(t, err, "cmd: %q", gazellePath)
 		testtools.CheckFiles(t, dir, goldens)
 	})
+}
+
+func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens []testtools.FileSpec) {
+	allFiles, err := bazel.ListRunfiles()
+	require.NoError(t, err, "bazel.ListRunfiles()")
+	for _, f := range allFiles {
+		if !strings.HasPrefix(f.ShortPath, dir) {
+			continue
+		}
+		shortPath := strings.TrimPrefix(f.ShortPath, dir+"/")
+		info, err := os.Stat(f.Path)
+		require.NoErrorf(t, err, "os.Stat(%q)", f.Path)
+		// Skip dirs.
+		if info.IsDir() {
+			continue
+		}
+		content, err := os.ReadFile(f.Path)
+		require.NoErrorf(t, err, "ioutil.ReadFile(%q)", f.Path)
+		// Now trim the common prefix off.
+		filePath := shortPath
+		v := path.Ext(shortPath)
+		if v == ".in" || v == ".out" {
+			filePath = strings.TrimSuffix(shortPath, v)
+		}
+		fileSpec := testtools.FileSpec{
+			Path:    filePath,
+			Content: string(content),
+		}
+		if v != ".out" {
+			inputs = append(inputs, fileSpec)
+		}
+		if v != ".in" {
+			goldens = append(goldens, fileSpec)
+		}
+	}
+	// Add workspace for gazelle to work
+	inputs = append(inputs, testtools.FileSpec{
+		Path:    "WORKSPACE",
+		Content: "",
+	})
+	goldens = append(goldens, testtools.FileSpec{
+		Path:    "WORKSPACE",
+		Content: "",
+	})
+	return inputs, goldens
 }
 
 func findGazelle(t *testing.T) string {
