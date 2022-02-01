@@ -12,14 +12,14 @@
 - Setup `rules_buf` to the instructions on the [readme](/README.md)
 - Setup `gazelle` as detailed [here](https://github.com/bazelbuild/bazel-gazelle#setup)
 
-Add the following code snippet at the end of the `WORKSPACE` file
+Add the following code snippet at the end of the `WORKSPACE` file:
 ```starlark
 load("@rules_buf//gazelle/buf:repositories.bzl", "gazelle_buf_dependencies")
 
 gazelle_buf_dependencies()
 ```
 
-Then in the root `BUILD` file, add the following targets
+Then in the root `BUILD` file, add the following targets:
 ```starlark
 load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
 
@@ -39,7 +39,9 @@ gazelle(
 
 The `proto` language is needed and should precede the buf extension.
 
-Run `bazel run //:gazelle`
+Now run `gazelle`:
+```sh
+bazel run //:gazelle
 
 ## `buf_lint_test`
 
@@ -49,7 +51,7 @@ It will pick up the config from the nearest `buf.yaml` file it can find going up
 
 ## `buf_breaking_test`
 
-For breaking change `buf_breaking_test` to be generated `gazelle` requires an image to compare against. This can be configured multiple times once per each buf module.
+For breaking change `buf_breaking_test` to be generated `gazelle` requires an image to compare against. This can be configured for each buf module independently.
 
 `# gazelle buf_breaking_against image_file_target`
 
@@ -57,7 +59,7 @@ This directive should be specified in the package containing `buf.yaml`.
 
 It will pick up the config from the nearest `buf.yaml` file it can find going up to the root. The `buf.yaml` file should be exported. It can be done using `exports_files(["buf.yaml"])`
 
-`buf_breaking_test` can run in two different modes
+`buf_breaking_test` can run in two different modes.
 
 ### Module mode (Preferred)
 
@@ -73,7 +75,7 @@ This is the `bazel` way. `buf_breaking_test` rules are generated against each `p
 
 **Example**
 
-Let's consider a buf module with the following directory structure
+Let's consider a buf module with the following directory structure:
 
 ```bash
 |- buf.yaml
