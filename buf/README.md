@@ -31,6 +31,10 @@ In order to truly check breaking changes this rule should be used to check all `
 Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. 
 Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
 
+**Gazelle**
+
+The [gazelle extension](/gazelle/buf/README.md) can be used generate this rule. It supports generating once for buf module and also at a bazel package level.
+
 **Example**
 
 This rule depends on `proto_library` rule.
@@ -78,6 +82,10 @@ buf_lint_test(<a href="#buf_lint_test-name">name</a>, <a href="#buf_lint_test-co
 
 This lints protocol buffers using `buf lint`.
 For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
+
+**Gazelle**
+
+The [gazelle extension](/gazelle/buf/README.md) can be used generate this rule.
 
 **Example**
 

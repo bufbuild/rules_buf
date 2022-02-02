@@ -7,6 +7,10 @@ _DOC = """
 This lints protocol buffers using `buf lint`.
 For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
 
+**Gazelle**
+
+The [gazelle extension](/gazelle/buf/README.md) can be used generate this rule.
+
 **Example**
 
 This rule depends on `proto_library` rule.
