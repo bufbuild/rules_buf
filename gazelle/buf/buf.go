@@ -71,9 +71,9 @@ type Config struct {
 // BufModule is the parsed buf.yaml. It currently only supports version, name, and build
 // top-level attributes.
 type BufModule struct {
-	Version string       `json:"version,omitempty" yaml:"version,omitempty"`
-	Name    string       `json:"name,omitempty" yaml:"name,omitempty"`
-	Build   *BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
+	Version string      `json:"version,omitempty" yaml:"version,omitempty"`
+	Name    string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Build   BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
 }
 
 // BuildConfig is the build section of the buf.yaml

@@ -10,12 +10,18 @@ const (
 var bufKinds = map[string]rule.KindInfo{
 	lintRuleKind: {
 		MatchAttrs: []string{"targets"},
+		NonEmptyAttrs: map[string]bool{
+			"targets": true,
+		},
 		MergeableAttrs: map[string]bool{
 			"config": true,
 		},
 	},
 	breakingRuleKind: {
 		MatchAttrs: []string{"targets"},
+		NonEmptyAttrs: map[string]bool{
+			"targets": true,
+		},
 		MergeableAttrs: map[string]bool{
 			"against":              true,
 			"exclude_imports":      true,

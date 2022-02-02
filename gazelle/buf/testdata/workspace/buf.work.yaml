@@ -2,3 +2,4 @@ version: v1
 directories:
   - fooapis
   - barapis
+  - petapis

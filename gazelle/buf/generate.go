@@ -14,10 +14,8 @@ import (
 func (*bufLang) Fix(c *config.Config, f *rule.File) {}
 
 func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResult {
-	var (
-		result = language.GenerateResult{}
-		config = GetConfigForGazelleConfig(args.Config)
-	)
+	result := language.GenerateResult{}
+	config := GetConfigForGazelleConfig(args.Config)
 	// Skip if we are in any of the excludes directories
 	if isWithinExcludes(config, args.Rel) {
 		return result
@@ -28,11 +26,10 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		if rule.Kind() != "proto_library" {
 			continue
 		}
-		protoRuleMap[rule.Name()] = rule
 		protoTarget := rule.Name()
+		protoRuleMap[protoTarget] = rule
 		result.Gen = append(result.Gen, generateLintRule(config, protoTarget))
 		result.Imports = append(result.Imports, struct{}{})
-		// Skip if module mode
 		if config.BreakingMode == BreakingModeModule {
 			continue
 		}
@@ -44,25 +41,23 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		result.Gen = append(result.Gen, breakingRule)
 		result.Imports = append(result.Imports, getProtoImportPaths(config, args.Dir))
 	}
+	if args.File == nil {
+		return result
+	}
 	// Stale rules to remove
-	if args.File != nil {
-		for _, rule := range args.File.Rules {
-			// proto_library targets are mapped one to one for lint and breaking rules in package mode
-			if rule.Kind() == lintRuleKind ||
-				(rule.Kind() == breakingRuleKind &&
-					config.BreakingMode == BreakingModePackage) {
-				if shouldRemoveSingleTargetBufRule(
-					protoRuleMap,
-					rule,
-				) {
-					result.Empty = append(result.Empty, rule)
-				}
-				continue
-			}
-			// If it is breaking rule it will also be managed mode
-			// In module mode delete all
-			if rule.Kind() == breakingRuleKind {
-				result.Empty = append(result.Empty, rule)
+	for _, rule := range args.File.Rules {
+		// In module mode delete all
+		if rule.Kind() == breakingRuleKind && config.BreakingMode == BreakingModeModule {
+			result.Empty = append(result.Empty, generateEmptyRule(rule))
+			continue
+		}
+		// proto_library targets are mapped one to one for lint and breaking rules in package mode
+		if rule.Kind() == lintRuleKind || rule.Kind() == breakingRuleKind {
+			if shouldRemoveSingleTargetBufRule(
+				protoRuleMap,
+				rule,
+			) {
+				result.Empty = append(result.Empty, generateEmptyRule(rule))
 			}
 		}
 	}
@@ -133,4 +128,8 @@ func getProtoImportPaths(config *Config, moduleRoot string) []string {
 		},
 	)
 	return targets
+}
+
+func generateEmptyRule(bufRule *rule.Rule) *rule.Rule {
+	return rule.NewRule(bufRule.Kind(), bufRule.Name())
 }

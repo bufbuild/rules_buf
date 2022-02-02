@@ -23,6 +23,7 @@ func TestBreaking(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "breaking_module")
 	testRunGazelle(t, "breaking_package")
+	testRunGazelle(t, "breaking_package_to_module")
 }
 
 func TestExcludes(t *testing.T) {
@@ -59,7 +60,7 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 	require.NoError(t, err, "bazel.ListRunfiles()")
 	require.True(t, len(allFiles) > 0, "0 runfiles")
 	for _, f := range allFiles {
-		if !strings.HasPrefix(f.ShortPath, dir) {
+		if !strings.HasPrefix(f.ShortPath, dir+"/") {
 			continue
 		}
 		shortPath := strings.TrimPrefix(f.ShortPath, dir+"/")

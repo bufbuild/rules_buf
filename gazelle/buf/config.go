@@ -14,6 +14,7 @@ import (
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/label"
+	"github.com/bazelbuild/bazel-gazelle/language/proto"
 	"github.com/bazelbuild/bazel-gazelle/rule"
 	"gopkg.in/yaml.v3"
 )
@@ -59,7 +60,7 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	// it will be polluted when traversing sibling directories.
 	//
 	// https://github.com/bazelbuild/bazel-gazelle/blob/master/Design.rst#configuration
-	config := *GetConfigForGazelleConfig(gazelleConfig)
+	config := deepCopyConfig(GetConfigForGazelleConfig(gazelleConfig))
 	config.ModuleRoot = false
 	bufModule, bufConfigFile, err := loadDefaultBufModule(
 		filepath.Join(
@@ -76,7 +77,7 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
 	}
 	if file == nil {
-		return &config
+		return config
 	}
 	for _, d := range file.Directives {
 		switch d.Key {
@@ -96,7 +97,26 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 			config.BreakingMode = breakingMode
 		}
 	}
-	return &config
+	// When using workspaces, for gazelle to generate accurate proto_library rules
+	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
+	//
+	// Here we set the config if the directive is not present
+	if config.ModuleRoot && packageRelativePath != "" {
+		protoConfig := proto.GetProtoConfig(gazelleConfig)
+		stripImportPrefix := "/" + packageRelativePath
+		if protoConfig.StripImportPrefix == "" {
+			protoConfig.StripImportPrefix = stripImportPrefix
+		}
+		if protoConfig.StripImportPrefix != stripImportPrefix {
+			log.Printf(
+				"strip_import_prefix at %s should be %s but is %s",
+				packageRelativePath,
+				stripImportPrefix,
+				protoConfig.StripImportPrefix,
+			)
+		}
+	}
+	return config
 }
 
 func readBufModuleConfig(file string) (*BufModule, error) {
@@ -133,12 +153,22 @@ func loadDefaultBufModule(workingDirectory string) (*BufModule, string, error) {
 }
 
 func isWithinExcludes(config *Config, path string) bool {
-	if config.Module != nil && config.Module.Build != nil {
-		for _, exclude := range config.Module.Build.Excludes {
-			if strings.Contains(path, exclude) {
-				return true
-			}
+	if config.Module == nil {
+		return false
+	}
+	for _, exclude := range config.Module.Build.Excludes {
+		if strings.Contains(path, exclude) {
+			return true
 		}
 	}
 	return false
+}
+
+func deepCopyConfig(config *Config) *Config {
+	configClone := *config
+	if config.Module != nil {
+		moduleClone := *config.Module
+		configClone.Module = &moduleClone
+	}
+	return &configClone
 }

@@ -44,7 +44,11 @@ func resolveBreakingRule(
 	importsRaw interface{},
 	fromLabel label.Label,
 ) {
-	// Check if Module mode. importsRaw will be `struct{}{}` for package mode
+	config := GetConfigForGazelleConfig(gazelleConfig)
+	if config.BreakingMode != BreakingModeModule {
+		return
+	}
+	// importsRaw will be `[]string` for module mode
 	imports, ok := importsRaw.([]string)
 	if !ok {
 		return

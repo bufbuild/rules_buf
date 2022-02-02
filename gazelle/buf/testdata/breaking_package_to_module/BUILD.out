@@ -5,7 +5,7 @@ load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
 buf_breaking_test(
     name = "buf_breaking",
     against = "//:against_file",
-    config = "//fooapis:buf.yaml",
+    config = "//:buf.yaml",
     limit_to_input_files = False,
-    targets = ["//fooapis/foo/v1:foo_v1_proto"],
+    targets = ["//foo/v1:foo_proto"],
 )
