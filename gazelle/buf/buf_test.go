@@ -39,7 +39,8 @@ func TestWorkspaces(t *testing.T) {
 func testRunGazelle(t *testing.T, name string) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
-		gazellePath := findGazelle(t)
+		gazellePath, ok := bazel.FindBinary("gazelle/buf", "gazelle-buf")
+		require.True(t, ok, "could not find gazelle binary")
 		inputs, goldens := getTestData(t, path.Join("gazelle/buf/testdata", name))
 		dir, cleanup := testtools.CreateFiles(t, inputs)
 		defer cleanup()
@@ -54,7 +55,6 @@ func testRunGazelle(t *testing.T, name string) {
 }
 
 func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens []testtools.FileSpec) {
-	t.Helper()
 	allFiles, err := bazel.ListRunfiles()
 	require.NoError(t, err, "bazel.ListRunfiles()")
 	require.True(t, len(allFiles) > 0, "0 runfiles")
@@ -99,11 +99,4 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 		Content: "",
 	})
 	return inputs, goldens
-}
-
-func findGazelle(t *testing.T) string {
-	t.Helper()
-	gazellePath, ok := bazel.FindBinary("gazelle/buf", "gazelle-buf")
-	require.True(t, ok, "could not find gazelle binary")
-	return gazellePath
 }

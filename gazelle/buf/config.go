@@ -24,10 +24,13 @@ var defaultBufConfigFiles = []string{
 }
 
 func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, gazelleConfig *config.Config) {
-	SetConfigForGazelleConfig(gazelleConfig, &Config{
-		BreakingExcludeImports: true,
-		BreakingMode:           BreakingModeModule,
-	})
+	SetConfigForGazelleConfig(
+		gazelleConfig,
+		&Config{
+			BreakingExcludeImports: true,
+			BreakingMode:           BreakingModeModule,
+		},
+	)
 }
 
 func (*bufLang) CheckFlags(flagSet *flag.FlagSet, gazelleConfig *config.Config) error { return nil }
@@ -41,8 +44,14 @@ func (*bufLang) KnownDirectives() []string {
 }
 
 func (*bufLang) Configure(gazelleConfig *config.Config, relativePath string, file *rule.File) {
-	cfg := loadConfig(gazelleConfig, relativePath, file)
-	SetConfigForGazelleConfig(gazelleConfig, cfg)
+	SetConfigForGazelleConfig(
+		gazelleConfig,
+		loadConfig(
+			gazelleConfig,
+			relativePath,
+			file,
+		),
+	)
 }
 
 func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *rule.File) *Config {
@@ -90,7 +99,7 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	return &config
 }
 
-func readConfig(file string) (*BufModule, error) {
+func readBufModuleConfig(file string) (*BufModule, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -110,7 +119,7 @@ func parseJsonOrYaml(data []byte, v interface{}) error {
 
 func loadDefaultBufModule(workingDirectory string) (*BufModule, string, error) {
 	for _, bufConfigFile := range defaultBufConfigFiles {
-		bufModule, err := readConfig(filepath.Join(workingDirectory, bufConfigFile))
+		bufModule, err := readBufModuleConfig(filepath.Join(workingDirectory, bufConfigFile))
 		if errors.Is(err, fs.ErrNotExist) {
 			continue
 		}

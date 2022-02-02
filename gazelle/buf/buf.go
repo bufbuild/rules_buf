@@ -9,7 +9,6 @@ import (
 	"github.com/bazelbuild/bazel-gazelle/language"
 )
 
-// All possible BreakingMode values
 const (
 	// BreakingModeModule will generate a buf_breaking_test rule for each `buf.yaml`
 	// This is the recommended and default strategy.
@@ -86,15 +85,15 @@ type BuildConfig struct {
 // It will return `nil` if one is not found.
 //
 // See `SetConfigForGazelleConfig` for setting a Config.
-func GetConfigForGazelleConfig(c *config.Config) *Config {
-	cfg := c.Exts[lang]
-	if cfg != nil {
+func GetConfigForGazelleConfig(gazelleConfig *config.Config) *Config {
+	config := gazelleConfig.Exts[lang]
+	if config != nil {
 		// This is set by us, see: `SetConfigForGazelleConfig`.
 		// If a value is present it will be of type *Config
 		//
 		// Theoretically another plugin can use the same key ("buf") to set a different value
 		// but the odds of that happening are next to none.
-		return cfg.(*Config)
+		return config.(*Config)
 	}
 	return nil
 }
@@ -102,8 +101,8 @@ func GetConfigForGazelleConfig(c *config.Config) *Config {
 // SetConfigForGazelleConfig is used to associate Config with a gazelle config.
 //
 // It can be retreived using `GetConfigForGazelleConfig`
-func SetConfigForGazelleConfig(c *config.Config, cfg *Config) {
-	c.Exts[lang] = cfg
+func SetConfigForGazelleConfig(gazelleConfig *config.Config, config *Config) {
+	gazelleConfig.Exts[lang] = config
 }
 
 // NewLanguage is called by Gazelle to install this language extension in a binary.
