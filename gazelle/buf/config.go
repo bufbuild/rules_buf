@@ -60,7 +60,7 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	// it will be polluted when traversing sibling directories.
 	//
 	// https://github.com/bazelbuild/bazel-gazelle/blob/master/Design.rst#configuration
-	config := deepCopyConfig(GetConfigForGazelleConfig(gazelleConfig))
+	config := GetConfigForGazelleConfig(gazelleConfig).clone()
 	config.ModuleRoot = false
 	bufModule, bufConfigFile, err := loadDefaultBufModule(
 		filepath.Join(
@@ -166,10 +166,10 @@ func isWithinExcludes(config *Config, path string) bool {
 	return false
 }
 
-func deepCopyConfig(config *Config) *Config {
-	configClone := *config
-	if config.Module != nil {
-		moduleClone := *config.Module
+func (c *Config) clone() *Config {
+	configClone := *c
+	if c.Module != nil {
+		moduleClone := *c.Module
 		configClone.Module = &moduleClone
 	}
 	return &configClone
