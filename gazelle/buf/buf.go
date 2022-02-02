@@ -26,9 +26,9 @@ var (
 	}
 )
 
-// BreakingMode is generation strategy for buf_breaking_test
+// BreakingMode is the generation strategy for buf_breaking_test
 //
-// See BreakingModeModule and BreakingModePackage
+// See BreakingModeModule and BreakingModePackage.
 type BreakingMode int
 
 // ParseBreakingMode parses the BreakingMode.
