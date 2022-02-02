@@ -42,6 +42,7 @@ The `proto` language is needed and should precede the buf extension.
 Now run `gazelle`:
 ```sh
 bazel run //:gazelle
+```
 
 ## `buf_lint_test`
 

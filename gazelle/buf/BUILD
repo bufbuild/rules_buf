@@ -7,11 +7,12 @@ load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
 go_library(
     name = "buf",
     srcs = [
-        "breaking_rule.go",
         "buf.go",
         "buf_lang.go",
         "config.go",
-        "lint_rule.go",
+        "generate.go",
+        "kinds.go",
+        "resolve.go",
     ],
     importpath = "github.com/bufbuild/rules_buf/gazelle/buf",
     visibility = ["//visibility:public"],

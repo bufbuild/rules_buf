@@ -18,74 +18,76 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, c *config.Config) {
-	SetConfigForGazelleConfig(c, &Config{
-		BreakingExcludeImports:    true,
-		BreakingLimitToInputFiles: false,
+var defaultBufConfigFiles = []string{
+	"buf.yaml",
+	"buf.mod",
+}
+
+func (*bufLang) RegisterFlags(flagSet *flag.FlagSet, cmd string, gazelleConfig *config.Config) {
+	SetConfigForGazelleConfig(gazelleConfig, &Config{
+		BreakingExcludeImports: true,
+		BreakingMode:           BreakingModeModule,
 	})
 }
 
-func (*bufLang) CheckFlags(flagSet *flag.FlagSet, c *config.Config) error { return nil }
+func (*bufLang) CheckFlags(flagSet *flag.FlagSet, gazelleConfig *config.Config) error { return nil }
 
 func (*bufLang) KnownDirectives() []string {
 	return []string{
+		"buf_breaking_mode",
 		"buf_breaking_against",
 		"buf_breaking_exclude_imports",
-		"buf_breaking_limit_to_input_files",
 	}
 }
 
-func (*bufLang) Configure(c *config.Config, rel string, f *rule.File) {
-	cfg := loadConfig(c, rel, f)
-	SetConfigForGazelleConfig(c, cfg)
+func (*bufLang) Configure(gazelleConfig *config.Config, relativePath string, file *rule.File) {
+	cfg := loadConfig(gazelleConfig, relativePath, file)
+	SetConfigForGazelleConfig(gazelleConfig, cfg)
 }
 
-func loadConfig(c *config.Config, rel string, f *rule.File) *Config {
-	cfg := *GetConfigForGazelleConfig(c)
-	cfg.ModuleRoot = false
-	bc, file, err := loadDefaultConfig(filepath.Join(c.RepoRoot, rel))
+func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *rule.File) *Config {
+	// Config is inherited from parent directory if we modify without making a copy
+	// it will be polluted when traversing sibling directories.
+	//
+	// https://github.com/bazelbuild/bazel-gazelle/blob/master/Design.rst#configuration
+	config := *GetConfigForGazelleConfig(gazelleConfig)
+	config.ModuleRoot = false
+	bufModule, bufConfigFile, err := loadDefaultBufModule(
+		filepath.Join(
+			gazelleConfig.RepoRoot,
+			packageRelativePath,
+		),
+	)
 	if err != nil {
-		log.Println("error trying to load default config", err)
+		log.Print("error trying to load default config", err)
 	}
-	if bc != nil {
-		cfg.Module = bc
-		cfg.ModuleRoot = true
-		cfg.ConfigFile = label.New("", rel, file)
+	if bufModule != nil {
+		config.Module = bufModule
+		config.ModuleRoot = true
+		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
 	}
-	if f == nil {
-		return &cfg
+	if file == nil {
+		return &config
 	}
-	for _, d := range f.Directives {
+	for _, d := range file.Directives {
 		switch d.Key {
 		case "buf_breaking_against":
-			cfg.BreakingImageTarget = d.Value
+			config.BreakingImageTarget = d.Value
 		case "buf_breaking_exclude_imports":
 			value, err := strconv.ParseBool(strings.TrimSpace(d.Value))
 			if err != nil {
-				log.Fatalf("buf_breaking_exclude_imports directive should be a boolean got: %s", d.Value)
+				log.Printf("buf_breaking_exclude_imports directive should be a boolean got: %s", d.Value)
 			}
-			cfg.BreakingExcludeImports = value
-		case "buf_breaking_limit_to_input_files":
-			value, err := strconv.ParseBool(strings.TrimSpace(d.Value))
+			config.BreakingExcludeImports = value
+		case "buf_breaking_mode":
+			breakingMode, err := ParseBreakingMode(d.Value)
 			if err != nil {
-				log.Fatalf("buf_breaking_limit_to_input_files directive should be a boolean got: %s", d.Value)
+				log.Printf("error parsing buf_breaking_mode: %v", err)
 			}
-			cfg.BreakingLimitToInputFiles = value
+			config.BreakingMode = breakingMode
 		}
 	}
-	return &cfg
-}
-
-func getConfigForGazelleConfig(c *config.Config) *Config {
-	cfg := c.Exts[lang]
-	if cfg != nil {
-		return cfg.(*Config)
-	}
-	return nil
-}
-
-func setConfigForGazelleConfig(c *config.Config, cfg *Config) {
-	c.Exts[lang] = cfg
+	return &config
 }
 
 func readConfig(file string) (*BufModule, error) {
@@ -93,40 +95,37 @@ func readConfig(file string) (*BufModule, error) {
 	if err != nil {
 		return nil, err
 	}
-	var cfg BufModule
-	return &cfg, parseJsonOrYaml(data, &cfg)
+	var bufModule BufModule
+	return &bufModule, parseJsonOrYaml(data, &bufModule)
 }
 
 func parseJsonOrYaml(data []byte, v interface{}) error {
-	if err := yaml.Unmarshal(data, v); err != nil {
-		if err := json.Unmarshal(data, v); err != nil {
+	if err := json.Unmarshal(data, v); err != nil {
+		if err := yaml.Unmarshal(data, v); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func loadDefaultConfig(wd string) (*BufModule, string, error) {
-	for _, file := range []string{
-		"buf.yaml",
-		"buf.mod",
-	} {
-		bc, err := readConfig(filepath.Join(wd, file))
+func loadDefaultBufModule(workingDirectory string) (*BufModule, string, error) {
+	for _, bufConfigFile := range defaultBufConfigFiles {
+		bufModule, err := readConfig(filepath.Join(workingDirectory, bufConfigFile))
 		if errors.Is(err, fs.ErrNotExist) {
 			continue
 		}
 		if err != nil {
-			return nil, "", fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", file, err)
+			return nil, "", fmt.Errorf("buf: unable to parse buf config file at %s, err: %w", bufConfigFile, err)
 		}
 
-		return bc, file, nil
+		return bufModule, bufConfigFile, nil
 	}
 	return nil, "", nil
 }
 
-func isWithinExcludes(cfg *Config, path string) bool {
-	if cfg.Module != nil && cfg.Module.Build != nil {
-		for _, exclude := range cfg.Module.Build.Excludes {
+func isWithinExcludes(config *Config, path string) bool {
+	if config.Module != nil && config.Module.Build != nil {
+		for _, exclude := range config.Module.Build.Excludes {
 			if strings.Contains(path, exclude) {
 				return true
 			}
