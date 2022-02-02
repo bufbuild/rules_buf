@@ -128,6 +128,8 @@ func readBufModuleConfig(file string) (*BufModule, error) {
 	return &bufModule, parseJsonOrYaml(data, &bufModule)
 }
 
+// parseJsonOrYaml follows buf's parsing of config:
+// https://github.com/bufbuild/buf/blob/63520331f5c01b9f388d787c4e2959a9a299262c/private/pkg/encoding/encoding.go#L111
 func parseJsonOrYaml(data []byte, v interface{}) error {
 	if err := json.Unmarshal(data, v); err != nil {
 		if err := yaml.Unmarshal(data, v); err != nil {
