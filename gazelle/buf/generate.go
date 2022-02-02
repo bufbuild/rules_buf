@@ -15,12 +15,12 @@ func (*bufLang) Fix(c *config.Config, f *rule.File) {}
 
 func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResult {
 	var (
-		res    = language.GenerateResult{}
+		result = language.GenerateResult{}
 		config = GetConfigForGazelleConfig(args.Config)
 	)
 	// Skip if we are in any of the excludes directories
 	if isWithinExcludes(config, args.Rel) {
-		return res
+		return result
 	}
 	protoRuleMap := make(map[string]*rule.Rule, len(args.OtherGen))
 	// Lint and breaking package mode
@@ -30,19 +30,19 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		}
 		protoRuleMap[rule.Name()] = rule
 		protoTarget := rule.Name()
-		res.Gen = append(res.Gen, generateLintRule(config, protoTarget))
-		res.Imports = append(res.Imports, struct{}{})
+		result.Gen = append(result.Gen, generateLintRule(config, protoTarget))
+		result.Imports = append(result.Imports, struct{}{})
 		// Skip if module mode
 		if config.BreakingMode == BreakingModeModule {
 			continue
 		}
-		res.Gen = append(res.Gen, generateBreakingRule(config, protoTarget))
-		res.Imports = append(res.Imports, struct{}{})
+		result.Gen = append(result.Gen, generateBreakingRule(config, protoTarget))
+		result.Imports = append(result.Imports, struct{}{})
 	}
 	if config.ModuleRoot && config.BreakingMode == BreakingModeModule {
 		breakingRule := generateBreakingRule(config, "buf")
-		res.Gen = append(res.Gen, breakingRule)
-		res.Imports = append(res.Imports, getProtoImportPaths(config, args.Dir))
+		result.Gen = append(result.Gen, breakingRule)
+		result.Imports = append(result.Imports, getProtoImportPaths(config, args.Dir))
 	}
 	// Stale rules to remove
 	if args.File != nil {
@@ -55,18 +55,18 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 					protoRuleMap,
 					rule,
 				) {
-					res.Empty = append(res.Empty, rule)
+					result.Empty = append(result.Empty, rule)
 				}
 				continue
 			}
 			// If it is breaking rule it will also be managed mode
 			// In module mode delete all
 			if rule.Kind() == breakingRuleKind {
-				res.Empty = append(res.Empty, rule)
+				result.Empty = append(result.Empty, rule)
 			}
 		}
 	}
-	return res
+	return result
 }
 
 func generateLintRule(config *Config, target string) *rule.Rule {
