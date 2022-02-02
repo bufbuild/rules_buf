@@ -9,7 +9,7 @@
 
 **Prerequisites**
 
-- Setup `rules_buf` to the instructions on the [readme](/README.md)
+- Setup `rules_buf` as per the instructions on the [readme](/README.md)
 - Setup `gazelle` as detailed [here](https://github.com/bazelbuild/bazel-gazelle#setup)
 
 Add the following code snippet at the end of the `WORKSPACE` file:
@@ -54,7 +54,7 @@ It will pick up the config from the nearest `buf.yaml` file it can find going up
 
 For breaking change `buf_breaking_test` to be generated `gazelle` requires an image to compare against. This can be configured for each buf module independently.
 
-`# gazelle buf_breaking_against image_file_target`
+`# gazelle:buf_breaking_against image_file_target`
 
 This directive should be specified in the package containing `buf.yaml`.
 
@@ -70,7 +70,7 @@ In this mode only one `buf_breaking_test` rule is added for each `buf.yaml` file
 
 To enable this add the following directive,
 
-`# gazelle buf_breaking_limit_to_input_files true`
+`# gazelle:buf_breaking_mode package`
 
 This is the `bazel` way. `buf_breaking_test` rules are generated against each `proto_library` target. When these are run, they only check whether the protocol buffers have changed within each package.
 
