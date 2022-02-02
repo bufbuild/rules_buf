@@ -3,7 +3,7 @@
 [Gazelle](https://github.com/bazelbuild/bazel-gazelle) extension for `rules_buf`. It can,
 
 - Generate `buf_lint_test` rules.
-- Generate `buf_lint_breaking` rules.
+- Generate `buf_breaking_test` rules.
 
 ## Setup
 
