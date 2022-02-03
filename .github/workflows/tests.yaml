@@ -8,6 +8,7 @@ on:
 jobs:
   # Bazelisk is included in github runners
   # Bazel cache: https://docs.bazel.build/versions/main/output_directories.html
+  # NOTE: Cache path doesn't support env expansion
   linux:
     runs-on: ubuntu-latest
     steps:
@@ -44,8 +45,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            %LOCALAPPDATA%\bazelisk
-            %HOME%\_bazel_%USER%
+            ~\AppData\Local\bazelisk
+            ~\_bazel_runneradmin
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
