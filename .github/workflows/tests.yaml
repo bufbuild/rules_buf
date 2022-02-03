@@ -31,7 +31,7 @@ jobs:
         with:
           path: |
             ~/.cache/bazelisk
-            /private/var/tmp
+            /private/var/tmp/_bazel_runner
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
