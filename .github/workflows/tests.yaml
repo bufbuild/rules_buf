@@ -21,7 +21,7 @@ jobs:
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel --output_base=~/.cache/bazel test //...
+        run: bazel test //...
   macos:
     runs-on: macos-latest
     steps:
@@ -31,11 +31,11 @@ jobs:
         with:
           path: |
             ~/.cache/bazelisk
-            ~/.cache/bazel
+            /private/var/tmp/_bazel_$USER
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel --output_base=~/.cache/bazel test //...
+        run: bazel test //...
   windows:
     runs-on: windows-latest
     steps:
@@ -44,9 +44,9 @@ jobs:
         uses: actions/cache@v2     
         with:
           path: |
-            ${{ env.LOCALAPPDATA }}\bazelisk
-            ${{ env.LOCALAPPDATA }}\bazel
+            %LOCALAPPDATA%\bazelisk
+            %HOME%\_bazel_%USER%
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel test --output_base=${{ env.LOCALAPPDATA }}\bazel //...
+        run: bazel test  //...
