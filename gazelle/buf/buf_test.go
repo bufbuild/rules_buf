@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -81,6 +82,9 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 		fileSpec := testtools.FileSpec{
 			Path:    filePath,
 			Content: string(content),
+		}
+		if runtime.GOOS == "windows" {
+			fileSpec.Content = strings.ReplaceAll(fileSpec.Content, "\r\n", "\n")
 		}
 		if v != ".out" {
 			inputs = append(inputs, fileSpec)
