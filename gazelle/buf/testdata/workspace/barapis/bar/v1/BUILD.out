@@ -18,5 +18,6 @@ buf_breaking_test(
     name = "bar_proto_breaking",
     against = "//:against_file",
     config = "//barapis:buf.yaml",
+    limit_to_input_files = True,
     targets = [":bar_proto"],
 )

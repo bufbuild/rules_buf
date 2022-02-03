@@ -6,6 +6,5 @@ buf_breaking_test(
     name = "buf_breaking",
     against = "//:against_file",
     config = "//petapis:buf.yaml",
-    limit_to_input_files = False,
     targets = ["//petapis/pets/v1:pets_v1_proto"],
 )

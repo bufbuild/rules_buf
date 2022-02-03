@@ -75,14 +75,14 @@ buf_breaking_test = rule(
         "against": attr.label(
             mandatory = True,
             allow_single_file = True,
-            doc = """The image file against which breaking changes are checked. This is typically derived from HEAD/last release tag of your repo/bsr. `rules_buf` provides a repository rule(`buf_image`) to reference an image from the buf schema registry""",
+            doc = """The image file against which breaking changes are checked.""",
         ),
         "config": attr.label(
             allow_single_file = True,
             doc = """The `buf.yaml` file""",
         ),
         "limit_to_input_files": attr.bool(
-            default = True,
+            default = False,
             doc = """Checks are limited to input files. If a file gets deleted that will not be caught. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details""",
         ),
         "exclude_imports": attr.bool(

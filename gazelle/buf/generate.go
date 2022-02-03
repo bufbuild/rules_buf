@@ -81,8 +81,8 @@ func generateBreakingRule(config *Config, target string) *rule.Rule {
 	if !config.BreakingExcludeImports {
 		r.SetAttr("exclude_imports", false)
 	}
-	if config.BreakingMode == BreakingModeModule {
-		r.SetAttr("limit_to_input_files", false)
+	if config.BreakingMode == BreakingModePackage {
+		r.SetAttr("limit_to_input_files", true)
 	}
 	if config.Module != nil {
 		r.SetAttr("config", config.BufConfigFile.String())
