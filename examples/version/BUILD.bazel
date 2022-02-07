@@ -1,1 +1,7 @@
+load(":version.bzl", "print_buf_version")
+
 exports_files(["buf.yaml"])
+
+print_buf_version(
+    name = "print",
+)
