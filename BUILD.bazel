@@ -30,11 +30,6 @@ stardoc(
     ],
 )
 
-alias(
-    name = "generate_deps",
-    actual = "//buf/internal/cmd/generate_deps:generate_deps",
-)
-
 buildifier(
     name = "buildifier",
 )
