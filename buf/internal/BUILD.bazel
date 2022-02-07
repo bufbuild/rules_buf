@@ -29,3 +29,13 @@ bzl_library(
     name = "dependencies",
     srcs = ["dependencies.bzl"],
 )
+
+bzl_library(
+    name = "toolchain",
+    srcs = [
+        "toolchain.bzl",
+    ],
+    deps = [
+        "@bazel_tools//tools/build_defs/repo:utils.bzl",
+    ],
+)
