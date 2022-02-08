@@ -4,7 +4,7 @@ load("//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_toolchains")
 
 rules_buf_dependencies()
 
-rules_buf_toolchains()
+rules_buf_toolchains(version = "v1.0.0-rc12")
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
