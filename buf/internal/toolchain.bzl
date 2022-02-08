@@ -69,6 +69,7 @@ def _register_toolchains(repo, cmd):
 # Copied from rules_go: https://github.com/bazelbuild/rules_go/blob/bd44f4242b46e73fb2a81fc87ea4b52173bde84e/go/private/sdk.bzl#L240
 #
 # NOTE: This doesn't check for windows/arm64
+# We can upgrade to repository_ctx.os.name and repository_ctx.os.arch once bazel 5.1 releases bazelbuild/bazel#14685
 def _detect_host_platform(ctx):
     if ctx.os.name == "linux":
         goos, goarch = "linux", "amd64"
