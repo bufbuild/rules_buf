@@ -1,6 +1,3 @@
-load("//buf/internal:toolchain.bzl", "declare_buf_toolchains")
+package(default_visibility = ["//visibility:public"])
 
-declare_buf_toolchains(
-    name = "buf_toolchain_declaration",
-    cmd = "buf",
-)
+toolchain_type(name = "toolchain_type")

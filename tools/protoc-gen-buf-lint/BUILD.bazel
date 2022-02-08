@@ -1,6 +1,3 @@
-load("//buf/internal:toolchain.bzl", "declare_buf_toolchains")
+package(default_visibility = ["//visibility:public"])
 
-declare_buf_toolchains(
-    name = "protoc_gen_buf_lint_toolchain_declaration",
-    cmd = "protoc-gen-buf-lint",
-)
+toolchain_type(name = "toolchain_type")

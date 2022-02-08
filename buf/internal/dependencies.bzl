@@ -1,5 +1,8 @@
 """rules_buf dependencies"""
 
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 bazel_dependencies = {
     "bazel_skylib": {
         "sha256": "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
@@ -17,3 +20,8 @@ bazel_dependencies = {
         ],
     },
 }
+
+def rules_buf_dependencies():
+    """Utility method to load all dependencies of `rules_buf`."""
+    for name in bazel_dependencies:
+        maybe(http_archive, name, **bazel_dependencies[name])

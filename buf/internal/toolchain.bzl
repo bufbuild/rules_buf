@@ -2,48 +2,21 @@
 
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "update_attrs")
 
-_BUF_RELEASE_PLATFORMS = [
-    {
-        "os": "osx",
-        "cpu": "arm64",
-    },
-    {
-        "os": "osx",
-        "cpu": "x86_64",
-    },
-    {
-        "os": "linux",
-        "cpu": "aarch64",
-    },
-    {
-        "os": "linux",
-        "cpu": "x86_64",
-    },
-    {
-        "os": "windows",
-        "cpu": "arm64",
-    },
-    {
-        "os": "windows",
-        "cpu": "x86_64",
-    },
-]
+_TOOLCHAINS_REPO = "rules_buf_toolchains"
 
-_BUF_RELEASES_REPO = "buf_releases"
+_BUILD_FILE = """
+load(":toolchain.bzl", "declare_buf_toolchains")
 
-def _register_toolchains(name):
-    labels = [
-        "@rules_buf//tools/{name}:{name}-{os}-{cpu}_toolchain".format(
-            name = name,
-            os = p["os"],
-            cpu = p["cpu"],
-        )
-        for p in _BUF_RELEASE_PLATFORMS
-    ]
-    native.register_toolchains(
-        *labels
-    )
+package(default_visibility = ["//visibility:public"])
 
+declare_buf_toolchains(
+    os = "{os}",
+    cpu = "{cpu}",
+    rules_buf_repo_name = "{rules_buf_repo_name}",
+ )
+"""
+
+_TOOLCHAIN_FILE = """
 def _buf_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
         cli = ctx.executable.cli,
@@ -56,19 +29,92 @@ _buf_toolchain = rule(
         "cli": attr.label(
             doc = "The buf cli",
             executable = True,
-            cfg = "exec",
+            allow_single_file = True,
             mandatory = True,
+            cfg = "exec",
         ),
     },
 )
 
-_BUF_RELEASE_BUILD_FILE = """
-package(default_visibility = ["//visibility:public"])
-filegroup(
-    name = "{name}",
-    srcs = ["{bin}"],
-)
+def declare_buf_toolchains(os, cpu, rules_buf_repo_name):
+    for cmd in ["buf", "protoc-gen-buf-lint", "protoc-gen-buf-breaking"]:
+        ext = ""
+        if os == "windows":
+            ext = ".exe"
+        toolchain_impl = cmd + "_toolchain_impl"         
+        _buf_toolchain(
+            name = toolchain_impl,
+            cli = str(Label("//:"+ cmd)),
+        )
+        native.toolchain(
+            name = cmd + "_toolchain",
+            toolchain = ":" + toolchain_impl,
+            toolchain_type = "@{}//tools/{}:toolchain_type".format(rules_buf_repo_name, cmd),
+            exec_compatible_with = [
+                "@platforms//os:" + os,
+                "@platforms//cpu:" + cpu,
+            ],
+        )
+
 """
+
+def _register_toolchains(repo, cmd):
+    native.register_toolchains(
+        "@{repo}//:{cmd}_toolchain".format(
+            repo = repo,
+            cmd = cmd,
+        ),
+    )
+
+# Copied from rules_go: https://github.com/bazelbuild/rules_go/blob/bd44f4242b46e73fb2a81fc87ea4b52173bde84e/go/private/sdk.bzl#L240
+#
+# NOTE: This doesn't check for windows/arm64
+def _detect_host_platform(ctx):
+    if ctx.os.name == "linux":
+        goos, goarch = "linux", "amd64"
+        res = ctx.execute(["uname", "-p"])
+        if res.return_code == 0:
+            uname = res.stdout.strip()
+            if uname == "s390x":
+                goarch = "s390x"
+            elif uname == "i686":
+                goarch = "386"
+
+        # uname -p is not working on Aarch64 boards
+        # or for ppc64le on some distros
+        res = ctx.execute(["uname", "-m"])
+        if res.return_code == 0:
+            uname = res.stdout.strip()
+            if uname == "aarch64":
+                goarch = "arm64"
+            elif uname == "armv6l":
+                goarch = "arm"
+            elif uname == "armv7l":
+                goarch = "arm"
+            elif uname == "ppc64le":
+                goarch = "ppc64le"
+
+        # Default to amd64 when uname doesn't return a known value.
+
+    elif ctx.os.name == "mac os x":
+        goos, goarch = "darwin", "amd64"
+
+        res = ctx.execute(["uname", "-m"])
+        if res.return_code == 0:
+            uname = res.stdout.strip()
+            if uname == "arm64":
+                goarch = "arm64"
+
+        # Default to amd64 when uname doesn't return a known value.
+
+    elif ctx.os.name.startswith("windows"):
+        goos, goarch = "windows", "amd64"
+    elif ctx.os.name == "freebsd":
+        goos, goarch = "freebsd", "amd64"
+    else:
+        fail("Unsupported operating system: " + ctx.os.name)
+
+    return goos, goarch
 
 def _buf_download_releases_impl(ctx):
     version = ctx.attr.version
@@ -86,6 +132,14 @@ def _buf_download_releases_impl(ctx):
         versions = json.decode(versions_data)
         version = versions[0]["name"]
 
+    os, cpu = _detect_host_platform(ctx)
+    if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64"]:
+        fail("Unsupported operating system or cpu architecture ")
+    if os == "linux" and cpu == "arm64":
+        cpu = "aarch64"
+    if cpu == "amd64":
+        cpu = "x86_64"
+
     ctx.report_progress("Downloading buf release hash")
     ctx.download(
         url = [
@@ -93,24 +147,41 @@ def _buf_download_releases_impl(ctx):
         ],
         output = "sha256.txt",
     )
+    ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
+    ctx.file("toolchain.bzl", _TOOLCHAIN_FILE)
     sha_list = ctx.read("sha256.txt").splitlines()
     for sha_line in sha_list:
         if sha_line.strip(" ").endswith(".tar.gz"):
             continue
         (sum, _, bin) = sha_line.partition(" ")
         bin = bin.strip(" ")
+        lower_case_bin = bin.lower()
+        if lower_case_bin.find(os) == -1 or lower_case_bin.find(cpu) == -1:
+            continue
 
-        # Bazel defines macOS as osx
-        # Windows binaries are suffixed with .exe. This only effects the targets name and the binary will continue to have the suffix.
-        target = bin.lower().replace("darwin", "osx").rstrip(".exe")
-        ctx.download(
+        output = lower_case_bin[:lower_case_bin.find(os) - 1]
+        if os == "windows":
+            output += ".exe"
+
+        ctx.report_progress("Downloading " + bin)
+        download_info = ctx.download(
             url = "https://github.com/bufbuild/buf/releases/download/{}/{}".format(version, bin),
             sha256 = sum,
             executable = True,
-            output = "{}/{}".format(target, bin),
+            output = output,
         )
-        ctx.file("{}/BUILD".format(target), _BUF_RELEASE_BUILD_FILE.format(name = target, bin = bin))
-    ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
+
+    if os == "darwin":
+        os = "osx"
+
+    ctx.file(
+        "BUILD",
+        _BUILD_FILE.format(
+            os = os,
+            cpu = cpu,
+            rules_buf_repo_name = Label("//buf/repositories.bzl").workspace_name,
+        ),
+    )
     return update_attrs(ctx.attr, ["version"], {"version": version})
 
 _buf_download_releases = repository_rule(
@@ -122,43 +193,17 @@ _buf_download_releases = repository_rule(
     },
 )
 
-def declare_buf_toolchains(name, cmd):
-    """declare_buf_toolchains macro declares toolchains based on public releases of [buf](github.com/bufbuild/buf/releases)
-
-    Args:
-        name: Macro name, can be anything,
-        cmd: Must be one of  [buf, protoc-gen-bug-lint, protoc-gen-buf-breaking]
-    """
-    native.toolchain_type(name = "toolchain_type")
-    for p in _BUF_RELEASE_PLATFORMS:
-        os = p["os"]
-        cpu = p["cpu"]
-        exec_name = "{}-{}-{}".format(cmd, os, cpu)
-        _buf_toolchain(
-            name = exec_name,
-            cli = "@{}//{}".format(_BUF_RELEASES_REPO, exec_name),
-        )
-
-        native.toolchain(
-            name = "{}_toolchain".format(exec_name),
-            toolchain = ":{}".format(exec_name),
-            toolchain_type = ":toolchain_type",
-            exec_compatible_with = [
-                "@platforms//os:{}".format(os),
-                "@platforms//cpu:{}".format(cpu),
-            ],
-        )
-
 # buildifier: disable=unnamed-macro
-def rules_buf_toolchains(version = None):
-    """rules_buf_toolchains downloads buf, protoc-gen-buf-lint, and protoc-gen-buf-breaking from github releases of buf: https://github.com/bufbuild/buf/releases
+def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
+    """rules_buf_toolchains sets up toolchains for buf, protoc-gen-buf-lint, and protoc-gen-buf-breaking
 
     Args:
+        name: The name of the toolchains repository. Defaults to "buf_toolchains"
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
     """
 
-    _buf_download_releases(name = _BUF_RELEASES_REPO, version = version)
+    _buf_download_releases(name = name, version = version)
 
-    _register_toolchains("buf")
-    _register_toolchains("protoc-gen-buf-breaking")
-    _register_toolchains("protoc-gen-buf-lint")
+    _register_toolchains(name, "buf")
+    _register_toolchains(name, "protoc-gen-buf-breaking")
+    _register_toolchains(name, "protoc-gen-buf-lint")
