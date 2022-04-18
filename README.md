@@ -2,7 +2,11 @@
 
 Bazel rules for [Buf](https://buf.build/).
 
-## Setup 
+## Status
+
+In alpha. Not ready for production use.
+
+## Setup
 
 Include the following snippet in the Workspace file to setup `rules_buf`. Refer to [release notes](https://github.com/bufbuild/rules_buf/releases) of a specific version for setup instructions.
 ```starlark
@@ -11,7 +15,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "rules_buf",
     sha256 = "d6b2513456fe2229811da7eb67a444be7785f5323c6708b38d851d2b51e54d83",
-    urls = [        
+    urls = [
         "https://github.com/bufbuild/rules_buf/releases/download/v1.0.0-rc11/rules_go-v1.0.0-rc11.zip",
     ],
 )
