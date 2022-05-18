@@ -1,0 +1,11 @@
+version: v1
+name: buf.build/acme/petapis
+deps:
+  - buf.build/acme/paymentapis
+  - buf.build/googleapis/googleapis
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

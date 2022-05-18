@@ -1,0 +1,47 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc//cpp:defs.bzl", "cpp_proto_library")
+
+proto_library(
+    name = "pet_v1_proto",
+    srcs = ["pet.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        # Dependency from proto_library rule generated using gazelle
+        #
+        # Takes the form: @{buf_dependencies repo rule name}//{path to proto package}:{proto_library target}
+        "@buf_build_acme_petapis//payment/v1alpha1:payment_v1alpha1_proto",
+        "@go_googleapis//google/type:datetime_proto",
+    ],
+)
+
+# cc_library rule for the pet.proto
+cpp_proto_library(
+    name = "pet_v1_cpp_proto",
+    protos = [":pet_v1_proto"],
+    deps = [
+        ":google_type_datetime_cpp_proto",
+        ":payment_v1alpha1_cpp_proto",
+    ],
+)
+
+# cc_library rules for dependencies
+#
+# buf_dependencies rule only generates `proto_library` rule.
+# Language specific gen rules need to be manually defined.
+cpp_proto_library(
+    name = "payment_v1alpha1_cpp_proto",
+    protos = ["@buf_build_acme_petapis//payment/v1alpha1:payment_v1alpha1_proto"],
+    deps = [
+        ":google_type_money_cpp_proto",
+    ],
+)
+
+cpp_proto_library(
+    name = "google_type_money_cpp_proto",
+    protos = ["@go_googleapis//google/type:money_proto"],
+)
+
+cpp_proto_library(
+    name = "google_type_datetime_cpp_proto",
+    protos = ["@go_googleapis//google/type:datetime_proto"],
+)
