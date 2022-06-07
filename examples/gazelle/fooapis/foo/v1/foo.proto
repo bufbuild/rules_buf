@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package foo.v1;
+
+import "bar/v1/bar.proto";
+
+message Foo {
+  string id = 1;
+  string name = 2;
+  bar.v1.Bar bar = 3;
+}

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package bar.v1;
+
+message Bar {
+  string id = 1;
+  string name = 2;
+}

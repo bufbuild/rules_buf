@@ -1,0 +1,16 @@
+load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
+
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle-buf",
+)
+
+gazelle_binary(
+    name = "gazelle-buf",
+    languages = [
+        "@bazel_gazelle//language/proto",  # Built-in rule from gazelle for Protos.
+        # Any languages that depend on Gazelle's proto plugin must come after it.
+        "@rules_buf//gazelle/buf:buf",  # Loads the Buf extension
+    ],
+    visibility = ["//visibility:public"],
+)
