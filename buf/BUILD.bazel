@@ -16,7 +16,7 @@ bzl_library(
     srcs = ["repositories.bzl"],
     deps = [
         "//buf/internal:dependencies",
-        "//buf/internal:toolchain",
+        "//tools:toolchain",
         "@bazel_tools//tools/build_defs/repo:http.bzl",
         "@bazel_tools//tools/build_defs/repo:utils.bzl",
     ],

@@ -1,15 +1,21 @@
 """Dependencies and toolchains required to use rules_buf."""
 
-load("//buf/internal:dependencies.bzl", "bazel_dependencies")
+load("//buf/internal:dependencies.bzl", "bazel_dependencies", "buf_toolchains_dependencies")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//buf/internal:toolchain.bzl", _rules_buf_toolchains = "rules_buf_toolchains")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load("//tools:toolchain.bzl", "register_toolchains")
 
 def rules_buf_dependencies():
     """Utility method to load all dependencies of `rules_buf`."""
+
+    for name in buf_toolchains_dependencies:
+        maybe(http_file, name, **buf_toolchains_dependencies[name])
     for name in bazel_dependencies:
         maybe(http_archive, name, **bazel_dependencies[name])
 
-def rules_buf_toolchains(version = None):
+def rules_buf_toolchains():
     """Utility method to load all buf toolchains."""
-    _rules_buf_toolchains(version)
+
+    register_toolchains("buf")
+    register_toolchains("protoc-gen-buf-breaking")
+    register_toolchains("protoc-gen-buf-lint")
