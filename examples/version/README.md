@@ -1,4 +1,4 @@
-# version
+# Version
 
 Set the version in the [workspace file](WORKSPACE) and run `bazel run //:print`. It should print the version set in the workspace.
 

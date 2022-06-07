@@ -1,0 +1,16 @@
+load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "bar_v1_proto",
+    srcs = ["bar.proto"],
+    # buf plugin for gazelle sets the import prefix according to the `buf.yaml` locations.
+    strip_import_prefix = "/barapis",
+    visibility = ["//visibility:public"],
+)
+
+buf_lint_test(
+    name = "bar_v1_proto_lint",
+    config = "//barapis:buf.yaml",
+    targets = [":bar_v1_proto"],
+)
