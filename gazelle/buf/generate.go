@@ -30,13 +30,13 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		protoRuleMap[protoTarget] = rule
 		result.Gen = append(result.Gen, generateLintRule(config, protoTarget))
 		result.Imports = append(result.Imports, struct{}{})
-		if config.BreakingMode == BreakingModeModule {
+		if config.BreakingImageTarget == "" || config.BreakingMode == BreakingModeModule {
 			continue
 		}
 		result.Gen = append(result.Gen, generateBreakingRule(config, protoTarget))
 		result.Imports = append(result.Imports, struct{}{})
 	}
-	if config.ModuleRoot && config.BreakingMode == BreakingModeModule {
+	if config.BreakingImageTarget != "" && config.ModuleRoot && config.BreakingMode == BreakingModeModule {
 		breakingRule := generateBreakingRule(config, "buf")
 		result.Gen = append(result.Gen, breakingRule)
 		result.Imports = append(result.Imports, getProtoImportPaths(config, args.Dir))

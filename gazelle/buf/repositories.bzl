@@ -1,5 +1,7 @@
 """Dependencies required to use buf gazelle extension."""
 
+load("@bazel_gazelle//:deps.bzl", "go_repository")
+
 def gazelle_buf_dependencies():
     """Utility method to load dependecies of the buf gazelle extension"""
 
