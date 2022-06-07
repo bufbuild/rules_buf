@@ -3,6 +3,6 @@ syntax = "proto3";
 package bar.v1;
 
 message bAr {
-    string ID = 1;
-    string nAme = 2;
+  string ID = 1;
+  string nAme = 2;
 }
