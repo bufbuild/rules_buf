@@ -8,7 +8,7 @@ load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_to
 rules_buf_dependencies()
 
 # Set the desired buf version
-rules_buf_toolchains("v1.2.0")
+rules_buf_toolchains("v1.5.0")
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
