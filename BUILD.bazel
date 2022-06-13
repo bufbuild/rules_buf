@@ -3,6 +3,7 @@ load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
 # gazelle:prefix github.com/bufbuild/rules_buf
+# gazelle:exclude examples/
 gazelle(
     name = "gazelle",
 )
