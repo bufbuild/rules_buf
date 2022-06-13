@@ -3,8 +3,9 @@ package buf
 import "github.com/bazelbuild/bazel-gazelle/rule"
 
 const (
-	lintRuleKind     = "buf_lint_test"
-	breakingRuleKind = "buf_breaking_test"
+	lintRuleKind             = "buf_lint_test"
+	breakingRuleKind         = "buf_breaking_test"
+	dependenciesRepoRuleKind = "buf_dependencies"
 )
 
 var bufKinds = map[string]rule.KindInfo{
@@ -31,6 +32,15 @@ var bufKinds = map[string]rule.KindInfo{
 			"targets": true,
 		},
 	},
+	dependenciesRepoRuleKind: {
+		MatchAttrs: []string{"name"},
+		NonEmptyAttrs: map[string]bool{
+			"deps": true,
+		},
+		MergeableAttrs: map[string]bool{
+			"deps": true,
+		},
+	},
 }
 
 var bufLoads = []rule.LoadInfo{
@@ -39,6 +49,7 @@ var bufLoads = []rule.LoadInfo{
 		Symbols: []string{
 			lintRuleKind,
 			breakingRuleKind,
+			dependenciesRepoRuleKind,
 		},
 	},
 }
