@@ -35,10 +35,10 @@ var bufKinds = map[string]rule.KindInfo{
 	dependenciesRepoRuleKind: {
 		MatchAttrs: []string{"name"},
 		NonEmptyAttrs: map[string]bool{
-			"deps": true,
+			"modules": true,
 		},
 		MergeableAttrs: map[string]bool{
-			"deps": true,
+			"modules": true,
 		},
 	},
 }

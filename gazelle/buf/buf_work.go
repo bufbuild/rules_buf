@@ -1,17 +1,9 @@
 package buf
 
-import "os"
-
+// bufWork is a subset of the `buf.work.yaml` representation copied from bufbuild/buf
+// 
+// Must be kept in sync with: bufbuild/buf/private/buf/bufwork.ExternalConfigV1
 type bufWork struct {
 	Version     string   `yaml:"version,omitempty" json:"version,omitempty"`
 	Directories []string `yaml:"directories,omitempty" json:"directories,omitempty"`
-}
-
-func readBufWork(file string) (*bufWork, error) {
-	data, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-	var bufWork bufWork
-	return &bufWork, parseJsonOrYaml(data, &bufWork)
 }

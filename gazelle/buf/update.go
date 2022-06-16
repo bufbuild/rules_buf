@@ -51,9 +51,13 @@ func (*bufLang) ImportRepos(args language.ImportReposArgs) language.ImportReposR
 }
 
 func bufLockImport(args language.ImportReposArgs) language.ImportReposResult {
-	bufLock, err := readBufLock(args.Path)
+	data, err := os.ReadFile(args.Path)
 	if err != nil {
 		return language.ImportReposResult{Error: fmt.Errorf("failed to read `buf.lock`: %w", err)}
+	}
+	var bufLock bufLock
+	if err := parseJsonOrYaml(data, &bufLock); err != nil {
+		return language.ImportReposResult{Error: fmt.Errorf("failed to parse `buf.lock`: %w", err)}
 	}
 	if len(bufLock.Deps) == 0 {
 		return language.ImportReposResult{}
@@ -66,11 +70,14 @@ func bufLockImport(args language.ImportReposArgs) language.ImportReposResult {
 	// This is not based on the name in `buf.yaml` as that is not a required field.
 	ruleName := getRepoNameForPath(filepath.Dir(relativePath))
 	repoRule := rule.NewRule(dependenciesRepoRuleKind, ruleName)
-	deps := make([]string, 0, len(bufLock.Deps))
-	for _, dep := range bufLock.Deps {
-		deps = append(deps, fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit))
+	modules := &build.ListExpr{
+		ForceMultiLine: true,
+		List:           make([]build.Expr, 0, len(bufLock.Deps)),
 	}
-	repoRule.SetAttr("deps", deps)
+	for _, dep := range bufLock.Deps {
+		modules.List = append(modules.List, &build.StringExpr{Value: fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit)})
+	}
+	repoRule.SetAttr("modules", modules)
 	addOptionalToolchainAttribute(args, repoRule)
 	return language.ImportReposResult{
 		Gen: []*rule.Rule{repoRule},
@@ -89,9 +96,13 @@ func bufYAMLImport(args language.ImportReposArgs) language.ImportReposResult {
 }
 
 func bufWorkImport(args language.ImportReposArgs) language.ImportReposResult {
-	bufWork, err := readBufWork(args.Path)
+	data, err := os.ReadFile(args.Path)
 	if err != nil {
 		return language.ImportReposResult{Error: fmt.Errorf("failed to read `buf.work.yaml`: %w", err)}
+	}
+	var bufWork bufWork
+	if err := parseJsonOrYaml(data, &bufWork); err != nil {
+		return language.ImportReposResult{Error: fmt.Errorf("failed to parse `buf.work.yaml`: %w", err)}
 	}
 	var result language.ImportReposResult
 	for _, dir := range bufWork.Directories {

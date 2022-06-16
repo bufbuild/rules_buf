@@ -1,7 +1,6 @@
 """Dependencies required to use buf gazelle extension."""
 
 load("@bazel_gazelle//:deps.bzl", "go_repository")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def gazelle_buf_dependencies():
     """Utility method to load dependecies of the buf gazelle extension"""
@@ -18,11 +17,9 @@ def gazelle_buf_dependencies():
         sum = "h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=",
         version = "v3.0.1",
     )
-    http_archive(
+    go_repository(
         name = "com_github_bazelbuild_buildtools",
-        sha256 = "ae34c344514e08c23e90da0e2d6cb700fcd28e80c02e23e4d5715dddcb42f7b3",
-        strip_prefix = "buildtools-4.2.2",
-        urls = [
-            "https://github.com/bazelbuild/buildtools/archive/refs/tags/4.2.2.tar.gz",
-        ],
+        importpath = "github.com/bazelbuild/buildtools",
+        sum = "h1:fmdo+fvvWlhldUcqkhAMpKndSxMN3vH5l7yow5cEaiQ=",
+        version = "v0.0.0-20220531122519-a43aed7014c8",
     )

@@ -1,7 +1,8 @@
 package buf
 
-import "os"
-
+// bufLock is subset of the `buf.lock` representation copied from bufbuild/buf
+// 
+// Must be kept in sync with: bufbuild/buf/private/bufpkg/buflock.ExternalConfigV1
 type bufLock struct {
 	Version string `yaml:"version,omitempty" json:"version,omitempty"`
 	Deps    []struct {
@@ -10,13 +11,4 @@ type bufLock struct {
 		Repository string `yaml:"repository,omitempty" json:"repository,omitempty"`
 		Commit     string `yaml:"commit,omitempty" json:"commit,omitempty"`
 	} `yaml:"deps,omitempty" json:"deps,omitempty"`
-}
-
-func readBufLock(file string) (*bufLock, error) {
-	data, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-	var bufLock bufLock
-	return &bufLock, parseJsonOrYaml(data, &bufLock)
 }

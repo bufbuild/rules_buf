@@ -17,9 +17,6 @@ def _valid_pin(pin):
     if len(module_commit) != 2:
         return False
 
-    if not module_commit[1].isalnum():
-        return False
-
     module_parts = module_commit[0].split("/")
     if len(module_parts) != 3:
         return False
@@ -68,7 +65,7 @@ buf_dependencies = repository_rule(
     implementation = _buf_dependencies_impl,
     doc = _DOC,
     attrs = {
-        "deps": attr.string_list(
+        "modules": attr.string_list(
             allow_empty = False,
             mandatory = True,
             doc = "The module pins <remote>/<owner>/<repo>:<revision>, example: buf.build/acme/petapis:84a33a06f0954823a6f2a089fb1bb82e",
