@@ -38,10 +38,12 @@ _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-lint:toolchain_type"))
 def _buf_lint_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
     config = json.encode({
-        "input_config": ctx.file.config.short_path,
+        "input_config": "" if ctx.file.config == None else ctx.file.config.short_path,
     })
-
-    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, [ctx.file.config])
+    files_to_include = []
+    if ctx.file.config != None:
+        files_to_include.append(ctx.file.config) 
+    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, files_to_include)
 
 buf_lint_test = rule(
     implementation = _buf_lint_test_impl,

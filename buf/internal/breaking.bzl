@@ -49,14 +49,16 @@ def _buf_breaking_test_impl(ctx):
         "exclude_imports": ctx.attr.exclude_imports,
         "input_config": ctx.file.config.short_path,
     })
-
+    files_to_include = [ctx.file.against]
+    if ctx.file.config != None:
+        files_to_include.append(ctx.file.config)
     return protoc_plugin_test(
         ctx,
         proto_infos,
         ctx.executable._protoc,
         ctx.toolchains[_TOOLCHAIN].cli,
         config,
-        [ctx.file.against, ctx.file.config],
+        files_to_include,
     )
 
 buf_breaking_test = rule(
