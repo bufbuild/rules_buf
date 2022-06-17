@@ -35,7 +35,7 @@ rules_proto_dependencies()
 rules_proto_toolchains()
 ```
 
-Refer to the [official docs](https://docs.buf.build/build-systems/bazel) or browse the [examples](examples) on how to setup and use for various scenarios.
+Refer the [docs](https://docs.buf.build/build-systems/bazel) or browse the [examples](examples) on how to setup and use for various scenarios.
 
 ## List of rules
 
