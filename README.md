@@ -1,10 +1,10 @@
 # rules_buf
 
-Bazel rules for [Buf](https://buf.build/).
+Bazel rules for [Buf](https://buf.build/). The rules work alongside the `proto_library` rule of [rules_proto](https://github.com/bazelbuild/rules_proto).
 
 ## Status
 
-In alpha. Not ready for production use.
+This module is a beta, but we may make a few changes as we gather feedback from early adopters.
 
 ## Setup
 
@@ -25,7 +25,7 @@ load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_to
 
 rules_buf_dependencies()
 
-rules_buf_toolchains()
+rules_buf_toolchains(version = "v1.5.0")
 
 # rules_proto
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
@@ -35,16 +35,17 @@ rules_proto_dependencies()
 rules_proto_toolchains()
 ```
 
-Refer to the [official docs](https://docs.buf.build/build-systems/bazel) or browse the [examples](examples) on how to setup and use for various scenarios.
+Refer the [docs](https://docs.buf.build/build-systems/bazel) or browse the [examples](examples) on how to setup and use for various scenarios.
 
 ## List of rules
 
+- [buf_dependencies](https://docs.buf.build/build-systems/bazel#buf-dependencies)
 - [buf_lint_test](https://docs.buf.build/build-systems/bazel#buf-lint-test)
 - [buf_breaking_test](https://docs.buf.build/build-systems/bazel#buf-breaking-test)
 
 ## Gazelle Extension
 
-The repo also has Gazelle extension for generating the lint and breaking change detection rules.
+The repo also offers a Gazelle extension for generating the rules.
 
 Please refer to the [gazelle section](https://docs.buf.build/build-systems/bazel#gazelle) in the docs.
 
