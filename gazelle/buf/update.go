@@ -137,6 +137,9 @@ func bufWorkImport(args language.ImportReposArgs) language.ImportReposResult {
 }
 
 func getRepoNameForPath(path string) string {
+	if path == "." {
+		path = ""
+	}
 	return strings.TrimSuffix("buf_deps_"+strings.ReplaceAll(path, "/", "_"), "_")
 }
 
