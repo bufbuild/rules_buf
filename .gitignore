@@ -1,1 +1,5 @@
 **/bazel-*
+/.tmp/
+*.pprof
+*.svg
+cover.out
