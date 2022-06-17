@@ -15,7 +15,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_buf",
-    sha256 = "d6b2513456fe2229811da7eb67a444be7785f5323c6708b38d851d2b51e54d83",
+    sha256 = "4eac9cc865911d7e8d96c8e969e09bcc74c893ffc67413217b300bc694a6dc3c",
     urls = [
         "https://github.com/bufbuild/rules_buf/releases/download/v0.1.0/rules_buf-v0.1.0.zip",
     ],
