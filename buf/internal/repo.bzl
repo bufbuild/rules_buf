@@ -26,7 +26,7 @@ def _valid_pin(pin):
 def _buf_dependencies_impl(ctx):
     buf = ctx.path(Label("@{}//:buf{}".format(ctx.attr.toolchain_repo, _executable_extension(ctx))))
 
-    for pin in ctx.attr.deps:
+    for pin in ctx.attr.modules:
         if not _valid_pin(pin):
             fail("failed to parse dep should be in the form of <remote>/<owner>/<repo>:<commit>")
 
@@ -59,7 +59,7 @@ def _buf_dependencies_impl(ctx):
     if res.return_code != 0:
         fail("failed with code: {}, error: {}".format(res.return_code, res.stderr))
 
-    return update_attrs(ctx.attr, ["deps"], {})
+    return update_attrs(ctx.attr, ["modules"], {})
 
 buf_dependencies = repository_rule(
     implementation = _buf_dependencies_impl,
