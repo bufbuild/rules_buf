@@ -50,7 +50,7 @@ Please refer to the [gazelle section](https://docs.buf.build/build-systems/bazel
 
 ## Development
 
-The repository follows the [official recommendation](https://bazel.build/rules/deploying) on deploying bazel rules. 
+The repository follows the [official recommendation](https://bazel.build/rules/deploying) on deploying bazel rules.
 All the rule definitions are in [buf/internal](buf/internal).
 
 ### Gazelle
@@ -58,7 +58,7 @@ All the rule definitions are in [buf/internal](buf/internal).
 Gazelle extension is in [gazelle/buf](gazelle/buf). Before looking at the code it would be best to understand the [architecture of gazelle](https://github.com/bazelbuild/bazel-gazelle/blob/master/Design.rst). The file structure is loosely based on the `go` and `proto` [extensions](https://github.com/bazelbuild/bazel-gazelle/tree/master/language) that are shipped with gazelle.
 They are also excellent to better understand the architecture.
 
-The main entry point to the extension is via the `NewLanguage` function in [gazelle/buf/buf.go](gazelle/buf/buf.go). Gazelle mostly depends on [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.25.0/language#Language) interface. Apart from that one can also implement some optional interfaces. 
+The main entry point to the extension is via the `NewLanguage` function in [gazelle/buf/buf.go](gazelle/buf/buf.go). Gazelle mostly depends on [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.25.0/language#Language) interface. Apart from that one can also implement some optional interfaces.
 
 We implement the following interfaces,
 
