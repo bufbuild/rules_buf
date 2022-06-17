@@ -7,6 +7,7 @@ proto_library(
     # buf plugin for gazelle sets the import prefix according to the `buf.yaml` locations.
     strip_import_prefix = "/barapis",
     visibility = ["//visibility:public"],
+    deps = ["@buf_deps_barapis//validate:validate_proto"],
 )
 
 buf_lint_test(

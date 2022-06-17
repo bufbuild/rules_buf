@@ -9,10 +9,14 @@ go_library(
     srcs = [
         "buf.go",
         "buf_lang.go",
+        "buf_lock.go",
+        "buf_work.go",
         "config.go",
+        "cross_resolve.go",
         "generate.go",
         "kinds.go",
         "resolve.go",
+        "update.go",
     ],
     importpath = "github.com/bufbuild/rules_buf/gazelle/buf",
     visibility = ["//visibility:public"],
@@ -24,6 +28,7 @@ go_library(
         "@bazel_gazelle//repo:go_default_library",
         "@bazel_gazelle//resolve:go_default_library",
         "@bazel_gazelle//rule:go_default_library",
+        "@com_github_bazelbuild_buildtools//build:go_default_library",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
 )

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package bar.v1;
 
+import "validate/validate.proto";
+
 message Bar {
   string id = 1;
   string name = 2;

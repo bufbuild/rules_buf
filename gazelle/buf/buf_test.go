@@ -38,7 +38,18 @@ func TestWorkspaces(t *testing.T) {
 	testRunGazelle(t, "workspace")
 }
 
-func testRunGazelle(t *testing.T, name string) {
+func TestCrossResolve(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "cross_resolve")
+}
+
+func TestImportResolve(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "imports", "update-repos", "--from_file=buf.work.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
+	testRunGazelle(t, "imports_toolchain_name", "update-repos", "--from_file=buf.work.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
+}
+
+func testRunGazelle(t *testing.T, name string, gazelleArgs ...string) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		gazellePath, ok := bazel.FindBinary("gazelle/buf", "gazelle-buf")
@@ -46,7 +57,7 @@ func testRunGazelle(t *testing.T, name string) {
 		inputs, goldens := getTestData(t, path.Join("gazelle/buf/testdata", name))
 		dir, cleanup := testtools.CreateFiles(t, inputs)
 		defer cleanup()
-		cmd := exec.Command(gazellePath, "-build_file_name=BUILD")
+		cmd := exec.Command(gazellePath, append(gazelleArgs, "-build_file_name=BUILD")...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Dir = dir
@@ -60,6 +71,7 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 	allFiles, err := bazel.ListRunfiles()
 	require.NoError(t, err, "bazel.ListRunfiles()")
 	require.True(t, len(allFiles) > 0, "0 runfiles")
+	var hasWorkspace bool
 	for _, f := range allFiles {
 		if !strings.HasPrefix(f.ShortPath, dir+"/") {
 			continue
@@ -79,6 +91,9 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 		if v == ".in" || v == ".out" {
 			filePath = strings.TrimSuffix(shortPath, v)
 		}
+		if filePath == "WORKSPACE" {
+			hasWorkspace = true
+		}
 		fileSpec := testtools.FileSpec{
 			Path:    filePath,
 			Content: string(content),
@@ -95,13 +110,15 @@ func getTestData(t *testing.T, dir string) (inputs []testtools.FileSpec, goldens
 	}
 	require.True(t, len(inputs) > 0, "0 inputs read")
 	// Add workspace for gazelle to work
-	inputs = append(inputs, testtools.FileSpec{
-		Path:    "WORKSPACE",
-		Content: "",
-	})
-	goldens = append(goldens, testtools.FileSpec{
-		Path:    "WORKSPACE",
-		Content: "",
-	})
+	if !hasWorkspace {
+		inputs = append(inputs, testtools.FileSpec{
+			Path:    "WORKSPACE",
+			Content: "",
+		})
+		goldens = append(goldens, testtools.FileSpec{
+			Path:    "WORKSPACE",
+			Content: "",
+		})
+	}
 	return inputs, goldens
 }
