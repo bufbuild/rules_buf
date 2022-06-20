@@ -18,39 +18,9 @@ load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
-This checks protocol buffers for breaking changes using `buf breaking`. 
-For an overview of breaking change detection using buf please refer: https://docs.buf.build/breaking/overview.
+`buf_breaking_test` is a test rule that checks one or more `proto_library` targets for breaking changes. 
 
-**NOTE**: 
-In order to truly check breaking changes this rule should be used to check all `proto_library` targets that come under a [buf module](https://docs.buf.build/bsr/overview#module). 
-Using unique test targets for each `proto_library` target checks each `proto_library` target in isolation. 
-Checking targets/packages in isolation has the obvious caveat of not being able to detect when an entire package/target is removed/moved.
-
-**Gazelle**
-
-The [gazelle extension](/gazelle/buf/README.md) can be used generate this rule. It supports generating once for buf module and also at a bazel package level.
-
-**Example**
-
-This rule depends on `proto_library` rule.
-
-```starlark
-load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
-load("@rules_proto//proto:defs.bzl", "proto_library")
-
-proto_library(
-    name = "foo_proto",
-    srcs = ["foo.proto"],
-)
-
-buf_breaking_test(
-    name = "foo_proto_breaking",
-    # Image file to check against. Please refer to https://docs.buf.build/reference/images.
-    against = "@build_buf_foo_foo//:file",
-    targets = [":foo_proto"],
-    config = ":buf.yaml",
-)
-```
+For more info please refer to the [`buf_breaking_test` section](https://docs.buf.build/build-systems/bazel#buf-lint-test) of the docs.
 """
 
 _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-breaking:toolchain_type"))

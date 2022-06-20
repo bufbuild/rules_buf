@@ -17,7 +17,10 @@
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "update_attrs")
 
 _DOC = """
-The `buf_dependencies` rule downloads and generates `proto_library` targets for buf modules hosted on the BSR.
+`buf_dependencies` is a [repository rule](https://bazel.build/rules/repository_rules) that downloads one or more modules from the [BSR](https://docs.buf.build/bsr/introduction) and generates build files using Gazelle.
+[Setup Gazelle](https://github.com/bazelbuild/bazel-gazelle#setup) to use this rule.
+
+For more info please refer to the [`buf_dependencies` section](https://docs.buf.build/build-systems/bazel#buf-dependencies) of the docs.
 """
 
 def _executable_extension(ctx):

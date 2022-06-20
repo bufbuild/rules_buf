@@ -18,33 +18,9 @@ load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
-This lints protocol buffers using `buf lint`.
-For an overview of linting using buf please refer: https://docs.buf.build/lint/overview.
+`buf_lint_test` is a test rule that lints one or more `proto_library` targets.
 
-**Gazelle**
-
-The [gazelle extension](/gazelle/buf/README.md) can be used generate this rule.
-
-**Example**
-
-This rule depends on `proto_library` rule.
-
-```starlark
-load("@rules_buf//buf:defs.bzl", "buf_lint_test")
-load("@rules_proto//proto:defs.bzl", "proto_library")
-
-proto_library(
-    name = "foo_proto",
-    srcs = ["pet.proto"],
-    deps = ["@go_googleapis//google/type:datetime_proto"],
-)
-
-buf_lint_test(
-    name = "foo_proto_lint",    
-    targets = [":foo_proto"],
-    config = "buf.yaml",
-)
-```
+For more info please refer to the [`buf_lint_test` section](https://docs.buf.build/build-systems/bazel#buf-lint-test) of the docs.
 """
 
 _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-lint:toolchain_type"))
@@ -56,7 +32,7 @@ def _buf_lint_test_impl(ctx):
     })
     files_to_include = []
     if ctx.file.config != None:
-        files_to_include.append(ctx.file.config) 
+        files_to_include.append(ctx.file.config)
     return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, files_to_include)
 
 buf_lint_test = rule(
