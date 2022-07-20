@@ -53,7 +53,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
     args.add_joined(["--buf-plugin_out", "."], join_with = "=")
     args.add_all(sources)
 
-    args_file = ctx.actions.declare_file("args")
+    args_file = ctx.actions.declare_file("{}-args".format(ctx.label.name))
     ctx.actions.write(
         output = args_file,
         content = args,
