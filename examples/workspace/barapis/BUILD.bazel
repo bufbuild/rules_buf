@@ -33,7 +33,7 @@ buf_breaking_test(
 )
 
 buf_push(
-    name = "push_fooapis",
+    name = "push_barapis",
     config = ":buf.yaml",
     lock = ":buf.lock",
     targets = [
