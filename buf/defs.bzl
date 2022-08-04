@@ -28,8 +28,10 @@ Use [gazelle](/gazelle/buf) to auto generate all of these rules based on `buf.ya
 
 load("//buf/internal:breaking.bzl", _buf_breaking_test = "buf_breaking_test")
 load("//buf/internal:lint.bzl", _buf_lint_test = "buf_lint_test")
+load("//buf/internal:push.bzl", _buf_push = "buf_push")
 load("//buf/internal:repo.bzl", _buf_dependencies = "buf_dependencies")
 
 buf_breaking_test = _buf_breaking_test
 buf_lint_test = _buf_lint_test
 buf_dependencies = _buf_dependencies
+buf_push = _buf_push
