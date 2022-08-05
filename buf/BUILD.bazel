@@ -23,6 +23,7 @@ bzl_library(
         "//buf/internal:breaking",
         "//buf/internal:lint",
         "//buf/internal:repo",
+        "//buf/internal:push",
     ],
 )
 
