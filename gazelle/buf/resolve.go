@@ -38,7 +38,13 @@ func (l *bufLang) Resolve(
 	// Only breaking rule requires resolution
 	switch ruleToResolve.Kind() {
 	case breakingRuleKind:
-		resolveBreakingRule(
+		config := GetConfigForGazelleConfig(gazelleConfig)
+		if config.BreakingMode != BreakingModeModule {
+			return
+		}
+		fallthrough
+	case pushRuleKind:
+		resolveProtoTargetsForRule(
 			gazelleConfig,
 			ruleIndex,
 			remoteCache,
@@ -49,20 +55,16 @@ func (l *bufLang) Resolve(
 	}
 }
 
-// resolveBreakingRule resolves targets of buf_breaking_test in Module mode
-func resolveBreakingRule(
+// resolveProtoTargetsForRule resolves targets of buf_breaking_test in Module mode and buf_push
+func resolveProtoTargetsForRule(
 	gazelleConfig *config.Config,
 	ruleIndex *resolve.RuleIndex,
 	remoteCache *repo.RemoteCache,
-	breakingRule *rule.Rule,
+	ruleToResolve *rule.Rule,
 	importsRaw interface{},
 	fromLabel label.Label,
 ) {
-	config := GetConfigForGazelleConfig(gazelleConfig)
-	if config.BreakingMode != BreakingModeModule {
-		return
-	}
-	// importsRaw will be `[]string` for module mode
+	// importsRaw will be `[]string` for module mode and buf_push
 	imports, ok := importsRaw.([]string)
 	if !ok {
 		return
@@ -88,5 +90,5 @@ func resolveBreakingRule(
 	for target := range targetSet {
 		targets = append(targets, target)
 	}
-	breakingRule.SetAttr("targets", targets)
+	ruleToResolve.SetAttr("targets", targets)
 }
