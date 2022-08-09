@@ -57,7 +57,7 @@ var bufKinds = map[string]rule.KindInfo{
 		},
 	},
 	pushRuleKind: {
-		MatchAttrs: []string{"name"},
+		MatchAttrs: []string{"targets"},
 		NonEmptyAttrs: map[string]bool{
 			"targets": true,
 		},
