@@ -118,7 +118,6 @@ func generateBreakingRule(config *Config, target string) *rule.Rule {
 
 func generatePushRule() *rule.Rule {
 	r := rule.NewRule(pushRuleKind, "buf_push")
-	r.SetAttr("targets", []string{":buf"})
 	r.SetAttr("config", "buf.yaml")
 	r.SetAttr("lock", "buf.lock")
 	return r
