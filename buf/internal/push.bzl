@@ -84,7 +84,10 @@ buf_push = rule(
         "targets": attr.label_list(
             providers = [ProtoInfo],
             mandatory = True,
-            doc = "`proto_library` targets that should be pushed",
+            doc = """`proto_library` targets that should be pushed. 
+            Only the direct source will be pushed i.e. only the files in the `srcs` attribute of `proto_library` targets will
+            be pushed, the files from the `deps` attribute will not be pushed.
+            """,
         ),
         "config": attr.label(
             allow_single_file = True,
