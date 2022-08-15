@@ -21,9 +21,9 @@ _TOOLS = ["buf", "protoc-gen-buf-breaking", "protoc-gen-buf-lint"]
 _TOOLCHAINS_REPO = "rules_buf_toolchains"
 
 BufToolchainInfo = provider(fields = {
-    "buf_tool": "",
-    "protoc_breaking_tool": "",
-    "protoc_lint_tool": "",
+    "buf_tool": "A File for a buf executable",
+    "protoc_breaking_tool": "A File for protoc-gen-buf-breaking executable",
+    "protoc_lint_tool": "A File for protoc-gen-buf-lint executable",
 })
 
 def _buf_toolchain_impl(ctx):
@@ -65,7 +65,7 @@ buf_toolchain = rule(
     ],
 )
 
-def _buf_download_release_impl(ctx):
+def _buf_dist_toolchain_repo_impl(ctx):
     manifest = json.decode(ctx.read(Label("@rules_buf_tool_manifest//:manifest.json")))
     bin_suffix = ""
     if ctx.attr.os == "windows":
@@ -78,52 +78,8 @@ def _buf_download_release_impl(ctx):
 
     ctx.template("BUILD.bazel", Label("@rules_buf//buf/internal:BUILD.dist.bazel"), substitutions = {"%BIN_SUFFIX%": bin_suffix}, executable = False)
 
-#    ctx.report_progress("Downloading buf release hash")
-#    ctx.download(
-#        url = [
-#            "https://github.com/bufbuild/buf/releases/download/{}/sha256.txt".format(version),
-#        ],
-#        output = "sha256.txt",
-#    )
-#    ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
-#    ctx.file("toolchain.bzl", _TOOLCHAIN_FILE)
-#    sha_list = ctx.read("sha256.txt").splitlines()
-#    for sha_line in sha_list:
-#        if sha_line.strip(" ").endswith(".tar.gz"):
-#            continue
-#        (sum, _, bin) = sha_line.partition(" ")
-#        bin = bin.strip(" ")
-#        lower_case_bin = bin.lower()
-#        if lower_case_bin.find(os) == -1 or lower_case_bin.find(cpu) == -1:
-#            continue
-#
-#        output = lower_case_bin[:lower_case_bin.find(os) - 1]
-#        if os == "windows":
-#            output += ".exe"
-#
-#        ctx.report_progress("Downloading " + bin)
-#        download_info = ctx.download(
-#            url = "https://github.com/bufbuild/buf/releases/download/{}/{}".format(version, bin),
-#            sha256 = sum,
-#            executable = True,
-#            output = output,
-#        )
-#
-#    if os == "darwin":
-#        os = "osx"
-#
-#    ctx.file(
-#        "BUILD",
-#        _BUILD_FILE.format(
-#            os = os,
-#            cpu = cpu,
-#            rules_buf_repo_name = Label("//buf/repositories.bzl").workspace_name,
-#        ),
-#    )
-#    return update_attrs(ctx.attr, ["version"], {"version": version})
-
-_buf_download_release = repository_rule(
-    implementation = _buf_download_release_impl,
+_buf_dist_toolchain_repo = repository_rule(
+    implementation = _buf_dist_toolchain_repo_impl,
     attrs = {
         "os": attr.string(
             mandatory = True,
@@ -136,7 +92,7 @@ _buf_download_release = repository_rule(
     },
 )
 
-def _buf_download_manifest_impl(ctx):
+def _buf_download_manifest_repo_impl(ctx):
     version = ctx.attr.version
     if not version:
         ctx.report_progress("Finding latest buf version")
@@ -152,6 +108,7 @@ def _buf_download_manifest_impl(ctx):
         versions = json.decode(versions_data)
         version = versions[0]["name"]
 
+    ctx.report_progress("Downloading and preparing manifest")
     ctx.download(
         url = [
             "https://github.com/bufbuild/buf/releases/download/{}/sha256.txt".format(version),
@@ -192,7 +149,8 @@ def _buf_download_manifest_impl(ctx):
                 break
 
         if not tool:
-            fail("unknown tool found in manifest", bin)
+            print("unknown tool found in manifest, skipping", bin)
+            continue
 
         os, _, arch = rest.partition("-")
         arch = arch.removesuffix(".exe")
@@ -211,13 +169,16 @@ def _buf_download_manifest_impl(ctx):
     ctx.file("BUILD.bazel", content = "", executable = False)
     ctx.file("manifest.json", content = json.encode_indent(manifest), executable = False)
 
-_buf_download_manifest = repository_rule(
-    implementation = _buf_download_manifest_impl,
+    return update_attrs(ctx.attr, ["version"], {"version": version})
+
+_buf_download_manifest_repo = repository_rule(
+    implementation = _buf_download_manifest_repo_impl,
     attrs = {
         "version": attr.string(
-            doc = "Buf release version",
+            doc = "A buf github release version",
         ),
     },
+    doc = "Prepares a manifest.json file from a buf release checksum manifest. If no version is provided it will use Github releases to fetch the latest one",
 )
 
 def _buf_toolchain_repo_impl(ctx):
@@ -232,6 +193,7 @@ def _buf_toolchain_repo_impl(ctx):
 
 _buf_toolchain_repo = repository_rule(
     implementation = _buf_toolchain_repo_impl,
+    doc = "Provides toolchain() targets for all execution platforms buf supports.",
 )
 
 # buildifier: disable=unnamed-macro
@@ -242,12 +204,14 @@ def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
         name: The name of the toolchains repository. Defaults to "buf_toolchains"
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
     """
-    _buf_download_manifest(name = "rules_buf_tool_manifest", version = version)
+    _buf_download_manifest_repo(name = "rules_buf_tool_manifest", version = version)
 
+    # declare platform specific distribution and buf_toolchain repos for all the supported platforms.
+    # due to how toolchain resolution works the tool specific toolchain info is not loaded when registering a toolchain
     for os in ["macos", "linux", "windows"]:
         for arch in ["x86_64", "arm64"]:
             dist_name = "{name}_dist_{os}_{arch}".format(name = name, os = os, arch = arch)
-            _buf_download_release(
+            _buf_dist_toolchain_repo(
                 name = dist_name,
                 os = os,
                 arch = arch,
