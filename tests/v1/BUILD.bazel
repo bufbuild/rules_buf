@@ -1,0 +1,14 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//buf:defs.bzl", "buf_lint_test")
+
+proto_library(
+    name = "test_proto",
+    testonly = True,
+    srcs = ["test.proto"],
+    deps = [],
+)
+
+buf_lint_test(
+    name = "test_proto_lint_test",
+    targets = [":test_proto"],
+)

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package tests.v1;
+
+message Message1 {
+
+}

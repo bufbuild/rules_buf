@@ -1,0 +1,24 @@
+OS = [
+    "macos",
+    "linux",
+    "windows",
+]
+
+ARCHS = [
+    "x86_64",
+    "arm64",
+]
+
+[
+    toolchain(
+        name = "buf_toolchain_{}_{}".format(os, arch),
+        exec_compatible_with = [
+            "@platforms//os:{}".format(os),
+            "@platforms//cpu:{}".format(arch),
+        ],
+        toolchain = "@%NAME%_dist_{}_{}//:toolchain".format(os, arch),
+        toolchain_type = "@rules_buf//buf:toolchain_type",
+    )
+    for arch in ARCHS
+    for os in OS
+]
