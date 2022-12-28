@@ -1,0 +1,8 @@
+load("@rules_buf//buf:defs.bzl", "buf_push")
+
+buf_push(
+    name = "buf_push",
+    config = "buf.yaml",
+    lock = "buf.lock",
+    targets = ["//foo/v1:foo_proto"],
+)
