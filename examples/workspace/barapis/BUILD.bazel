@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_push")
 
 # Export the buf.yaml to make it available to rules in other packages.
 exports_files(["buf.yaml"])
@@ -24,6 +24,15 @@ buf_breaking_test(
     config = ":buf.yaml",
     # The proto_library targets to include.
     # Refer to the documentation for more on this: https://docs.buf.build/build-systems/bazel#buf-breaking-test
+    targets = [
+        "//barapis/bar/v1:bar_proto",
+    ],
+)
+
+buf_push(
+    name = "push_barapis",
+    config = ":buf.yaml",
+    lock = "buf.lock",
     targets = [
         "//barapis/bar/v1:bar_proto",
     ],

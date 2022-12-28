@@ -35,6 +35,14 @@ bzl_library(
 )
 
 bzl_library(
+    name = "push",
+    srcs = ["push.bzl"],
+    deps = [
+        "@rules_proto//proto:defs",
+    ],
+)
+
+bzl_library(
     name = "plugin",
     srcs = ["plugin.bzl"],
 )
