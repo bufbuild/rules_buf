@@ -23,7 +23,7 @@ _DOC = """
 For more info please refer to the [`buf_lint_test` section](https://docs.buf.build/build-systems/bazel#buf-lint-test) of the docs.
 """
 
-_TOOLCHAIN = str(Label("//tools/protoc-gen-buf-lint:toolchain_type"))
+_TOOLCHAIN = "@rules_buf//buf:toolchain_type"
 
 def _buf_lint_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
@@ -33,7 +33,7 @@ def _buf_lint_test_impl(ctx):
     files_to_include = []
     if ctx.file.config != None:
         files_to_include.append(ctx.file.config)
-    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, files_to_include)
+    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].buf.protoc_lint_tool, config, files_to_include)
 
 buf_lint_test = rule(
     implementation = _buf_lint_test_impl,

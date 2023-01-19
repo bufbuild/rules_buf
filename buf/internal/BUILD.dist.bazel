@@ -1,0 +1,27 @@
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+load("@rules_buf//buf/internal:toolchain.bzl", "buf_toolchain")
+
+native_binary(
+    name = "buf",
+    src = "bin/buf%BIN_SUFFIX%",
+    out = "buf%BIN_SUFFIX%",
+)
+
+native_binary(
+    name = "protoc_gen_buf_breaking",
+    src = "bin/protoc-gen-buf-breaking%BIN_SUFFIX%",
+    out = "protoc-gen-buf-breaking%BIN_SUFFIX%",
+)
+
+native_binary(
+    name = "protoc_gen_buf_lint",
+    src = "bin/protoc-gen-buf-lint%BIN_SUFFIX%",
+    out = "protoc-gen-buf-lint%BIN_SUFFIX%",
+)
+
+buf_toolchain(
+    name = "toolchain",
+    buf = ":buf",
+    protoc_breaking = ":protoc_gen_buf_breaking",
+    protoc_lint = ":protoc_gen_buf_lint",
+)
