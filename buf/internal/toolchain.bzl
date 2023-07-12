@@ -133,6 +133,7 @@ def _detect_host_platform(ctx):
 
 def _buf_download_releases_impl(ctx):
     version = ctx.attr.version
+    repository_url = ctx.attr.repository_url
     if not version:
         ctx.report_progress("Finding latest buf version")
 
@@ -158,7 +159,7 @@ def _buf_download_releases_impl(ctx):
     ctx.report_progress("Downloading buf release hash")
     ctx.download(
         url = [
-            "https://github.com/bufbuild/buf/releases/download/{}/sha256.txt".format(version),
+            "{}/{}/sha256.txt".format(repository_url, version),
         ],
         output = "sha256.txt",
     )
@@ -180,7 +181,7 @@ def _buf_download_releases_impl(ctx):
 
         ctx.report_progress("Downloading " + bin)
         download_info = ctx.download(
-            url = "https://github.com/bufbuild/buf/releases/download/{}/{}".format(version, bin),
+            url = "{}/{}/{}".format(repository_url, version, bin),
             sha256 = sum,
             executable = True,
             output = output,
@@ -205,11 +206,15 @@ _buf_download_releases = repository_rule(
         "version": attr.string(
             doc = "Buf release version",
         ),
+        "repository_url": attr.string(
+            doc = "Repository url base used for downloads",
+            default = "https://github.com/bufbuild/buf/releases/download",
+        ),
     },
 )
 
 # buildifier: disable=unnamed-macro
-def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
+def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, repository_url = None):
     """rules_buf_toolchains sets up toolchains for buf, protoc-gen-buf-lint, and protoc-gen-buf-breaking
 
     Args:
@@ -217,7 +222,7 @@ def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
     """
 
-    _buf_download_releases(name = name, version = version)
+    _buf_download_releases(name = name, version = version, repository_url = repository_url)
 
     _register_toolchains(name, "buf")
     _register_toolchains(name, "protoc-gen-buf-breaking")
