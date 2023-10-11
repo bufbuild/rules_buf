@@ -1,0 +1,10 @@
+"Bazel dependencies"
+bazel_dep(name = "rules_buf", dev_dependency = True, version = "0.0.0")
+
+local_path_override(
+    module_name = "rules_buf",
+    path = "../..",
+)
+# Only needed because rules_proto doesn't provide the protoc toolchain yet.
+# TODO(alex/sahin): remove in the future
+bazel_dep(name = "protobuf", version = "21.7", repo_name = "com_google_protobuf")
