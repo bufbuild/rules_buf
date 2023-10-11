@@ -63,7 +63,7 @@ def declare_buf_toolchains(os, cpu, rules_buf_repo_name):
         native.toolchain(
             name = cmd + "_toolchain",
             toolchain = ":" + toolchain_impl,
-            toolchain_type = "@{}//tools/{}:toolchain_type".format(rules_buf_repo_name, cmd),
+            toolchain_type = "@@{}//tools/{}:toolchain_type".format(rules_buf_repo_name, cmd),
             exec_compatible_with = [
                 "@platforms//os:" + os,
                 "@platforms//cpu:" + cpu,
@@ -201,7 +201,7 @@ def _buf_download_releases_impl(ctx):
     )
     return update_attrs(ctx.attr, ["version", "sha256"], {"version": version, "sha256": sha256})
 
-_buf_download_releases = repository_rule(
+buf_download_releases = repository_rule(
     implementation = _buf_download_releases_impl,
     attrs = {
         "version": attr.string(
@@ -222,7 +222,7 @@ def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, sha256 = None)
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
     """
 
-    _buf_download_releases(name = name, version = version, sha256 = sha256)
+    buf_download_releases(name = name, version = version, sha256 = sha256)
 
     _register_toolchains(name, "buf")
     _register_toolchains(name, "protoc-gen-buf-breaking")
