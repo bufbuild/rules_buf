@@ -31,7 +31,11 @@ load("//buf/internal:lint.bzl", _buf_lint_test = "buf_lint_test")
 load("//buf/internal:push.bzl", _buf_push = "buf_push")
 load("//buf/internal:repo.bzl", _buf_dependencies = "buf_dependencies")
 
-buf_breaking_test = _buf_breaking_test
-buf_lint_test = _buf_lint_test
 buf_dependencies = _buf_dependencies
 buf_push = _buf_push
+
+def buf_breaking_test(timeout = "short", **kwargs):
+    _buf_breaking_test(timeout = timeout, **kwargs)
+
+def buf_lint_test(timeout = "short", **kwargs):
+    _buf_lint_test(timeout = timeout, **kwargs)
