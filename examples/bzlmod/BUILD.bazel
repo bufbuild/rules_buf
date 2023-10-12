@@ -1,4 +1,5 @@
 load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 
 exports_files(["buf.yaml"], visibility = ["//visibility:public"])
 
@@ -10,7 +11,11 @@ proto_library(
 proto_library(
     name = "foo_proto",
     srcs = ["file.proto"],
-    deps = [":unused"],
+    deps = [
+        # imports "validate/validate.proto"
+        "@buf_deps//validate:validate_proto",
+        ":unused",
+    ],
 )
 
 buf_lint_test(
