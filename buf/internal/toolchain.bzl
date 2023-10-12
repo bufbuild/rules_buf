@@ -55,7 +55,7 @@ def declare_buf_toolchains(os, cpu, rules_buf_repo_name):
         ext = ""
         if os == "windows":
             ext = ".exe"
-        toolchain_impl = cmd + "_toolchain_impl"         
+        toolchain_impl = cmd + "_toolchain_impl"
         _buf_toolchain(
             name = toolchain_impl,
             cli = str(Label("//:"+ cmd)),
@@ -133,6 +133,7 @@ def _detect_host_platform(ctx):
 
 def _buf_download_releases_impl(ctx):
     version = ctx.attr.version
+    sha256 = ctx.attr.sha256
     if not version:
         ctx.report_progress("Finding latest buf version")
 
@@ -156,12 +157,13 @@ def _buf_download_releases_impl(ctx):
         cpu = "x86_64"
 
     ctx.report_progress("Downloading buf release hash")
-    ctx.download(
+    sha256 = ctx.download(
         url = [
             "https://github.com/bufbuild/buf/releases/download/{}/sha256.txt".format(version),
         ],
+        sha256 = sha256,
         output = "sha256.txt",
-    )
+    ).sha256
     ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
     ctx.file("toolchain.bzl", _TOOLCHAIN_FILE)
     sha_list = ctx.read("sha256.txt").splitlines()
@@ -197,7 +199,7 @@ def _buf_download_releases_impl(ctx):
             rules_buf_repo_name = Label("//buf/repositories.bzl").workspace_name,
         ),
     )
-    return update_attrs(ctx.attr, ["version"], {"version": version})
+    return update_attrs(ctx.attr, ["version", "sha256"], {"version": version, "sha256": sha256})
 
 _buf_download_releases = repository_rule(
     implementation = _buf_download_releases_impl,
@@ -205,11 +207,14 @@ _buf_download_releases = repository_rule(
         "version": attr.string(
             doc = "Buf release version",
         ),
+        "sha256": attr.string(
+            doc = "Buf release sha256.txt checksum",
+        ),
     },
 )
 
 # buildifier: disable=unnamed-macro
-def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
+def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, sha256 = None):
     """rules_buf_toolchains sets up toolchains for buf, protoc-gen-buf-lint, and protoc-gen-buf-breaking
 
     Args:
@@ -217,7 +222,7 @@ def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None):
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
     """
 
-    _buf_download_releases(name = name, version = version)
+    _buf_download_releases(name = name, version = version, sha256 = sha256)
 
     _register_toolchains(name, "buf")
     _register_toolchains(name, "protoc-gen-buf-breaking")
