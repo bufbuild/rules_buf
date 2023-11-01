@@ -133,6 +133,7 @@ def _detect_host_platform(ctx):
 
 def _buf_download_releases_impl(ctx):
     version = ctx.attr.version
+    repository_url = ctx.attr.repository_url
     sha256 = ctx.attr.sha256
     if not version:
         ctx.report_progress("Finding latest buf version")
@@ -159,7 +160,7 @@ def _buf_download_releases_impl(ctx):
     ctx.report_progress("Downloading buf release hash")
     sha256 = ctx.download(
         url = [
-            "https://github.com/bufbuild/buf/releases/download/{}/sha256.txt".format(version),
+            "{}/{}/sha256.txt".format(repository_url, version),
         ],
         sha256 = sha256,
         output = "sha256.txt",
@@ -182,7 +183,7 @@ def _buf_download_releases_impl(ctx):
 
         ctx.report_progress("Downloading " + bin)
         download_info = ctx.download(
-            url = "https://github.com/bufbuild/buf/releases/download/{}/{}".format(version, bin),
+            url = "{}/{}/{}".format(repository_url, version, bin),
             sha256 = sum,
             executable = True,
             output = output,
@@ -207,6 +208,10 @@ _buf_download_releases = repository_rule(
         "version": attr.string(
             doc = "Buf release version",
         ),
+        "repository_url": attr.string(
+            doc = "Repository url base used for downloads",
+            default = "https://github.com/bufbuild/buf/releases/download",
+        ),
         "sha256": attr.string(
             doc = "Buf release sha256.txt checksum",
         ),
@@ -214,15 +219,17 @@ _buf_download_releases = repository_rule(
 )
 
 # buildifier: disable=unnamed-macro
-def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, sha256 = None):
+def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, sha256 = None, repository_url = None):
     """rules_buf_toolchains sets up toolchains for buf, protoc-gen-buf-lint, and protoc-gen-buf-breaking
 
     Args:
         name: The name of the toolchains repository. Defaults to "buf_toolchains"
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
+        sha256: The checksum sha256.txt file.
+        repository_url: The repository url base used for downloads. Defaults to "https://github.com/bufbuild/buf/releases/download"
     """
 
-    _buf_download_releases(name = name, version = version, sha256 = sha256)
+    _buf_download_releases(name = name, version = version, sha256 = sha256, repository_url = repository_url)
 
     _register_toolchains(name, "buf")
     _register_toolchains(name, "protoc-gen-buf-breaking")
