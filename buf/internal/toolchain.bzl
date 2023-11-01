@@ -211,6 +211,7 @@ _buf_download_releases = repository_rule(
         "repository_url": attr.string(
             doc = "Repository url base used for downloads",
             default = "https://github.com/bufbuild/buf/releases/download",
+        ),
         "sha256": attr.string(
             doc = "Buf release sha256.txt checksum",
         ),
@@ -224,6 +225,8 @@ def rules_buf_toolchains(name = _TOOLCHAINS_REPO, version = None, sha256 = None,
     Args:
         name: The name of the toolchains repository. Defaults to "buf_toolchains"
         version: Release version, eg: `v.1.0.0-rc12`. If `None` defaults to latest
+        sha256: The checksum sha256.txt file.
+        repository_url: The repository url base used for downloads. Defaults to "https://github.com/bufbuild/buf/releases/download"
     """
 
     _buf_download_releases(name = name, version = version, sha256 = sha256, repository_url = repository_url)
