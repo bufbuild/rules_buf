@@ -1,0 +1,19 @@
+"Bazel dependencies"
+bazel_dep(name = "rules_buf", dev_dependency = True, version = "0.0.0")
+
+local_path_override(
+    module_name = "rules_buf",
+    path = "../..",
+)
+
+buf = use_extension("@rules_buf//buf:extensions.bzl", "buf")
+
+# Override the default version of buf
+buf.toolchains(version = "v1.26.0")
+
+# See https://buf.build/docs/build-systems/bazel#buf-dependencies
+buf.dependency(module = "buf.build/envoyproxy/protoc-gen-validate:eac44469a7af47e7839a7f1f3d7ac004")
+buf.dependency(module = "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef")
+
+# Allow references to labels under @buf_deps
+use_repo(buf, "buf_deps")
