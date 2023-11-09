@@ -62,6 +62,11 @@ func TestPush(t *testing.T) {
 	testRunGazelle(t, "push")
 }
 
+func TestMerge(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "merge")
+}
+
 func TestImportResolve(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "imports", "update-repos", "--from_file=buf.work.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
