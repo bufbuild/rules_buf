@@ -15,7 +15,7 @@
 package buf
 
 // bufLock is subset of the `buf.lock` representation copied from bufbuild/buf
-// 
+//
 // Must be kept in sync with: bufbuild/buf/private/bufpkg/buflock.ExternalConfigV1
 type bufLock struct {
 	Version string `yaml:"version,omitempty" json:"version,omitempty"`
