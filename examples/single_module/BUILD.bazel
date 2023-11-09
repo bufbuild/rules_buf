@@ -1,4 +1,4 @@
-# Copyright 2021-2022 Buf Technologies, Inc.
+# Copyright 2021-2023 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ buf_breaking_test(
     # The Image file to check against.
     against = "testdata/image.bin",
     config = ":buf.yaml",
+    error_format = "json",
     # The proto_library targets to include.
     # Refer to the documentation for more on this: https://docs.buf.build/build-systems/bazel#buf-breaking-test
     targets = [
