@@ -32,6 +32,7 @@ def _buf_breaking_test_impl(ctx):
         "limit_to_input_files": ctx.attr.limit_to_input_files,
         "exclude_imports": ctx.attr.exclude_imports,
         "input_config": ctx.file.config.short_path,
+        "error_format": ctx.attr.error_format,
     })
     files_to_include = [ctx.file.against]
     if ctx.file.config != None:
@@ -74,6 +75,10 @@ buf_breaking_test = rule(
         "exclude_imports": attr.bool(
             default = True,
             doc = """Checks are limited to the source files excluding imports from breaking change detection. Please refer to https://docs.buf.build/breaking/protoc-plugin for more details""",
+        ),
+        "error_format": attr.string(
+            default = "",
+            doc = "error-format flag for buf breaking: https://buf.build/docs/reference/cli/buf/breaking#error-format",
         ),
     },
     toolchains = [_TOOLCHAIN],

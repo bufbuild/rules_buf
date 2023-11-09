@@ -29,6 +29,7 @@ def _buf_lint_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
     config = json.encode({
         "input_config": "" if ctx.file.config == None else ctx.file.config.short_path,
+        "error_format": ctx.attr.error_format,
     })
     files_to_include = []
     if ctx.file.config != None:
@@ -52,6 +53,10 @@ buf_lint_test = rule(
         "config": attr.label(
             allow_single_file = True,
             doc = "The `buf.yaml` file",
+        ),
+        "error_format": attr.string(
+            default = "",
+            doc = "error-format flag for buf lint: https://buf.build/docs/reference/cli/buf/lint#error-format",
         ),
     },
     toolchains = [_TOOLCHAIN],
