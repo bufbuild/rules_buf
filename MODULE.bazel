@@ -15,21 +15,35 @@
 "Bazel module definition for bzlmod"
 module(
     name = "rules_buf",
-    version = "0.0.0", # Replaced when publishing
+    version = "0.0.0",  # Replaced when publishing
     compatibility_level = 1,
 )
 
 bazel_dep(name = "platforms", version = "0.0.4")
+
 # Only needed because rules_proto doesn't provide the protoc toolchain yet.
 # TODO: remove in the future
 bazel_dep(name = "protobuf", version = "21.7", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
 
+bazel_dep(name = "rules_go", version = "0.42.0", repo_name = "io_bazel_rules_go")
+bazel_dep(name = "bazel_skylib", version = "1.5.0")
+
 # We depend on gazelle at runtime to generate our proto_library rules
-bazel_dep(name = "gazelle", version = "0.33.0")
+bazel_dep(name = "gazelle", version = "0.34.0", repo_name = "bazel_gazelle")
+
+go_deps = use_extension("@bazel_gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//:go.mod")
+
+use_repo(
+    go_deps,
+    "com_github_bazelbuild_buildtools",
+    "com_github_stretchr_testify",
+    "in_gopkg_yaml_v3",
+)
 
 # ... and then reach inside to get the gazelle binary from this repository
-non_module_deps = use_extension("@gazelle//internal/bzlmod:non_module_deps.bzl", "non_module_deps")
+non_module_deps = use_extension("@bazel_gazelle//internal/bzlmod:non_module_deps.bzl", "non_module_deps")
 use_repo(non_module_deps, "bazel_gazelle_go_repository_tools")
 
 ext = use_extension("//buf:extensions.bzl", "buf")

@@ -14,26 +14,40 @@
 
 load("@rules_buf//buf:defs.bzl", "buf_lint_test")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@gazelle//:def.bzl", "gazelle", "gazelle_binary")
 
-exports_files(["buf.yaml"], visibility = ["//visibility:public"])
+exports_files(
+    ["buf.yaml"],
+    visibility = ["//visibility:public"],
+)
 
-proto_library(
-    name = "unused",
-    srcs = ["unused.proto"],
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle-buf",
+)
+
+gazelle_binary(
+    name = "gazelle-buf",
+    languages = [
+        "@gazelle//language/proto",  # Built-in rule from gazelle for Protos.
+        # Any languages that depend on Gazelle's proto plugin must come after it.
+        "@rules_buf//gazelle/buf:buf",  # Loads the Buf extension
+    ],
+    visibility = ["//visibility:public"],
 )
 
 proto_library(
-    name = "foo_proto",
-    srcs = ["file.proto"],
-    deps = [
-        # imports "validate/validate.proto"
-        "@buf_deps//validate:validate_proto",
-        ":unused",
+    name = "root_proto",
+    srcs = [
+        "file.proto",
+        "unused.proto",
     ],
+    visibility = ["//visibility:public"],
+    deps = ["@buf_deps//validate:validate_proto"],
 )
 
 buf_lint_test(
-    name = "foo_proto_lint",
-    targets = [":foo_proto"],
-    config = "buf.yaml",
+    name = "root_proto_lint",
+    config = "//:buf.yaml",
+    targets = [":root_proto"],
 )

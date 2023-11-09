@@ -22,8 +22,8 @@ bzl_library(
     deps = [
         "//buf/internal:breaking",
         "//buf/internal:lint",
-        "//buf/internal:repo",
         "//buf/internal:push",
+        "//buf/internal:repo",
     ],
 )
 

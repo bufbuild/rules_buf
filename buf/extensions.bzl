@@ -41,7 +41,6 @@ def _extension_impl(module_ctx):
     # Iterate over the global modules registered either directly by the user
     # or transitively by some other bazel module they use.
     for mod in module_ctx.modules:
-
         # collect all buf.dependency tags, group by name of resulting buf_dependencies repo
         for dependency in mod.tags.dependency:
             if dependency.name not in dependencies.keys():
@@ -58,7 +57,7 @@ def _extension_impl(module_ctx):
             if toolchains.name not in registrations.keys():
                 registrations[toolchains.name] = []
             registrations[toolchains.name].append(toolchains.version)
-    
+
     # Don't require that the user manually registers a toolchain
     if len(registrations) == 0:
         registrations = {_DEFAULT_TOOLCHAIN_NAME: [_DEFAULT_VERSION]}
