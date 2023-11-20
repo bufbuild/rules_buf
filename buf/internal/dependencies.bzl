@@ -19,17 +19,17 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 bazel_dependencies = {
     "bazel_skylib": {
-        "sha256": "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
+        "sha256": "cd55a062e763b9349921f0f5db8c3933288dc8ba4f76dd9416aac68acee3cb94",
         "urls": [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
         ],
     },
     "rules_proto": {
-        "sha256": "e017528fd1c91c5a33f15493e3a398181a9e821a804eb7ff5acdd1d2d6c2b18d",
-        "strip_prefix": "rules_proto-4.0.0-3.20.0",
+        "sha256": "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
+        "strip_prefix": "rules_proto-5.3.0-21.7",
         "urls": [
-            "https://github.com/bazelbuild/rules_proto/archive/refs/tags/4.0.0-3.20.0.tar.gz",
+            "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
         ],
     },
 }
