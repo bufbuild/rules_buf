@@ -16,7 +16,7 @@
 
 module(
     name = "rules_buf",
-    version = "0.0.0",  # Replaced when publishing
+    version = "0.2.0",
     compatibility_level = 1,
 )
 
