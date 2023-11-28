@@ -18,7 +18,7 @@ load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(":plugin.bzl", "protoc_plugin_test")
 
 _DOC = """
-`buf_breaking_test` is a test rule that checks one or more `proto_library` targets for breaking changes. 
+`buf_breaking_test` is a test rule that checks one or more `proto_library` targets for breaking changes.
 
 For more info please refer to the [`buf_breaking_test` section](https://docs.buf.build/build-systems/bazel#buf-lint-test) of the docs.
 """
@@ -44,6 +44,7 @@ def _buf_breaking_test_impl(ctx):
         ctx.toolchains[_TOOLCHAIN].cli,
         config,
         files_to_include,
+        ctx.attr.protoc_args,
     )
 
 buf_breaking_test = rule(
@@ -79,6 +80,10 @@ buf_breaking_test = rule(
         "error_format": attr.string(
             default = "",
             doc = "error-format flag for buf breaking: https://buf.build/docs/reference/cli/buf/breaking#error-format",
+        ),
+        "protoc_args": attr.string_list(
+            default = [],
+            doc = "Additional arguments to pass to protoc",
         ),
     },
     toolchains = [_TOOLCHAIN],
