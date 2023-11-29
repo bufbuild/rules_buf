@@ -14,7 +14,7 @@
 
 """protoc plugin based test rule"""
 
-def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_include = []):
+def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_include = [], protoc_args = []):
     """protoc_plugin_test creates a script file for a generic protoc plugin
 
     Args:
@@ -24,6 +24,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
         plugin: plugin executable
         config: plugin option to be passed to protoc
         files_to_include: any additional files to be included as part of runfiles
+        protoc_args: extra arguments to be passed to protoc
     Returns:
         Runfiles required to run the test
     """
@@ -51,6 +52,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
     args.add_joined(["--buf-plugin_opt", config], join_with = "=")
     args.add_joined("--descriptor_set_in", deps, join_with = ":", map_each = _short_path)
     args.add_joined(["--buf-plugin_out", "."], join_with = "=")
+    args.add_all(protoc_args)
     args.add_all(sources)
 
     args_file = ctx.actions.declare_file("{}-args".format(ctx.label.name))

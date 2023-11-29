@@ -34,7 +34,15 @@ def _buf_lint_test_impl(ctx):
     files_to_include = []
     if ctx.file.config != None:
         files_to_include.append(ctx.file.config)
-    return protoc_plugin_test(ctx, proto_infos, ctx.executable._protoc, ctx.toolchains[_TOOLCHAIN].cli, config, files_to_include)
+    return protoc_plugin_test(
+        ctx,
+        proto_infos,
+        ctx.executable._protoc,
+        ctx.toolchains[_TOOLCHAIN].cli,
+        config,
+        files_to_include,
+        ctx.attr.protoc_args,
+    )
 
 buf_lint_test = rule(
     implementation = _buf_lint_test_impl,
@@ -57,6 +65,10 @@ buf_lint_test = rule(
         "error_format": attr.string(
             default = "",
             doc = "error-format flag for buf lint: https://buf.build/docs/reference/cli/buf/lint#error-format",
+        ),
+        "protoc_args": attr.string_list(
+            default = [],
+            doc = "Additional arguments to pass to protoc",
         ),
     },
     toolchains = [_TOOLCHAIN],
