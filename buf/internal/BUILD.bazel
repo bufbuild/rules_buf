@@ -38,6 +38,16 @@ bzl_library(
     name = "push",
     srcs = ["push.bzl"],
     deps = [
+        ":module",
+        "@rules_proto//proto:defs",
+    ],
+)
+
+bzl_library(
+    name = "image",
+    srcs = ["image.bzl"],
+    deps = [
+        ":module",
         "@rules_proto//proto:defs",
     ],
 )
@@ -70,4 +80,9 @@ bzl_library(
     deps = [
         "@bazel_tools//tools/build_defs/repo:utils.bzl",
     ],
+)
+
+bzl_library(
+    name = "module",
+    srcs = ["module.bzl"],
 )

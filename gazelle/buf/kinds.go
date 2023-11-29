@@ -21,6 +21,7 @@ const (
 	breakingRuleKind         = "buf_breaking_test"
 	dependenciesRepoRuleKind = "buf_dependencies"
 	pushRuleKind             = "buf_push"
+	imageRuleKind            = "buf_image"
 )
 
 var bufKinds = map[string]rule.KindInfo{
@@ -70,6 +71,21 @@ var bufKinds = map[string]rule.KindInfo{
 			"targets": true,
 		},
 	},
+	imageRuleKind: {
+		MatchAttrs: []string{"targets"},
+		NonEmptyAttrs: map[string]bool{
+			"targets": true,
+		},
+		MergeableAttrs: map[string]bool{
+			"targets": true,
+			"config":  true,
+			"lock":    true,
+			"format":  true,
+		},
+		ResolveAttrs: map[string]bool{
+			"targets": true,
+		},
+	},
 }
 
 var bufLoads = []rule.LoadInfo{
@@ -80,6 +96,7 @@ var bufLoads = []rule.LoadInfo{
 			breakingRuleKind,
 			dependenciesRepoRuleKind,
 			pushRuleKind,
+			imageRuleKind,
 		},
 	},
 }

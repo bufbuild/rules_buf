@@ -16,16 +16,7 @@ load("@rules_buf//buf:defs.bzl", "buf_dependencies")
 
 def buf_deps():
     buf_dependencies(
-        name = "buf_deps_barapis",
-        modules = [
-            "buf.build/acme/paymentapis:9a877cf260e1488d869a31fce3bea26d",
-            "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef",
-            "buf.build/envoyproxy/protoc-gen-validate:eac44469a7af47e7839a7f1f3d7ac004",
-            "buf.build/googleapis/googleapis:62f35d8aed1149c291d606d958a7ce32",
-        ],
-    )
-    buf_dependencies(
-        name = "buf_deps_fooapis",
+        name = "buf_deps_proto",
         modules = [
             "buf.build/acme/paymentapis:9a877cf260e1488d869a31fce3bea26d",
             "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef",

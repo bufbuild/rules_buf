@@ -4,16 +4,20 @@ deps:
   - remote: buf.build
     owner: acme
     repository: paymentapis
-    commit: 6e230f46113f498392c82d12b1a07b70
+    commit: 9a877cf260e1488d869a31fce3bea26d
+    digest: shake256:4af5b88c9a1d9b36421ad84a2cff211fc74995040188dafc1c8508d36406140e40eb0ab82d21e761961e4a71631d4474e3d0608b987ca3d02d5d19012edff21d
   - remote: buf.build
     owner: acme
     repository: petapis
-    commit: 84a33a06f0954823a6f2a089fb1bb82e
+    commit: 7abdb7802c8f4737a1a23a35ca8266ef
+    digest: shake256:39903154f313a0532ef209feaf17ce4cb5b0eee4696b2f0df7e10121bc1b12af36c6109956e90fe44e6ede8721197ec244994fd28c3b36302bbd85e3cb93ac9f
   - remote: buf.build
     owner: envoyproxy
     repository: protoc-gen-validate
-    commit: dc09a417d27241f7b069feae2cd74a0e
+    commit: eac44469a7af47e7839a7f1f3d7ac004
+    digest: shake256:0feabcde01b6b11e3c75a5e3f807968d5995626546f39c37e5d4205892b3a59cced0ed83b35a2eb9e6dddd3309660ad46b737c9dcd224b425de0a6654ce04417
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 84c3cad756d2435982d9e3b72680fa96
+    commit: 62f35d8aed1149c291d606d958a7ce32
+    digest: shake256:c5f5c2401cf70b7c9719834954f31000a978397fdfebda861419bb4ab90fa8efae92710fddab0820533908a1e25ed692a8e119432b7b260c895087a4975b32f3

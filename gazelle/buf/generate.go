@@ -52,6 +52,9 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 	}
 	if config.ModuleRoot {
 		protoImportPaths := getProtoImportPaths(config, args.Dir)
+		buildRule := generateBuildRule()
+		result.Gen = append(result.Gen, buildRule)
+		result.Imports = append(result.Imports, protoImportPaths)
 		if config.Module.Name != "" {
 			pushRule := generatePushRule()
 			result.Gen = append(result.Gen, pushRule)
@@ -73,7 +76,7 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 			result.Empty = append(result.Empty, generateEmptyRule(rule))
 			continue
 		}
-		if rule.Kind() == pushRuleKind {
+		if rule.Kind() == pushRuleKind || rule.Kind() == imageRuleKind {
 			result.Empty = append(result.Empty, generateEmptyRule(rule))
 			continue
 		}
@@ -118,6 +121,13 @@ func generateBreakingRule(config *Config, target string) *rule.Rule {
 
 func generatePushRule() *rule.Rule {
 	r := rule.NewRule(pushRuleKind, "buf_push")
+	r.SetAttr("config", "buf.yaml")
+	r.SetAttr("lock", "buf.lock")
+	return r
+}
+
+func generateBuildRule() *rule.Rule {
+	r := rule.NewRule(imageRuleKind, "buf_image")
 	r.SetAttr("config", "buf.yaml")
 	r.SetAttr("lock", "buf.lock")
 	return r

@@ -29,8 +29,10 @@ Use [gazelle](/gazelle/buf) to auto generate all of these rules based on `buf.ya
 load("//buf/internal:breaking.bzl", _buf_breaking_test = "buf_breaking_test")
 load("//buf/internal:lint.bzl", _buf_lint_test = "buf_lint_test")
 load("//buf/internal:repo.bzl", _buf_dependencies = "buf_dependencies")
+load("//buf/internal:image.bzl", _buf_image = "buf_image")
 
 buf_dependencies = _buf_dependencies
+buf_image = _buf_image
 
 def buf_breaking_test(timeout = "short", **kwargs):
     _buf_breaking_test(timeout = timeout, **kwargs)

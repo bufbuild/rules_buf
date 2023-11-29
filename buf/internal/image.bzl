@@ -12,45 +12,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Defines buf_push rule"""
+"""Defines buf_image rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(":module.bzl", "create_module_zip")
 
 _DOC = """
-`buf_push` pushes one or more `proto_library` targets to the [BSR](https://docs.buf.build/bsr/introduction).
-
-For more info please refer to the [`buf_push` section](https://docs.buf.build/build-systems/bazel#buf-push) of the docs.
+`buf_image` builds one or more `proto_library` targets outputs an image file.
 """
 
 _TOOLCHAIN = str(Label("//tools/buf:toolchain_type"))
 
-def _buf_push_impl(ctx):
-    proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
+def _buf_image_impl(ctx):
     zip_file = ctx.actions.declare_file("{}.zip".format(ctx.label.name))
     create_module_zip(
         ctx,
         ctx.executable._zipper,
-        proto_infos,
+        [t[ProtoInfo] for t in ctx.attr.targets],
         ctx.file.config,
         ctx.file.lock,
         zip_file,
     )
-    ctx.actions.write(
-        output = ctx.outputs.executable,
-        content = "{} push {}".format(ctx.toolchains[_TOOLCHAIN].cli.short_path, zip_file.short_path),
-        is_executable = True,
+    image_file = ctx.actions.declare_file("{}.{}".format(ctx.label.name, ctx.attr.format))
+    args = ctx.actions.args()
+    args.add("build")
+    args.add(zip_file)
+    args.add_joined(["--output", image_file], join_with = "=")
+    ctx.actions.run(
+        inputs = [zip_file],
+        outputs = [image_file],
+        executable = ctx.toolchains[_TOOLCHAIN].cli,
+        arguments = [args],
     )
     return [
         DefaultInfo(
-            runfiles = ctx.runfiles(
-                files = [zip_file, ctx.toolchains[_TOOLCHAIN].cli],
-            ),
+            files = depset([image_file]),
         ),
     ]
 
-buf_push = rule(
-    implementation = _buf_push_impl,
+buf_image = rule(
+    implementation = _buf_image_impl,
     doc = _DOC,
     attrs = {
         "_zipper": attr.label(
@@ -61,9 +62,9 @@ buf_push = rule(
         "targets": attr.label_list(
             providers = [ProtoInfo],
             mandatory = True,
-            doc = """`proto_library` targets that should be pushed. 
-            Only the direct source will be pushed i.e. only the files in the `srcs` attribute of `proto_library` targets will
-            be pushed, the files from the `deps` attribute will not be pushed.
+            doc = """`proto_library` targets that should be part of the image. 
+            Only the direct source will be part of the image i.e. only the files in the `srcs` attribute of `proto_library` targets will
+            be included, the files from the `deps` attribute will not be included.
             """,
         ),
         "config": attr.label(
@@ -76,7 +77,10 @@ buf_push = rule(
             mandatory = True,
             doc = "The `buf.lock` file",
         ),
+        "format": attr.string(
+            doc = "The output image format. Supported formats: binpb,json,txtpb",
+            default = "bin",
+        ),
     },
     toolchains = [_TOOLCHAIN],
-    executable = True,
 )

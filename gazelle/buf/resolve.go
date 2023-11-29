@@ -43,7 +43,7 @@ func (l *bufLang) Resolve(
 			return
 		}
 		fallthrough
-	case pushRuleKind:
+	case pushRuleKind, imageRuleKind:
 		resolveProtoTargetsForRule(
 			gazelleConfig,
 			ruleIndex,

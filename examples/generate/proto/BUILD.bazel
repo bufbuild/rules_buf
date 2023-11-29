@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_build")
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_image")
 
 # Export the buf.yaml to make it available to rules in other packages.
 exports_files(["buf.yaml"])
@@ -20,16 +20,18 @@ exports_files(["buf.yaml"])
 # The next line is gazelle directive that sets the image file to use breaking change detection.
 # gazelle:buf_breaking_against testdata/image.bin
 
-buf_build(
-    name = "buf_build",
+buf_image(
+    name = "buf_image",
     config = "buf.yaml",
+    format = "json",
     lock = "buf.lock",
-    targets = ["//fooapis/foo/v1:foo_v1_proto"],
+    targets = ["//proto/foo/v1:foo_v1_proto"],
+    visibility = ["//visibility:public"],
 )
 
 buf_breaking_test(
     name = "buf_breaking",
     against = "testdata/image.bin",
-    config = "//fooapis:buf.yaml",
-    targets = ["//fooapis/foo/v1:foo_v1_proto"],
+    config = "//proto:buf.yaml",
+    targets = ["//proto/foo/v1:foo_v1_proto"],
 )

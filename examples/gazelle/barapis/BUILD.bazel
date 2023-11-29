@@ -12,13 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test", "buf_image")
 
 # Export the buf.yaml to make it available to rules in other packages.
 exports_files(["buf.yaml"])
 
 # The next line is gazelle directive that sets the image file to use for breaking change detection.
 # gazelle:buf_breaking_against testdata/image.bin
+
+buf_image(
+    name = "buf_image",
+    config = "buf.yaml",
+    lock = "buf.lock",
+    targets = ["//barapis/bar/v1:bar_v1_proto"],
+)
 
 buf_breaking_test(
     name = "buf_breaking",
