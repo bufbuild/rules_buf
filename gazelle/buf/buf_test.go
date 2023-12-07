@@ -58,6 +58,8 @@ func TestCrossResolve(t *testing.T) {
 }
 
 func TestPush(t *testing.T) {
+	// Skipping this test until we release the `buf_push` rule
+	t.SkipNow()
 	t.Parallel()
 	testRunGazelle(t, "push")
 }

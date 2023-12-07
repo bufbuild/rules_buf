@@ -52,7 +52,7 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 	}
 	if config.ModuleRoot {
 		protoImportPaths := getProtoImportPaths(config, args.Dir)
-		if config.Module.Name != "" {
+		if config.GeneratePushRule && config.Module.Name != "" {
 			pushRule := generatePushRule()
 			result.Gen = append(result.Gen, pushRule)
 			result.Imports = append(result.Imports, protoImportPaths)
