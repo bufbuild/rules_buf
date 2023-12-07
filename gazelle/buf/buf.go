@@ -80,6 +80,10 @@ type Config struct {
 	ModuleRoot bool
 	// BufConfigFile is for the nearest buf.yaml
 	BufConfigFile label.Label
+	// GeneratePushRule controls if buf_push should be generated.
+	//
+	// Always false for now.
+	GeneratePushRule bool
 }
 
 // BufModule is the parsed buf.yaml. It currently only supports version, name, and build
