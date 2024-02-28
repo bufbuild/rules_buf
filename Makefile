@@ -30,7 +30,7 @@ clean: ## Delete intermediate build artifacts
 
 .PHONY: test
 test: ## Run unit tests
-	$(BAZEL) test //...
+	$(BAZEL) test --noenable_bzlmod //...
 
 .PHONY: generate
 generate: $(BIN)/license-header ## Regenerate code and licenses
