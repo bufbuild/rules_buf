@@ -22,7 +22,7 @@ jobs:
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel test --test_output=errors //...
+        run: make test
   macos:
     runs-on: macos-latest
     steps:
@@ -36,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel test --test_output=errors //...
+        run: make test
   windows:
     runs-on: windows-latest
     steps:
@@ -50,4 +50,4 @@ jobs:
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
       - name: bazel test
-        run: bazel test --test_output=errors  //...
+        run: make test
