@@ -20,6 +20,7 @@ load("//buf/internal:toolchain.bzl", "buf_download_releases")
 load("//buf/internal:repo.bzl", "buf_dependencies")
 
 _DEFAULT_VERSION = "v1.28.1"
+_DEFAULT_SHA256 = "05dfb45d2330559d258e1230f5a25e154f0a328afda2a434348b5ba4c124ece7"
 _DEFAULT_TOOLCHAIN_NAME = "rules_buf_toolchains"
 _DEFAULT_DEPS = "buf_deps"
 
@@ -31,6 +32,7 @@ dependency = tag_class(attrs = {
 toolchains = tag_class(attrs = {
     "name": attr.string(doc = "name of resulting buf toolchains repo", default = _DEFAULT_TOOLCHAIN_NAME),
     "version": attr.string(doc = "Version of the buf tool, see https://github.com/bufbuild/buf/releases"),
+    "sha256": attr.string(doc = "The checksum sha256.txt file"),
 })
 
 def _extension_impl(module_ctx):
@@ -55,11 +57,11 @@ def _extension_impl(module_ctx):
                 """)
             if toolchains.name not in registrations.keys():
                 registrations[toolchains.name] = []
-            registrations[toolchains.name].append(toolchains.version)
+            registrations[toolchains.name].append({"version": toolchains.version, "sha256": toolchains.sha256})
 
     # Don't require that the user manually registers a toolchain
     if len(registrations) == 0:
-        registrations = {_DEFAULT_TOOLCHAIN_NAME: [_DEFAULT_VERSION]}
+        registrations = {_DEFAULT_TOOLCHAIN_NAME: [{"version": _DEFAULT_VERSION, "sha256": _DEFAULT_SHA256}]}
 
     for name, versions in registrations.items():
         if len(versions) > 1:
@@ -72,7 +74,8 @@ def _extension_impl(module_ctx):
             selected = versions[0]
         buf_download_releases(
             name = name,
-            version = selected,
+            version = selected["version"],
+            sha256 = selected["sha256"],
         )
 
     for name, modules in dependencies.items():
