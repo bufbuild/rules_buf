@@ -86,7 +86,7 @@ func generateLintRule(config *Config, target string) *rule.Rule {
 	if config.Module != nil {
 		r.SetAttr("config", config.BufConfigFile.String())
 	}
-	if config.ModuleConfig != nil {
+	if config.ModuleConfig != nil && config.ModuleConfig.Path != "" {
 		r.SetAttr("module", config.ModuleConfig.Path)
 	}
 	return r
@@ -106,7 +106,7 @@ func generateBreakingRule(config *Config, target string) *rule.Rule {
 	if config.Module != nil {
 		r.SetAttr("config", config.BufConfigFile.String())
 	}
-	if config.ModuleConfig != nil {
+	if config.ModuleConfig != nil && config.ModuleConfig.Path != "" {
 		r.SetAttr("module", config.ModuleConfig.Path)
 	}
 	return r
