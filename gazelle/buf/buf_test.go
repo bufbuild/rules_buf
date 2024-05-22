@@ -32,6 +32,7 @@ import (
 func TestLint(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "lint")
+	testRunGazelle(t, "v2/lint")
 }
 
 func TestBreaking(t *testing.T) {
@@ -39,40 +40,43 @@ func TestBreaking(t *testing.T) {
 	testRunGazelle(t, "breaking_module")
 	testRunGazelle(t, "breaking_package")
 	testRunGazelle(t, "breaking_package_to_module")
+	testRunGazelle(t, "v2/breaking_module")
+	testRunGazelle(t, "v2/breaking_package")
+	testRunGazelle(t, "v2/breaking_package_to_module")
 }
 
 func TestExcludes(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "excludes_module")
 	testRunGazelle(t, "excludes_package")
+	testRunGazelle(t, "v2/excludes_module")
+	testRunGazelle(t, "v2/excludes_package")
 }
 
 func TestWorkspaces(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "workspace")
+	testRunGazelle(t, "v2/workspace")
 }
 
 func TestCrossResolve(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "cross_resolve")
-}
-
-func TestPush(t *testing.T) {
-	// Skipping this test until we release the `buf_push` rule
-	t.SkipNow()
-	t.Parallel()
-	testRunGazelle(t, "push")
+	testRunGazelle(t, "v2/cross_resolve")
 }
 
 func TestMerge(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "merge")
+	testRunGazelle(t, "v2/merge")
 }
 
 func TestImportResolve(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "imports", "update-repos", "--from_file=buf.work.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
 	testRunGazelle(t, "imports_toolchain_name", "update-repos", "--from_file=buf.work.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
+	testRunGazelle(t, "v2/imports", "update-repos", "--from_file=buf.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
+	testRunGazelle(t, "v2/imports_toolchain_name", "update-repos", "--from_file=buf.yaml", "-to_macro=buf_deps.bzl%buf_deps", "-prune")
 }
 
 func testRunGazelle(t *testing.T, name string, gazelleArgs ...string) {

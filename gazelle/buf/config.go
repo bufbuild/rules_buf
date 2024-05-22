@@ -85,7 +85,16 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	if err != nil {
 		log.Print("error trying to load default config", err)
 	}
-	if bufModule != nil {
+	if config.Module != nil && config.Module.Version == "v2" {
+		for _, module := range config.Module.Modules {
+			if module.Path == packageRelativePath {
+				config.ModuleRoot = true
+				config.BufConfigFile = label.New("", "", "buf.yaml") // v2 will always have a buf.yaml at the roor.
+				config.ModuleConfig = &module
+				break
+			}
+		}
+	} else if bufModule != nil {
 		config.Module = bufModule
 		config.ModuleRoot = true
 		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
@@ -172,9 +181,18 @@ func isWithinExcludes(config *Config, path string) bool {
 	if config.Module == nil {
 		return false
 	}
+	// v1
 	for _, exclude := range config.Module.Build.Excludes {
 		if strings.Contains(path, exclude) {
 			return true
+		}
+	}
+	// v2, all paths are relative to the root to `buf.yaml`, so no need to filter out the module.
+	for _, module := range config.Module.Modules {
+		for _, exclude := range module.Excludes {
+			if strings.HasPrefix(path, exclude) {
+				return true
+			}
 		}
 	}
 	return false

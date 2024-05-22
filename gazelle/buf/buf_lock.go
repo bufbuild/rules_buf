@@ -24,5 +24,6 @@ type bufLock struct {
 		Owner      string `yaml:"owner,omitempty" json:"owner,omitempty"`
 		Repository string `yaml:"repository,omitempty" json:"repository,omitempty"`
 		Commit     string `yaml:"commit,omitempty" json:"commit,omitempty"`
+		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
 	} `yaml:"deps,omitempty" json:"deps,omitempty"`
 }

@@ -33,12 +33,10 @@ const (
 
 const lang = "buf"
 
-var (
-	stringToBreakingMode = map[string]BreakingMode{
-		"module":  BreakingModeModule,
-		"package": BreakingModePackage,
-	}
-)
+var stringToBreakingMode = map[string]BreakingMode{
+	"module":  BreakingModeModule,
+	"package": BreakingModePackage,
+}
 
 // BreakingMode is the generation strategy for buf_breaking_test
 //
@@ -80,22 +78,30 @@ type Config struct {
 	ModuleRoot bool
 	// BufConfigFile is for the nearest buf.yaml
 	BufConfigFile label.Label
-	// GeneratePushRule controls if buf_push should be generated.
+	// Path to the nearest module root.
 	//
-	// Always false for now.
-	GeneratePushRule bool
+	// Only applies to v2.
+	ModuleConfig *ModuleConfig
 }
 
 // BufModule is the parsed buf.yaml. It currently only supports version, name, and build
 // top-level attributes.
 type BufModule struct {
-	Version string      `json:"version,omitempty" yaml:"version,omitempty"`
-	Name    string      `json:"name,omitempty" yaml:"name,omitempty"`
-	Build   BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
+	Version string `json:"version,omitempty" yaml:"version,omitempty"`
+	// V1
+	Name  string      `json:"name,omitempty" yaml:"name,omitempty"`
+	Build BuildConfig `json:"build,omitempty" yaml:"build,omitempty"`
+	// V2
+	Modules []ModuleConfig `json:"modules,omitempty" yaml:"modules,omitempty"`
 }
 
 // BuildConfig is the build section of the buf.yaml
 type BuildConfig struct {
+	Excludes []string `json:"excludes,omitempty" yaml:"excludes,omitempty"`
+}
+
+type ModuleConfig struct {
+	Path     string   `json:"path,omitempty" yaml:"path,omitempty"`
 	Excludes []string `json:"excludes,omitempty" yaml:"excludes,omitempty"`
 }
 

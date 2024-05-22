@@ -51,12 +51,6 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		result.Imports = append(result.Imports, struct{}{})
 	}
 	if config.ModuleRoot {
-		protoImportPaths := getProtoImportPaths(config, args.Dir)
-		if config.GeneratePushRule && config.Module.Name != "" {
-			pushRule := generatePushRule()
-			result.Gen = append(result.Gen, pushRule)
-			result.Imports = append(result.Imports, protoImportPaths)
-		}
 		if config.BreakingImageTarget != "" && config.BreakingMode == BreakingModeModule {
 			breakingRule := generateBreakingRule(config, "buf")
 			result.Gen = append(result.Gen, breakingRule)
@@ -70,10 +64,6 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 	for _, rule := range args.File.Rules {
 		// In module mode delete all
 		if rule.Kind() == breakingRuleKind && config.BreakingMode == BreakingModeModule {
-			result.Empty = append(result.Empty, generateEmptyRule(rule))
-			continue
-		}
-		if rule.Kind() == pushRuleKind {
 			result.Empty = append(result.Empty, generateEmptyRule(rule))
 			continue
 		}
@@ -96,6 +86,9 @@ func generateLintRule(config *Config, target string) *rule.Rule {
 	if config.Module != nil {
 		r.SetAttr("config", config.BufConfigFile.String())
 	}
+	if config.ModuleConfig != nil {
+		r.SetAttr("module", config.ModuleConfig.Path)
+	}
 	return r
 }
 
@@ -113,13 +106,9 @@ func generateBreakingRule(config *Config, target string) *rule.Rule {
 	if config.Module != nil {
 		r.SetAttr("config", config.BufConfigFile.String())
 	}
-	return r
-}
-
-func generatePushRule() *rule.Rule {
-	r := rule.NewRule(pushRuleKind, "buf_push")
-	r.SetAttr("config", "buf.yaml")
-	r.SetAttr("lock", "buf.lock")
+	if config.ModuleConfig != nil {
+		r.SetAttr("module", config.ModuleConfig.Path)
+	}
 	return r
 }
 
