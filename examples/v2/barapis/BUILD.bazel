@@ -14,14 +14,13 @@
 
 load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
 
-# Export the buf.yaml to make it available to rules in other packages.
-exports_files(["buf.yaml"])
 
 buf_breaking_test(
     name = "barapis_proto_breaking",
     # The Image file to check against.
     against = "testdata/image.bin",
-    config = ":buf.yaml",
+    config = "//:buf.yaml",
+    module = "barapis",
     # The proto_library targets to include.
     # Refer to the documentation for more on this: https://docs.buf.build/build-systems/bazel#buf-breaking-test
     targets = [
