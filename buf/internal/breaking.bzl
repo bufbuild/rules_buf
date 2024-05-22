@@ -27,13 +27,16 @@ _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-breaking:toolchain_type"))
 
 def _buf_breaking_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
-    config = json.encode({
+    config_map = {
         "against_input": ctx.file.against.short_path,
         "limit_to_input_files": ctx.attr.limit_to_input_files,
         "exclude_imports": ctx.attr.exclude_imports,
         "input_config": ctx.file.config.short_path,
         "error_format": ctx.attr.error_format,
-    })
+    }
+    if ctx.attr.module != "":
+        config_map["module"] = ctx.attr.module
+    config = json.encode(config_map)
     files_to_include = [ctx.file.against]
     if ctx.file.config != None:
         files_to_include.append(ctx.file.config)
@@ -68,6 +71,10 @@ buf_breaking_test = rule(
         "config": attr.label(
             allow_single_file = True,
             doc = """The `buf.yaml` file""",
+        ),
+        "module": attr.string(
+            default = "",
+            doc = "The module to use in v2 config",
         ),
         "limit_to_input_files": attr.bool(
             default = False,

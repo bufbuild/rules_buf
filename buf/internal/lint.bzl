@@ -27,10 +27,13 @@ _TOOLCHAIN = str(Label("//tools/protoc-gen-buf-lint:toolchain_type"))
 
 def _buf_lint_test_impl(ctx):
     proto_infos = [t[ProtoInfo] for t in ctx.attr.targets]
-    config = json.encode({
+    config_map = {
         "input_config": "" if ctx.file.config == None else ctx.file.config.short_path,
         "error_format": ctx.attr.error_format,
-    })
+    }
+    if ctx.attr.module != "":
+        config_map["module"] = ctx.attr.module    
+    config = json.encode(config_map)
     files_to_include = []
     if ctx.file.config != None:
         files_to_include.append(ctx.file.config)
@@ -61,6 +64,10 @@ buf_lint_test = rule(
         "config": attr.label(
             allow_single_file = True,
             doc = "The `buf.yaml` file",
+        ),
+        "module": attr.string(
+            default = "",
+            doc = "The module to use in v2 config",
         ),
         "error_format": attr.string(
             default = "",
