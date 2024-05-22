@@ -42,8 +42,6 @@ func (l *bufLang) Resolve(
 		if config.BreakingMode != BreakingModeModule {
 			return
 		}
-		fallthrough
-	case pushRuleKind:
 		resolveProtoTargetsForRule(
 			gazelleConfig,
 			ruleIndex,
@@ -55,7 +53,7 @@ func (l *bufLang) Resolve(
 	}
 }
 
-// resolveProtoTargetsForRule resolves targets of buf_breaking_test in Module mode and buf_push
+// resolveProtoTargetsForRule resolves targets of buf_breaking_test in Module mode
 func resolveProtoTargetsForRule(
 	gazelleConfig *config.Config,
 	ruleIndex *resolve.RuleIndex,
@@ -64,7 +62,7 @@ func resolveProtoTargetsForRule(
 	importsRaw interface{},
 	fromLabel label.Label,
 ) {
-	// importsRaw will be `[]string` for module mode and buf_push
+	// importsRaw will be `[]string` for module mode
 	imports, ok := importsRaw.([]string)
 	if !ok {
 		return

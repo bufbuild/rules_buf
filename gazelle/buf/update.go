@@ -89,7 +89,18 @@ func bufLockImport(args language.ImportReposArgs) language.ImportReposResult {
 		List:           make([]build.Expr, 0, len(bufLock.Deps)),
 	}
 	for _, dep := range bufLock.Deps {
-		modules.List = append(modules.List, &build.StringExpr{Value: fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit)})
+		var value string
+		if dep.Name != "" { // v2
+			value = fmt.Sprintf("%s:%s", dep.Name, dep.Commit)
+		} else {
+			value = fmt.Sprintf("%s/%s/%s:%s", dep.Remote, dep.Owner, dep.Repository, dep.Commit)
+		}
+		modules.List = append(
+			modules.List,
+			&build.StringExpr{
+				Value: value,
+			},
+		)
 	}
 	repoRule.SetAttr("modules", modules)
 	addOptionalToolchainAttribute(args, repoRule)

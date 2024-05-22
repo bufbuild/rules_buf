@@ -20,7 +20,6 @@ const (
 	lintRuleKind             = "buf_lint_test"
 	breakingRuleKind         = "buf_breaking_test"
 	dependenciesRepoRuleKind = "buf_dependencies"
-	pushRuleKind             = "buf_push"
 )
 
 var bufKinds = map[string]rule.KindInfo{
@@ -56,20 +55,6 @@ var bufKinds = map[string]rule.KindInfo{
 			"modules": true,
 		},
 	},
-	pushRuleKind: {
-		MatchAttrs: []string{"targets"},
-		NonEmptyAttrs: map[string]bool{
-			"targets": true,
-		},
-		MergeableAttrs: map[string]bool{
-			"targets": true,
-			"config":  true,
-			"lock":    true,
-		},
-		ResolveAttrs: map[string]bool{
-			"targets": true,
-		},
-	},
 }
 
 var bufLoads = []rule.LoadInfo{
@@ -79,7 +64,6 @@ var bufLoads = []rule.LoadInfo{
 			lintRuleKind,
 			breakingRuleKind,
 			dependenciesRepoRuleKind,
-			pushRuleKind,
 		},
 	},
 }

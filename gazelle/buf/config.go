@@ -85,10 +85,38 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	if err != nil {
 		log.Print("error trying to load default config", err)
 	}
-	if bufModule != nil {
+	if config.Module != nil && config.Module.Version == "v2" {
+		for _, module := range config.Module.Modules {
+			if module.Path == packageRelativePath {
+				config.ModuleRoot = true
+				config.BufConfigFile = label.New("", "", "buf.yaml") // v2 will always have a buf.yaml at the roor.
+				config.ModuleConfig = &module
+				break
+			}
+		}
+	} else if bufModule != nil {
 		config.Module = bufModule
 		config.ModuleRoot = true
 		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
+	}
+	// When using workspaces, for gazelle to generate accurate proto_library rules
+	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
+	//
+	// Here we set the config if the directive is not present
+	if config.ModuleRoot && packageRelativePath != "" {
+		protoConfig := proto.GetProtoConfig(gazelleConfig)
+		stripImportPrefix := "/" + packageRelativePath
+		if protoConfig.StripImportPrefix == "" {
+			protoConfig.StripImportPrefix = stripImportPrefix
+		}
+		if protoConfig.StripImportPrefix != stripImportPrefix {
+			log.Printf(
+				"strip_import_prefix at %s should be %s but is %s",
+				packageRelativePath,
+				stripImportPrefix,
+				protoConfig.StripImportPrefix,
+			)
+		}
 	}
 	if file == nil {
 		return config
@@ -109,25 +137,6 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 				log.Printf("error parsing buf_breaking_mode: %v", err)
 			}
 			config.BreakingMode = breakingMode
-		}
-	}
-	// When using workspaces, for gazelle to generate accurate proto_library rules
-	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
-	//
-	// Here we set the config if the directive is not present
-	if config.ModuleRoot && packageRelativePath != "" {
-		protoConfig := proto.GetProtoConfig(gazelleConfig)
-		stripImportPrefix := "/" + packageRelativePath
-		if protoConfig.StripImportPrefix == "" {
-			protoConfig.StripImportPrefix = stripImportPrefix
-		}
-		if protoConfig.StripImportPrefix != stripImportPrefix {
-			log.Printf(
-				"strip_import_prefix at %s should be %s but is %s",
-				packageRelativePath,
-				stripImportPrefix,
-				protoConfig.StripImportPrefix,
-			)
 		}
 	}
 	return config
@@ -172,9 +181,18 @@ func isWithinExcludes(config *Config, path string) bool {
 	if config.Module == nil {
 		return false
 	}
+	// v1
 	for _, exclude := range config.Module.Build.Excludes {
 		if strings.Contains(path, exclude) {
 			return true
+		}
+	}
+	// v2, all paths are relative to the root to `buf.yaml`, so no need to filter out the module.
+	for _, module := range config.Module.Modules {
+		for _, exclude := range module.Excludes {
+			if strings.HasPrefix(path, exclude) {
+				return true
+			}
 		}
 	}
 	return false
