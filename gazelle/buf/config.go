@@ -99,6 +99,25 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 		config.ModuleRoot = true
 		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
 	}
+	// When using workspaces, for gazelle to generate accurate proto_library rules
+	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
+	//
+	// Here we set the config if the directive is not present
+	if config.ModuleRoot && packageRelativePath != "" {
+		protoConfig := proto.GetProtoConfig(gazelleConfig)
+		stripImportPrefix := "/" + packageRelativePath
+		if protoConfig.StripImportPrefix == "" {
+			protoConfig.StripImportPrefix = stripImportPrefix
+		}
+		if protoConfig.StripImportPrefix != stripImportPrefix {
+			log.Printf(
+				"strip_import_prefix at %s should be %s but is %s",
+				packageRelativePath,
+				stripImportPrefix,
+				protoConfig.StripImportPrefix,
+			)
+		}
+	}
 	if file == nil {
 		return config
 	}
@@ -118,25 +137,6 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 				log.Printf("error parsing buf_breaking_mode: %v", err)
 			}
 			config.BreakingMode = breakingMode
-		}
-	}
-	// When using workspaces, for gazelle to generate accurate proto_library rules
-	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
-	//
-	// Here we set the config if the directive is not present
-	if config.ModuleRoot && packageRelativePath != "" {
-		protoConfig := proto.GetProtoConfig(gazelleConfig)
-		stripImportPrefix := "/" + packageRelativePath
-		if protoConfig.StripImportPrefix == "" {
-			protoConfig.StripImportPrefix = stripImportPrefix
-		}
-		if protoConfig.StripImportPrefix != stripImportPrefix {
-			log.Printf(
-				"strip_import_prefix at %s should be %s but is %s",
-				packageRelativePath,
-				stripImportPrefix,
-				protoConfig.StripImportPrefix,
-			)
 		}
 	}
 	return config
