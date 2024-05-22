@@ -22,6 +22,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -85,19 +86,26 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	if err != nil {
 		log.Print("error trying to load default config", err)
 	}
+	// log.Println("loadConfig", packageRelativePath)
+	// Two cases where this could be the module root:
+	// 1. If there is a buf.yaml file and no modules are defined.
+	if bufModule != nil {
+		config.Module = bufModule
+		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
+		config.ModuleRoot = len(bufModule.Modules) == 0
+	}
+	// 2. If the ancestor has a v2 buf.yaml file with matching path.
 	if config.Module != nil && config.Module.Version == "v2" {
 		for _, module := range config.Module.Modules {
-			if module.Path == packageRelativePath {
+			if module.Path == "." {
+				module.Path = ""
+			}
+			if path.Join(config.BufConfigFile.Pkg, module.Path) == packageRelativePath {
 				config.ModuleRoot = true
-				config.BufConfigFile = label.New("", "", "buf.yaml") // v2 will always have a buf.yaml at the roor.
 				config.ModuleConfig = &module
 				break
 			}
 		}
-	} else if bufModule != nil {
-		config.Module = bufModule
-		config.ModuleRoot = true
-		config.BufConfigFile = label.New("", packageRelativePath, bufConfigFile)
 	}
 	// When using workspaces, for gazelle to generate accurate proto_library rules
 	// we need add `# gazelle:proto_strip_import_prefix /path` to BUILD file at each module root
