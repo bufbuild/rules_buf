@@ -104,15 +104,12 @@ def _buf_download_releases_impl(ctx):
         ctx.report_progress("Finding latest buf version")
 
         # Get the latest version from github. Refer: https://docs.github.com/en/rest/reference/releases
-        #
-        # TODO: Change this to use https://api.github.com/repos/bufbuild/buf/releases/latest once we hit v1.
         ctx.download(
-            url = "https://api.github.com/repos/bufbuild/buf/releases?per_page=1",
-            output = "versions.json",
+            url = "https://api.github.com/repos/bufbuild/buf/releases/latest",
+            output = "version.json",
         )
-        versions_data = ctx.read("versions.json")
-        versions = json.decode(versions_data)
-        version = versions[0]["name"]
+        version_data = ctx.read("version.json")
+        version = json.decode(version_data)["name"]
 
     os, cpu = _detect_host_platform(ctx)
     if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64"]:
@@ -123,11 +120,11 @@ def _buf_download_releases_impl(ctx):
         cpu = "x86_64"
 
     ctx.report_progress("Downloading buf release hash")
+    url = "{}/{}/sha256.txt".format(repository_url, version)
     sha256 = ctx.download(
-        url = [
-            "{}/{}/sha256.txt".format(repository_url, version),
-        ],
+        url = url,
         sha256 = sha256,
+        canonical_id = url,
         output = "sha256.txt",
     ).sha256
     ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
@@ -147,10 +144,12 @@ def _buf_download_releases_impl(ctx):
             output += ".exe"
 
         ctx.report_progress("Downloading " + bin)
+        url = "{}/{}/{}".format(repository_url, version, bin)
         download_info = ctx.download(
-            url = "{}/{}/{}".format(repository_url, version, bin),
+            url = url,
             sha256 = sum,
             executable = True,
+            canonical_id = url,
             output = output,
         )
 
