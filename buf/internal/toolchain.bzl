@@ -52,13 +52,13 @@ _buf_toolchain = rule(
 
 def declare_buf_toolchains(os, cpu, rules_buf_repo_name):
     for cmd in ["buf", "protoc-gen-buf-lint", "protoc-gen-buf-breaking"]:
-        ext = ""
+        exe_suffix = ""
         if os == "windows":
-            ext = ".exe"
+            exe_suffix = ".exe"
         toolchain_impl = cmd + "_toolchain_impl"
         _buf_toolchain(
             name = toolchain_impl,
-            cli = str(Label("//:"+ cmd)),
+            cli = str(Label("//:"+ cmd + exe_suffix)),
         )
         native.toolchain(
             name = cmd + "_toolchain",

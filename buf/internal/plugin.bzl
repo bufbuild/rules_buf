@@ -14,6 +14,12 @@
 
 """protoc plugin based test rule"""
 
+_BATCH_PROTOC_SHIM = """@echo off
+set errorlevel=
+call {} @{}
+exit /b %errorlevel%
+"""
+
 def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_include = [], protoc_args = []):
     """protoc_plugin_test creates a script file for a generic protoc plugin
 
@@ -28,6 +34,12 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
     Returns:
         Runfiles required to run the test
     """
+    is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
+
+    path_join = ':'
+    if is_windows:
+        path_join = ';'
+
     deps = depset(
         [pi.direct_descriptor_set for pi in proto_infos],
         transitive = [pi.transitive_descriptor_sets for pi in proto_infos],
@@ -50,7 +62,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
     args = args.set_param_file_format("multiline")
     args.add_joined(["--plugin", "protoc-gen-buf-plugin", plugin.short_path], join_with = "=")
     args.add_joined(["--buf-plugin_opt", config], join_with = "=")
-    args.add_joined("--descriptor_set_in", deps, join_with = ":", map_each = _short_path)
+    args.add_joined("--descriptor_set_in", deps, join_with = path_join, map_each = _short_path)
     args.add_joined(["--buf-plugin_out", "."], join_with = "=")
     args.add_all(protoc_args)
     args.add_all(sources)
@@ -62,11 +74,20 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
         is_executable = True,
     )
 
-    ctx.actions.write(
-        output = ctx.outputs.executable,
-        content = "{} @{}".format(protoc.short_path, args_file.short_path),
-        is_executable = True,
-    )
+    if is_windows:
+        # TODO: This still requires `--enable_runfiles` on Windows.
+        executable_file = ctx.actions.declare_file("{}.bat".format(ctx.label.name))
+        ctx.actions.write(
+            output = executable_file,
+            content = _BATCH_PROTOC_SHIM.format(protoc.short_path, args_file.short_path),
+        )
+    else:
+        executable_file = ctx.actions.declare_file("{}.sh".format(ctx.label.name))
+        ctx.actions.write(
+            output = executable_file,
+            content = "{} @{}".format(protoc.short_path, args_file.short_path),
+            is_executable = True,
+        )
 
     files = [protoc, plugin, args_file] + source_files + files_to_include
     runfiles = ctx.runfiles(
@@ -76,6 +97,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
 
     return [
         DefaultInfo(
+            executable = executable_file,
             runfiles = runfiles,
         ),
     ]

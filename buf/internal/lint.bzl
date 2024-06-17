@@ -56,6 +56,9 @@ buf_lint_test = rule(
             executable = True,
             cfg = "exec",
         ),
+        "_windows_constraint": attr.label(
+            default = "@platforms//os:windows",
+        ),
         "targets": attr.label_list(
             providers = [ProtoInfo],
             mandatory = True,
