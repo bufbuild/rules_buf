@@ -59,6 +59,9 @@ buf_breaking_test = rule(
             executable = True,
             cfg = "exec",
         ),
+        "_windows_constraint": attr.label(
+            default = "@platforms//os:windows",
+        ),
         "targets": attr.label_list(
             providers = [ProtoInfo],
             doc = """`proto_library` targets to check for breaking changes""",
