@@ -33,3 +33,5 @@ buf.dependency(module = "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef
 
 # Allow references to labels under @buf_deps
 use_repo(buf, "buf_deps")
+# Allow people to use `bazel run @rules_buf_toolchains//:buf -- --version`
+use_repo(buf, "rules_buf_toolchains")
