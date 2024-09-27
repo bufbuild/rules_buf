@@ -29,11 +29,9 @@ rules_buf_dependencies()
 rules_buf_toolchains(version = "v1.32.1")
 
 # rules_proto
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 
 rules_proto_dependencies()
-
-rules_proto_toolchains()
 ```
 
 Refer the [docs](https://docs.buf.build/build-systems/bazel) or browse the [examples](examples) on how to setup and use for various scenarios.

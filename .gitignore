@@ -3,3 +3,5 @@
 *.pprof
 *.svg
 cover.out
+# Not expected to be stable until Bazel 7.2
+MODULE.bazel.lock
