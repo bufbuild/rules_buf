@@ -21,6 +21,10 @@ jobs:
             ~/.cache/bazel
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: generate
         run: make generate
       - name: format
@@ -41,6 +45,10 @@ jobs:
             /private/var/tmp/_bazel_runner
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: generate
         run: make generate
       - name: format
@@ -61,6 +69,10 @@ jobs:
             ~\_bazel_runneradmin
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
       - name: generate
         run: make generate
       - name: format
