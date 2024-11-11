@@ -1,4 +1,4 @@
-# Copyright 2021-2023 Buf Technologies, Inc.
+# Copyright 2021-2024 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ def _buf_lint_test_impl(ctx):
         "error_format": ctx.attr.error_format,
     }
     if ctx.attr.module != "":
-        config_map["module"] = ctx.attr.module    
+        config_map["module"] = ctx.attr.module
     config = json.encode(config_map)
     files_to_include = []
     if ctx.file.config != None:

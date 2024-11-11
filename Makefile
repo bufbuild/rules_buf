@@ -7,7 +7,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
-COPYRIGHT_YEARS := 2021-2023
+COPYRIGHT_YEARS := 2021-2024
 LICENSE_IGNORE := -e /testdata/
 # Commit where bazel support was added
 LICENSE_HEADER_VERSION := dc4b633f0accc5f571c577325ce556a8e988ec4e
@@ -32,6 +32,10 @@ clean: ## Delete intermediate build artifacts
 test: ## Run unit tests
 	$(BAZEL) test //...
 
+.PHONY: format
+format:
+	$(BAZEL) run //:buildifier
+
 .PHONY: generate
 generate: $(BIN)/license-header ## Regenerate code and licenses
 	@# We want to operate on a list of modified and new files, excluding
@@ -52,3 +56,8 @@ $(BIN)/license-header: Makefile
 	@mkdir -p $(@D)
 	GOBIN=$(abspath $(@D)) $(GO) install \
 		  github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@$(LICENSE_HEADER_VERSION)
+
+.PHONY: checkgenerate
+checkgenerate:
+	@# Used in CI to verify that `make generate` doesn't produce a diff.
+	test -z "$$(git status --porcelain | tee /dev/stderr)"

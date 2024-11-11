@@ -1,4 +1,4 @@
-# Copyright 2021-2023 Buf Technologies, Inc.
+# Copyright 2021-2024 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
     """
     is_windows = ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo])
 
-    path_join = ':'
+    path_join = ":"
     if is_windows:
-        path_join = ';'
+        path_join = ";"
 
     deps = depset(
         [pi.direct_descriptor_set for pi in proto_infos],
