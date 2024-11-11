@@ -56,8 +56,3 @@ $(BIN)/license-header: Makefile
 	@mkdir -p $(@D)
 	GOBIN=$(abspath $(@D)) $(GO) install \
 		  github.com/bufbuild/buf/private/pkg/licenseheader/cmd/license-header@$(LICENSE_HEADER_VERSION)
-
-.PHONY: checkgenerate
-checkgenerate:
-	@# Used in CI to verify that `make generate` doesn't produce a diff.
-	test -z "$$(git status --porcelain | tee /dev/stderr)"

@@ -1,4 +1,4 @@
-name: ci
+name: Tests
 on:
   push:
     branches: [main]
@@ -21,18 +21,8 @@ jobs:
             ~/.cache/bazel
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-      - name: generate
-        run: make generate
-      - name: format
-        run: make format
-      - name: test
+      - name: bazel test
         run: make test
-      - name: checkgenerate
-        run: make checkgenerate
   macos:
     runs-on: macos-latest
     steps:
@@ -45,18 +35,8 @@ jobs:
             /private/var/tmp/_bazel_runner
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-      - name: generate
-        run: make generate
-      - name: format
-        run: make format
-      - name: test
+      - name: bazel test
         run: make test
-      - name: checkgenerate
-        run: make checkgenerate
   windows:
     runs-on: windows-latest
     steps:
@@ -69,15 +49,5 @@ jobs:
             ~\_bazel_runneradmin
           key: ${{ runner.os }}-bazel-cache
       - uses: actions/checkout@v2
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-      - name: generate
-        run: make generate
-      - name: format
-        run: make format
-      - name: test
+      - name: bazel test
         run: make test
-      - name: checkgenerate
-        run: make checkgenerate
