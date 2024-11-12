@@ -7,7 +7,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
-COPYRIGHT_YEARS := 2021-2023
+COPYRIGHT_YEARS := 2021-2024
 LICENSE_IGNORE := -e /testdata/
 # Commit where bazel support was added
 LICENSE_HEADER_VERSION := dc4b633f0accc5f571c577325ce556a8e988ec4e
@@ -31,6 +31,10 @@ clean: ## Delete intermediate build artifacts
 .PHONY: test
 test: ## Run unit tests
 	$(BAZEL) test //...
+
+.PHONY: format
+format:
+	$(BAZEL) run //:buildifier
 
 .PHONY: generate
 generate: $(BIN)/license-header ## Regenerate code and licenses

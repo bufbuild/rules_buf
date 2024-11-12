@@ -1,4 +1,4 @@
-# Copyright 2021-2023 Buf Technologies, Inc.
+# Copyright 2021-2024 Buf Technologies, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,5 +33,6 @@ buf.dependency(module = "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef
 
 # Allow references to labels under @buf_deps
 use_repo(buf, "buf_deps")
+
 # Allow people to use `bazel run @rules_buf_toolchains//:buf -- --version`
 use_repo(buf, "rules_buf_toolchains")
