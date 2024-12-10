@@ -147,7 +147,7 @@
   "moduleExtensions": {
     "//buf:extensions.bzl%buf": {
       "general": {
-        "bzlTransitiveDigest": "Gy/JnIzh14J3awQltZaq5slamoVEOShPenKlXszh3g8=",
+        "bzlTransitiveDigest": "JaeG+SjBHm7SJxAV90fbdMZpp3J6FMUV2i4umB7XbH4=",
         "usagesDigest": "2zZnkn6ySNfcOhYnTAxi4Hw5HufYJRZ9ofl7yH6RXeM=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -156,8 +156,8 @@
           "rules_buf_toolchains": {
             "repoRuleId": "@@//buf/internal:toolchain.bzl%buf_download_releases",
             "attributes": {
-              "version": "v1.28.1",
-              "sha256": "05dfb45d2330559d258e1230f5a25e154f0a328afda2a434348b5ba4c124ece7"
+              "version": "v1.47.2",
+              "sha256": "1b37b75dc0a777a0cba17fa2604bc9906e55bb4c578823d8b7a8fe3fc9fe4439"
             }
           }
         },
