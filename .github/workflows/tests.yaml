@@ -37,17 +37,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: bazel test
         run: make test
-  windows:
-    runs-on: windows-latest
-    steps:
-      # Caches and restores the bazelisk download directory, the bazel build directory.
-      - name: Cache bazel
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~\AppData\Local\bazelisk
-            ~\_bazel_runneradmin
-          key: ${{ runner.os }}-bazel-cache
-      - uses: actions/checkout@v2
-      - name: bazel test
-        run: make test
+  # Disabled due to error in protobuf on Windoes
+  # windows:
+  #   runs-on: windows-latest 
+  #   steps:
+  #     # Caches and restores the bazelisk download directory, the bazel build directory.
+  #     - name: Cache bazel
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~\AppData\Local\bazelisk
+  #           ~\_bazel_runneradmin
+  #         key: ${{ runner.os }}-bazel-cache
+  #     - uses: actions/checkout@v2
+  #     - name: bazel test
+  #       run: make test
