@@ -27,7 +27,7 @@ local_path_override(
 buf = use_extension("@rules_buf//buf:extensions.bzl", "buf")
 
 # Override the default version of buf
-buf.toolchains(version = "v1.26.0")
+buf.toolchains(version = "v1.47.2")
 
 # See https://buf.build/docs/build-systems/bazel#buf-dependencies
 buf.dependency(module = "buf.build/envoyproxy/protoc-gen-validate:eac44469a7af47e7839a7f1f3d7ac004")
