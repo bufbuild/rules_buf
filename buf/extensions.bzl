@@ -66,7 +66,7 @@ def _extension_impl(module_ctx):
     for name, versions in registrations.items():
         if len(versions) > 1:
             # TODO: should be semver-aware, using MVS
-            selected = sorted(versions, reverse = True)[0]
+            selected = sorted(versions, key = lambda v: v["version"], reverse = True)[0]
 
             # buildifier: disable=print
             print("NOTE: buf toolchains {} has multiple versions {}, selected {}".format(name, versions, selected))
