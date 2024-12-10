@@ -16,6 +16,8 @@
 
 bazel_dep(name = "rules_buf", version = "0.0.0", dev_dependency = True)
 bazel_dep(name = "gazelle", version = "0.34.0", dev_dependency = True)
+bazel_dep(name = "protobuf", version = "29.0", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_proto", version = "7.0.2")
 
 local_path_override(
     module_name = "rules_buf",
