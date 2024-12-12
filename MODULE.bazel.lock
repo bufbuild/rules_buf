@@ -149,7 +149,7 @@
     "//buf:extensions.bzl%buf": {
       "general": {
         "bzlTransitiveDigest": "YSEZH8GE9Vw6/4NxKTgq++eNm9wvynJWyefii6gfnLQ=",
-        "usagesDigest": "P6MNoK7+YdyjATQzCfPj1ZnMiSjxWBl0k0wsTntaCJY=",
+        "usagesDigest": "Cw1OZNQspwk0gValRUWb+UkhSqXg9WegCNZoQuRjLhY=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -174,7 +174,7 @@
     "@@gazelle+//:extensions.bzl%go_deps": {
       "general": {
         "bzlTransitiveDigest": "nsDQnndMzdULQ+7W4lHxU3l/gbZHXSnFeUjfvmZ48o8=",
-        "usagesDigest": "FTUdt/M19lpky9xUEiZzGu85bItPn5dtE+FIfM1EZLg=",
+        "usagesDigest": "8AHHp+01VLapHxZC+QKGuRlsPLHD3Nu5UalhvGpYsJg=",
         "recordedFileInputs": {
           "@@//go.mod": "c96e5c352880a2df5cd7294265df91c7bad4fb24ef3865ccb1b9ceb29341cf8a",
           "@@//go.sum": "968d06e5d35e524686d63dda36b4fb82d5054a4c5a42a5da8214a43cc4e8edb3",
@@ -557,7 +557,7 @@
     "@@gazelle+//internal/bzlmod:non_module_deps.bzl%non_module_deps": {
       "general": {
         "bzlTransitiveDigest": "AjbsH9WZCj0ipLarbbkp25YBRrRhWYvO7OIiTcHyyok=",
-        "usagesDigest": "rVuU30WGj2DmJE/SBQCsgRHmvrNvRi07lufFX85CxC8=",
+        "usagesDigest": "f3VzXb+dGPKxKkQuin/flCH4sGjHxJdjiCeEl15atHw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
