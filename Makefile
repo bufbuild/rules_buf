@@ -7,7 +7,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
-COPYRIGHT_YEARS := 2021-2024
+COPYRIGHT_YEARS := 2021-2025
 LICENSE_IGNORE := -e /testdata/
 # Commit where bazel support was added
 LICENSE_HEADER_VERSION := dc4b633f0accc5f571c577325ce556a8e988ec4e
