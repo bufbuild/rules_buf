@@ -23,6 +23,22 @@ _DOC = """
 For more info please refer to the [`buf_dependencies` section](https://docs.buf.build/build-systems/bazel#buf-dependencies) of the docs.
 """
 
+# Copied from rules_go: https://github.com/bazelbuild/rules_go/blob/19ad920c6869a179d186a365d117ab82f38d0f3a/go/private/sdk.bzl#L517
+def _detect_host_platform(ctx):
+    goos = ctx.os.name
+    if goos == "mac os x":
+        goos = "osx"
+    elif goos.startswith("windows"):
+        goos = "windows"
+
+    goarch = ctx.os.arch
+    if goarch == "aarch64":
+        goarch = "arm64"
+    elif goarch == "x86_64":
+        goarch = "amd64"
+
+    return goos, goarch
+
 def _executable_extension(ctx):
     extension = ""
     if ctx.os.name.startswith("windows"):
@@ -41,7 +57,18 @@ def _valid_pin(pin):
     return True
 
 def _buf_dependencies_impl(ctx):
-    buf = ctx.path(Label("@{}//:buf{}".format(ctx.attr.toolchain_repo, _executable_extension(ctx))))
+    host_os, host_arch = _detect_host_platform(ctx)
+    binary_real_repo = "@@{workspace}_{host_os}_{host_arch}".format(
+        workspace = Label("@{toolchain_repo}".format(toolchain_repo = ctx.attr.toolchain_repo)).workspace_name,
+        host_os = host_os,
+        host_arch = host_arch,
+    )
+    buf = ctx.path(
+        Label("{binary_real_repo}//:buf{executable_extension}".format(
+            binary_real_repo = binary_real_repo,
+            executable_extension = _executable_extension(ctx),
+        )),
+    )
 
     for pin in ctx.attr.modules:
         if not _valid_pin(pin):
