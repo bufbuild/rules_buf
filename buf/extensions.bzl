@@ -16,8 +16,8 @@
 See https://bazel.build/docs/bzlmod#extension-definition
 """
 
-load("//buf/internal:toolchain.bzl", "buf_download_releases")
 load("//buf/internal:repo.bzl", "buf_dependencies")
+load("//buf/internal:toolchain.bzl", "buf_download_releases", "buf_register_toolchains")
 
 _DEFAULT_VERSION = "v1.47.2"
 _DEFAULT_SHA256 = "1b37b75dc0a777a0cba17fa2604bc9906e55bb4c578823d8b7a8fe3fc9fe4439"
@@ -72,11 +72,26 @@ def _extension_impl(module_ctx):
             print("NOTE: buf toolchains {} has multiple versions {}, selected {}".format(name, versions, selected))
         else:
             selected = versions[0]
-        buf_download_releases(
-            name = name,
-            version = selected["version"],
-            sha256 = selected["sha256"],
-        )
+        platforms_for_registration = []
+        for platform in (
+            struct(os = "linux", arch = "arm64"),
+            struct(os = "linux", arch = "amd64"),
+            struct(os = "darwin", arch = "arm64"),
+            struct(os = "darwin", arch = "amd64"),
+            struct(os = "windows", arch = "arm64"),
+            struct(os = "windows", arch = "amd64"),
+        ):
+            name_with_platform = "{}_{}_{}".format(name, platform.os, platform.arch)
+            buf_download_releases(
+                name = name_with_platform,
+                os = platform.os,
+                arch = platform.arch,
+                version = selected["version"],
+                sha256 = selected["sha256"],
+            )
+            platforms_for_registration.append("{}-{}".format(platform.os, platform.arch))
+
+        buf_register_toolchains(name = name, platforms = platforms_for_registration)
 
     for name, modules in dependencies.items():
         buf_dependencies(
