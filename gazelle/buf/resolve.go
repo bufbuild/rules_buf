@@ -16,6 +16,7 @@ package buf
 
 import (
 	"log"
+	"sort"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/label"
@@ -88,5 +89,6 @@ func resolveProtoTargetsForRule(
 	for target := range targetSet {
 		targets = append(targets, target)
 	}
+	sort.Strings(targets)
 	ruleToResolve.SetAttr("targets", targets)
 }
