@@ -6,5 +6,8 @@ buf_breaking_test(
     name = "buf_breaking",
     against = "//:against_file",
     config = "//:buf.yaml",
-    targets = ["//foo/v1:foo_proto"],
+    targets = [
+        "//bar/v1:bar_proto",
+        "//foo/v1:foo_proto",
+    ],
 )
