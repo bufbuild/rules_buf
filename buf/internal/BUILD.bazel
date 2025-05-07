@@ -17,6 +17,11 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 package(default_visibility = ["//:__subpackages__"])
 
 bzl_library(
+    name = "format",
+    srcs = ["format.bzl"],
+)
+
+bzl_library(
     name = "breaking",
     srcs = ["breaking.bzl"],
     deps = [
