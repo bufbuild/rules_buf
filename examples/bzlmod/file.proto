@@ -15,4 +15,3 @@
 syntax = "proto3";
 
 import "unused.proto";
-import "validate/validate.proto";

@@ -17,6 +17,14 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 package(default_visibility = ["//:__subpackages__"])
 
 bzl_library(
+    name = "build",
+    srcs = ["build.bzl"],
+    deps = [
+        "@rules_proto//proto:defs",
+    ],
+)
+
+bzl_library(
     name = "breaking",
     srcs = ["breaking.bzl"],
     deps = [
