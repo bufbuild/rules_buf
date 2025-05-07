@@ -21,6 +21,7 @@ bzl_library(
     srcs = ["defs.bzl"],
     deps = [
         "//buf/internal:breaking",
+        "//buf/internal:format",
         "//buf/internal:lint",
         "//buf/internal:repo",
     ],
