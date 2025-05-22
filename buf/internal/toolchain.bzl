@@ -111,6 +111,9 @@ def _buf_download_releases_impl(ctx):
         version_data = ctx.read("version.json")
         version = json.decode(version_data)["name"]
 
+    version_number = version.removeprefix("v").split(".")
+    major_version = int(version_number[0])
+    minor_version = int(version_number[1])
     os, cpu = _detect_host_platform(ctx)
     if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64", "ppc64le"]:
         fail("Unsupported operating system or cpu architecture ")
@@ -118,6 +121,8 @@ def _buf_download_releases_impl(ctx):
         cpu = "aarch64"
     if cpu == "amd64":
         cpu = "x86_64"
+    if cpu == "ppc64le" && (major_version < 1 || (major_version == 1 && minor_version < 54)):
+        fail("Unsupported operating system or cpu architecture ")
 
     ctx.report_progress("Downloading buf release hash")
     url = "{}/{}/sha256.txt".format(repository_url, version)
