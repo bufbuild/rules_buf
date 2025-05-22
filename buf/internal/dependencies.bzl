@@ -26,10 +26,10 @@ bazel_dependencies = {
         ],
     },
     "rules_proto": {
-        "sha256": "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
-        "strip_prefix": "rules_proto-5.3.0-21.7",
+        "sha256": "0e5c64a2599a6e26c6a03d6162242d231ecc0de219534c38cb4402171def21e8",
+        "strip_prefix": "rules_proto-7.0.2",
         "urls": [
-            "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
+            "https://github.com/bazelbuild/rules_proto/releases/download/7.0.2/rules_proto-7.0.2.tar.gz",
         ],
     },
 }
