@@ -112,7 +112,7 @@ def _buf_download_releases_impl(ctx):
         version = json.decode(version_data)["name"]
 
     os, cpu = _detect_host_platform(ctx)
-    if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64"]:
+    if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64", "s390x"]:
         fail("Unsupported operating system or cpu architecture ")
     if os == "linux" and cpu == "arm64":
         cpu = "aarch64"
