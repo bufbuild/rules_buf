@@ -180,7 +180,8 @@ def _buf_download_releases_impl(ctx):
         "BUILD",
         _BUILD_FILE.format(cmd_suffix = ".exe" if os == "windows" else ""),
     )
-    return update_attrs(ctx.attr, ["version", "sha256"], {"version": version, "sha256": sha256})
+    attrs = {"version": version, "repository_url": repository_url, "sha256": sha256}
+    return update_attrs(ctx.attr, attrs.keys(), attrs)
 
 buf_download_releases = repository_rule(
     implementation = _buf_download_releases_impl,
