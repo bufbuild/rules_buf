@@ -121,7 +121,7 @@ def _buf_download_releases_impl(ctx):
         cpu = "aarch64"
     if cpu == "amd64":
         cpu = "x86_64"
-    if cpu == "ppc64le" and (major_version < 1 || (major_version == 1 and minor_version < 54)):
+    if cpu == "ppc64le" and (major_version < 1 or (major_version == 1 and minor_version < 54)):
         fail("Unsupported operating system or cpu architecture ")
 
     ctx.report_progress("Downloading buf release hash")
