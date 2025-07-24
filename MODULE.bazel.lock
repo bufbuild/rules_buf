@@ -144,7 +144,7 @@
   "moduleExtensions": {
     "//buf:extensions.bzl%buf": {
       "general": {
-        "bzlTransitiveDigest": "8LNh1Yv3NenR9mkbQpP/gGRWFUxXr90ADuxKvSqD5sg=",
+        "bzlTransitiveDigest": "WG4knzljnG365s7Vx7jzu4fdiSIA32oBBi9CYIg43P4=",
         "usagesDigest": "mxB/KfUG9mOnEn+Han1E2lwejdI9EAQthc3h6wrw0WI=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -201,10 +201,10 @@
         "bzlTransitiveDigest": "Taobh9Bi1JpF4jHwuw6x9ceWDpHtCjGmS8VXbxLOqH8=",
         "usagesDigest": "MK43s3UdZNZxaEmqV7x5tLsgJAPfSvJOq1hdDdLUFfE=",
         "recordedFileInputs": {
-          "@@//go.mod": "c96e5c352880a2df5cd7294265df91c7bad4fb24ef3865ccb1b9ceb29341cf8a",
+          "@@//go.mod": "1ad2796ef7cb0d800454eb5111bdf78fbb90b0522f5e67aac00a778eb5182f89",
           "@@rules_go~//go.mod": "a7143f329c2a3e0b983ce74a96c0c25b0d0c59d236d75f7e1b069aadd988d55e",
           "@@gazelle~//go.sum": "7469786f3930030c430969cedae951e6947cb40f4a563dac94a350659c0fedc4",
-          "@@//go.sum": "968d06e5d35e524686d63dda36b4fb82d5054a4c5a42a5da8214a43cc4e8edb3",
+          "@@//go.sum": "eaf20ce9c38b4b5afc75ed9c6eda718f04c15e151d6fbf6d352d8f0c5a8af22c",
           "@@rules_go~//go.sum": "022d36c9ebcc7b5dee1e9b85b3da9c9f3a529ee6f979946d66e4955b8d54614a",
           "@@gazelle~//go.mod": "9ae159a385b2f244bbe964b9f91dbea6e7bd534e0b22e846655f241c65de2c49"
         },
@@ -671,6 +671,85 @@
     },
     "@@rules_go~//go:extensions.bzl%go_sdk": {
       "os:osx,arch:aarch64": {
+        "bzlTransitiveDigest": "BmTtq5+nfwGfw2lX8s/msHAzPcB/DOmDgF9lp74yhGY=",
+        "usagesDigest": "66UQYQZkLXNCWaMHCLGhb386mA1l6Uswbb6rqM9S73I=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "go_default_sdk": {
+            "bzlFile": "@@rules_go~//go/private:sdk.bzl",
+            "ruleClassName": "go_download_sdk_rule",
+            "attributes": {
+              "goos": "",
+              "goarch": "",
+              "sdks": {},
+              "experiments": [],
+              "patches": [],
+              "patch_strip": 0,
+              "urls": [
+                "https://dl.google.com/go/{}"
+              ],
+              "version": "1.21.1",
+              "strip_prefix": "go"
+            }
+          },
+          "go_host_compatible_sdk_label": {
+            "bzlFile": "@@rules_go~//go/private:extensions.bzl",
+            "ruleClassName": "host_compatible_toolchain",
+            "attributes": {
+              "toolchain": "@go_default_sdk//:ROOT"
+            }
+          },
+          "go_toolchains": {
+            "bzlFile": "@@rules_go~//go/private:sdk.bzl",
+            "ruleClassName": "go_multiple_toolchains",
+            "attributes": {
+              "prefixes": [
+                "_0000_go_default_sdk_"
+              ],
+              "geese": [
+                ""
+              ],
+              "goarchs": [
+                ""
+              ],
+              "sdk_repos": [
+                "go_default_sdk"
+              ],
+              "sdk_types": [
+                "remote"
+              ],
+              "sdk_versions": [
+                "1.21.1"
+              ]
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "bazel_features~",
+            "bazel_features_globals",
+            "bazel_features~~version_extension~bazel_features_globals"
+          ],
+          [
+            "bazel_features~",
+            "bazel_features_version",
+            "bazel_features~~version_extension~bazel_features_version"
+          ],
+          [
+            "rules_go~",
+            "bazel_features",
+            "bazel_features~"
+          ],
+          [
+            "rules_go~",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      },
+      "os:windows,arch:aarch64": {
         "bzlTransitiveDigest": "BmTtq5+nfwGfw2lX8s/msHAzPcB/DOmDgF9lp74yhGY=",
         "usagesDigest": "66UQYQZkLXNCWaMHCLGhb386mA1l6Uswbb6rqM9S73I=",
         "recordedFileInputs": {},

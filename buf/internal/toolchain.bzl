@@ -31,6 +31,8 @@ declare_buf_toolchains(
 """
 
 _TOOLCHAIN_FILE = """
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+
 def _buf_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
         cli = ctx.executable.cli,
@@ -52,13 +54,15 @@ _buf_toolchain = rule(
 
 def declare_buf_toolchains(os, cpu, rules_buf_repo_name):
     for cmd in ["buf", "protoc-gen-buf-lint", "protoc-gen-buf-breaking"]:
-        cmd_suffix = ""
         if os == "windows":
-            cmd_suffix = ".exe"
+            native_binary(
+                name = cmd,
+                src = ":" + cmd + ".exe",
+            )
         toolchain_impl = cmd + "_toolchain_impl"
         _buf_toolchain(
             name = toolchain_impl,
-            cli = str(Label("//:"+ cmd + cmd_suffix)),
+            cli = str(Label("//:"+ cmd)),
         )
         native.toolchain(
             name = cmd + "_toolchain",
@@ -137,6 +141,8 @@ def _buf_download_releases_impl(ctx):
     sha_list = ctx.read("sha256.txt").splitlines()
     for sha_line in sha_list:
         if sha_line.strip(" ").endswith(".tar.gz"):
+            continue
+        if sha_line.strip(" ").endswith(".zip"):
             continue
         (sum, _, bin) = sha_line.partition(" ")
         bin = bin.strip(" ")
