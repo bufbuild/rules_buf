@@ -16,8 +16,9 @@
 See https://bazel.build/docs/bzlmod#extension-definition
 """
 
-load("//buf/internal:toolchain.bzl", "buf_download_releases")
 load("//buf/internal:repo.bzl", "buf_dependencies")
+load("//buf/internal:toolchain.bzl", "buf_download_releases")
+load("//buf/internal:protoc.bzl", "protoc_toolchains")
 
 _DEFAULT_VERSION = "v1.47.2"
 _DEFAULT_SHA256 = "1b37b75dc0a777a0cba17fa2604bc9906e55bb4c578823d8b7a8fe3fc9fe4439"
@@ -89,5 +90,24 @@ buf = module_extension(
     tag_classes = {
         "dependency": dependency,
         "toolchains": toolchains,
+    },
+)
+
+def _proto_extension_impl(module_ctx):
+    for mod in module_ctx.modules:
+        for toolchain in mod.tags.toolchain:
+            # Ensure the root wins in case of differences
+            if mod.is_root:
+                protoc_toolchains(register = False, version = toolchain.version)
+                return
+
+    # TODO: Ensure that we select a valid version using MVS if not added to root.
+
+protoc = module_extension(
+    implementation = _proto_extension_impl,
+    tag_classes = {
+        "toolchain": tag_class(attrs = {
+            "version": attr.string(doc = "A version of the protoc", mandatory = True),
+        }),
     },
 )
