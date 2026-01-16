@@ -1,0 +1,2 @@
+# gazelle:buf_breaking_against //:against_file
+# gazelle:resolve buf validate/validate.proto @custom_validate//validate:validate_proto

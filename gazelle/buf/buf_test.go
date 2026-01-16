@@ -65,6 +65,11 @@ func TestCrossResolve(t *testing.T) {
 	testRunGazelle(t, "v2/cross_resolve")
 }
 
+func TestCrossResolveOverride(t *testing.T) {
+	t.Parallel()
+	testRunGazelle(t, "cross_resolve_override")
+}
+
 func TestMerge(t *testing.T) {
 	t.Parallel()
 	testRunGazelle(t, "merge")

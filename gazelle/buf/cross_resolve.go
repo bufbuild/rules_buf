@@ -33,8 +33,21 @@ func (*bufLang) CrossResolve(gazelleConfig *config.Config, ruleIndex *resolve.Ru
 	if langWithDep != "proto" || importSpec.Lang != "proto" {
 		return nil
 	}
-	config := GetConfigForGazelleConfig(gazelleConfig)
-	depRepo := getRepoNameForPath(config.BufConfigFile.Pkg)
+
+	// First, check for gazelle:resolve buf directives
+	// This allows users to override the default buf_deps resolution
+	// Example: # gazelle:resolve buf proto/foo/bar.proto @com_example//proto/foo:bar_proto
+	bufImportSpec := resolve.ImportSpec{
+		Lang: "buf",
+		Imp:  importSpec.Imp,
+	}
+	if override, ok := resolve.FindRuleWithOverride(gazelleConfig, bufImportSpec, "buf"); ok {
+		return []resolve.FindResult{{Label: override}}
+	}
+
+	// Fall back to default buf_deps resolution
+	bufConfig := GetConfigForGazelleConfig(gazelleConfig)
+	depRepo := getRepoNameForPath(bufConfig.BufConfigFile.Pkg)
 	return []resolve.FindResult{
 		{
 			Label: label.New(depRepo, path.Dir(importSpec.Imp), proto.RuleName(path.Dir(importSpec.Imp))),

@@ -1,0 +1,11 @@
+load("@rules_buf//buf:defs.bzl", "buf_breaking_test")
+
+# gazelle:buf_breaking_against //:against_file
+# gazelle:resolve buf validate/validate.proto @custom_validate//validate:validate_proto
+
+buf_breaking_test(
+    name = "buf_breaking",
+    against = "//:against_file",
+    config = "//petapis:buf.yaml",
+    targets = ["//petapis/pets/v1:pets_v1_proto"],
+)
