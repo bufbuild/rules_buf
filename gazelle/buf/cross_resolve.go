@@ -46,8 +46,8 @@ func (*bufLang) CrossResolve(gazelleConfig *config.Config, ruleIndex *resolve.Ru
 	}
 
 	// Fall back to default buf_deps resolution
-	bufConfig := GetConfigForGazelleConfig(gazelleConfig)
-	depRepo := getRepoNameForPath(bufConfig.BufConfigFile.Pkg)
+	config := GetConfigForGazelleConfig(gazelleConfig)
+	depRepo := getRepoNameForPath(config.BufConfigFile.Pkg)
 	return []resolve.FindResult{
 		{
 			Label: label.New(depRepo, path.Dir(importSpec.Imp), proto.RuleName(path.Dir(importSpec.Imp))),
