@@ -33,7 +33,6 @@ func (*bufLang) CrossResolve(gazelleConfig *config.Config, ruleIndex *resolve.Ru
 	if langWithDep != "proto" || importSpec.Lang != "proto" {
 		return nil
 	}
-
 	// First, check for gazelle:resolve buf directives
 	// This allows users to override the default buf_deps resolution
 	// Example: # gazelle:resolve buf proto/foo/bar.proto @com_example//proto/foo:bar_proto
