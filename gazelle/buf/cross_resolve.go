@@ -43,7 +43,6 @@ func (*bufLang) CrossResolve(gazelleConfig *config.Config, ruleIndex *resolve.Ru
 	if override, ok := resolve.FindRuleWithOverride(gazelleConfig, bufImportSpec, "buf"); ok {
 		return []resolve.FindResult{{Label: override}}
 	}
-
 	// Fall back to default buf_deps resolution
 	config := GetConfigForGazelleConfig(gazelleConfig)
 	depRepo := getRepoNameForPath(config.BufConfigFile.Pkg)
