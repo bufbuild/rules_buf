@@ -178,7 +178,17 @@ def _buf_download_releases_impl(ctx):
         ),
     )
     attrs = {"version": version, "repository_url": repository_url, "sha256": sha256}
-    return update_attrs(ctx.attr, attrs.keys(), attrs)
+    updated_attrs = update_attrs(ctx.attr, attrs.keys(), attrs)
+
+    # Bazel <8.3.0 lacks ctx.repo_metadata
+    if not hasattr(ctx, "repo_metadata"):
+        return updated_attrs
+
+    reproducible = ctx.attr.sha256 != ""
+    return ctx.repo_metadata(
+        reproducible = reproducible,
+        attrs_for_reproducibility = {} if reproducible else updated_attrs,
+    )
 
 buf_download_releases = repository_rule(
     implementation = _buf_download_releases_impl,
