@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@gazelle//:def.bzl", "gazelle", "gazelle_binary")
 load("@rules_buf//buf:defs.bzl", "buf_format", "buf_lint_test")
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@gazelle//:def.bzl", "gazelle", "gazelle_binary")
 
 exports_files(
     ["buf.yaml"],

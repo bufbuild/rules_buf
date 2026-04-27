@@ -13,8 +13,8 @@
 # limitations under the License.
 
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 
 # gazelle:prefix github.com/bufbuild/rules_buf
 # gazelle:exclude examples/

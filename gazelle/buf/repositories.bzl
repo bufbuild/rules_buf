@@ -22,8 +22,8 @@ def gazelle_buf_dependencies():
     go_repository(
         name = "com_github_bazelbuild_bazel_gazelle",
         importpath = "github.com/bazelbuild/bazel-gazelle",
-        sum = "h1:umlCZxzCEr8BHdesfY2sv5T8NTv9+JiPL8f/Vk83Aag=",
-        version = "v0.25.0",
+        sum = "h1:SAYys3KRG5i3KTgQAvO423bLT1rQMSgqEKReMkM/CW0=",
+        version = "v0.40.0",
     )
     go_repository(
         name = "in_gopkg_yaml_v3",
@@ -34,6 +34,6 @@ def gazelle_buf_dependencies():
     go_repository(
         name = "com_github_bazelbuild_buildtools",
         importpath = "github.com/bazelbuild/buildtools",
-        sum = "h1:fmdo+fvvWlhldUcqkhAMpKndSxMN3vH5l7yow5cEaiQ=",
-        version = "v0.0.0-20220531122519-a43aed7014c8",
+        sum = "h1:FGzENZi+SX9I7h9xvMtRA3rel8hCEfyzSixteBgn7MU=",
+        version = "v0.0.0-20240918101019-be1c24cc9a44",
     )
