@@ -15,8 +15,8 @@
 """Defines buf_lint_test rule"""
 
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-load(":plugin.bzl", "protoc_plugin_test")
 load("@rules_proto//proto:proto_common.bzl", proto_toolchains = "toolchains")
+load(":plugin.bzl", "protoc_plugin_test")
 
 _PROTO_TOOLCHAIN_TYPE = "@rules_proto//proto:toolchain_type"
 
