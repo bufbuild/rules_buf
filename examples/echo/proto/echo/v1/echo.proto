@@ -16,16 +16,13 @@ syntax = "proto3";
 
 package echo.v1;
 
-
 service EchoService {
-  rpc Echo (EchoRequest) returns (EchoResponse);
+  rpc Echo(EchoRequest) returns (EchoResponse);
 }
-
 
 message EchoRequest {
   string message = 1;
 }
-
 
 message EchoResponse {
   string message = 1;

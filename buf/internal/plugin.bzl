@@ -102,5 +102,5 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
         ),
     ]
 
-def _short_path(file, dir_exp):
+def _short_path(file):
     return file.short_path

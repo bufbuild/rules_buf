@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""buf_deps macro that pins this example's BSR module dependencies."""
+
 load("@rules_buf//buf:defs.bzl", "buf_dependencies")
 
 def buf_deps():

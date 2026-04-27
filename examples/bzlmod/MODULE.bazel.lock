@@ -212,7 +212,7 @@
     },
     "@@rules_buf~//buf:extensions.bzl%buf": {
       "general": {
-        "bzlTransitiveDigest": "mgL0ZiqHN4pm8PXG4jdvHgLW8tWWRerqZ9KIOn74uhY=",
+        "bzlTransitiveDigest": "/Cnntqmicme8CE/2VZtaGVV7nv9xTe7gh8H5PB76dck=",
         "usagesDigest": "FmkvPtnJAYq1UJOw5Ukd7HVnjdFBrDXV6g2uK7fgqRA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

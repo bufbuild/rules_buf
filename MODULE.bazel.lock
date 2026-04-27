@@ -157,7 +157,7 @@
   "moduleExtensions": {
     "//buf:extensions.bzl%buf": {
       "general": {
-        "bzlTransitiveDigest": "mgL0ZiqHN4pm8PXG4jdvHgLW8tWWRerqZ9KIOn74uhY=",
+        "bzlTransitiveDigest": "/Cnntqmicme8CE/2VZtaGVV7nv9xTe7gh8H5PB76dck=",
         "usagesDigest": "XwSrzWt6YtrsjlicniN7j3L3I/K0x7MK5nNJ+SsEq+M=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

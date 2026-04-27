@@ -42,15 +42,19 @@ proto_library(
         "file.proto",
     ],
     visibility = ["//visibility:public"],
-    deps = ["@buf_deps//validate:validate_proto"],
 )
 
 buf_lint_test(
     name = "root_proto_lint",
-    config = "//:buf.yaml",
     targets = [":root_proto"],
 )
 
 buf_format(
     name = "buf_format",
+)
+
+buf_lint_test(
+    name = "file_proto_lint",
+    config = "//:buf.yaml",
+    targets = [":file_proto"],
 )
