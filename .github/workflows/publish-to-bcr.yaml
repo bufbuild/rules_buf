@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   publish:
-    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@096e4724c760aa0024916fe772701c06926f4c49 # v0.2.2
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@0a23c53c2baffdaf2ce8dd23c2c0e45eb3b79093 # v1.2.0
     with:
       tag_name: ${{ inputs.tag_name || github.ref_name }}
       registry_fork: bufbuild/bazel-central-registry
