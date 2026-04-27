@@ -4,9 +4,9 @@ Examples on how to use `rules_buf` in various scenarios. For more info refer to 
 
 ## Scenarios
 
-### [bzlmod](bzlmod)
+### [Bazel Modules](bzlmod)
 
-This demonstrates using this repo with [Bzlmod](https://bazel.build/external/overview#bzlmod).
+This demonstrates using this repo with [Bazel modules](https://bazel.build/versions/9.1.0/external/overview).
 
 ### [Version](version)
 
@@ -22,7 +22,7 @@ This demonstrates setting up lint and breaking tests in a project with a `buf.ya
 
 ### [Workspaces](workspace)
 
-This demonstrates setting up lint and breaking tests in a v1 `buf.work.yaml` workspace project.
+This demonstrates setting up lint and breaking tests in a [v1 `buf.work.yaml`](https://buf.build/docs/configuration/v1/buf-work-yaml/) workspace project.
 
 ### [v2](v2)
 

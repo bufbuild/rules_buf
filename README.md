@@ -8,7 +8,7 @@ This module is a beta, but we may make a few changes as we gather feedback from 
 
 ## Setup
 
-### Bzlmod (`MODULE.bazel`)
+### Bazel modules (`MODULE.bazel`)
 
 `rules_buf` is published to the [Bazel Central Registry](https://registry.bazel.build/modules/rules_buf). Add the following to your `MODULE.bazel`:
 
@@ -18,14 +18,14 @@ bazel_dep(name = "rules_buf", version = "0.5.2")
 buf = use_extension("@rules_buf//buf:extensions.bzl", "buf")
 
 # Pin the buf CLI version (optional; a default version is used otherwise).
-buf.toolchains(version = "v1.47.2")
+buf.toolchains(version = "v1.68.4")
 
 use_repo(buf, "rules_buf_toolchains")
 ```
 
 ### Legacy `WORKSPACE`
 
-For projects that have not yet migrated to Bzlmod:
+For projects that have not yet migrated to Bazel modules:
 
 ```starlark
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -43,7 +43,7 @@ load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_to
 
 rules_buf_dependencies()
 
-rules_buf_toolchains(version = "v1.47.2")
+rules_buf_toolchains(version = "v1.68.4")
 
 # rules_proto
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
