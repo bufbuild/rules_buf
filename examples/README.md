@@ -1,12 +1,12 @@
 # Examples
 
-Examples on how to use `rules_buf` in various scenarios. For more info refer to the [official docs](https://docs.buf.build/build-systems/bazel).
+Examples on how to use `rules_buf` in various scenarios. For more info refer to the [official docs](https://buf.build/docs/cli/build-systems/bazel).
 
 ## Scenarios
 
 ### [bzlmod](bzlmod)
 
-This demonstrates using this repo with [bzlmod](https://docs.bazel.build/versions/5.0.0/bzlmod.html).
+This demonstrates using this repo with [Bzlmod](https://bazel.build/external/overview#bzlmod).
 
 ### [Version](version)
 
@@ -22,4 +22,20 @@ This demonstrates setting up lint and breaking tests in a project with a `buf.ya
 
 ### [Workspaces](workspace)
 
-This demonstrates setting up lint and breaking tests in a [buf workspace](https://docs.buf.build/reference/workspaces) project.
+This demonstrates setting up lint and breaking tests in a v1 `buf.work.yaml` workspace project.
+
+### [v2](v2)
+
+This demonstrates setting up lint and breaking tests using a [v2 `buf.yaml`](https://buf.build/docs/configuration/v2/buf-yaml) workspace.
+
+### [Echo](echo)
+
+A minimal end-to-end example: `proto_library` plus generated Connect/Go server code, built and run via Bazel.
+
+### [Toolchain](toolchain)
+
+This demonstrates using the `buf_format` rule together with the [`toolchains_protoc`](https://github.com/aspect-build/toolchains_protoc) hermetic `protoc` toolchain.
+
+### [Unused](unused)
+
+This exercises the lint extension's behavior on a `proto_library` that includes an unused import, using the standard `protobuf` Bazel module for `protoc`.
