@@ -1,5 +1,5 @@
-load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
     name = "foo_v1_proto",
