@@ -55,5 +55,3 @@ jobs:
             (cd "${dir}" && bazel build //...)
             echo "::endgroup::"
           done
-      - name: Check MODULE.bazel.lock drift
-        run: git diff --exit-code --stat -- '**/MODULE.bazel.lock'

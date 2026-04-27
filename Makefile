@@ -54,18 +54,12 @@ generate: $(BIN)/license-header ## Regenerate BUILD files, repositories.bzl, lic
 	@# Regenerate stardoc reference for the public buf rules.
 	$(BAZEL) build //:buf_rule_docs
 	install -m 0644 bazel-bin/buf-rules.md docs/buf-rules.md
-	@# Each example is its own Bazel workspace. Tidy its go.mod, refresh its
-	@# MODULE.bazel.lock, regenerate BUILD files via gazelle, and format
-	@# protos via buf_format -- only when the corresponding file/target
-	@# exists, since not every example carries all four.
+	@# Run go mod tidy, gazelle, and buf_format in each example that
+	@# defines them.
 	@for dir in examples/*/; do \
 		if [[ -f "$${dir}go.mod" ]]; then \
 			echo "$(GO) mod tidy in $${dir}"; \
 			(cd "$${dir}" && $(GO) mod tidy); \
-		fi; \
-		if [[ -f "$${dir}MODULE.bazel" ]]; then \
-			echo "$(BAZEL) mod deps in $${dir}"; \
-			(cd "$${dir}" && $(BAZEL) mod deps >/dev/null); \
 		fi; \
 		if (cd "$${dir}" && $(BAZEL) query //:gazelle >/dev/null 2>&1); then \
 			echo "$(BAZEL) run //:gazelle in $${dir}"; \
