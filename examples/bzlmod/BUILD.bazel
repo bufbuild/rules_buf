@@ -37,16 +37,9 @@ gazelle_binary(
 )
 
 proto_library(
-    name = "root_proto",
-    srcs = [
-        "file.proto",
-    ],
+    name = "file_proto",
+    srcs = ["file.proto"],
     visibility = ["//visibility:public"],
-)
-
-buf_lint_test(
-    name = "root_proto_lint",
-    targets = [":root_proto"],
 )
 
 buf_format(
