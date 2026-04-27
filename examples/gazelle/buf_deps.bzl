@@ -20,17 +20,17 @@ def buf_deps():
     buf_dependencies(
         name = "buf_deps_barapis",
         modules = [
-            "buf.build/acme/paymentapis:6e230f46113f498392c82d12b1a07b70",
-            "buf.build/acme/petapis:84a33a06f0954823a6f2a089fb1bb82e",
-            "buf.build/envoyproxy/protoc-gen-validate:dc09a417d27241f7b069feae2cd74a0e",
-            "buf.build/googleapis/googleapis:84c3cad756d2435982d9e3b72680fa96",
+            "buf.build/acme/paymentapis:9a877cf260e1488d869a31fce3bea26d",
+            "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef",
+            "buf.build/envoyproxy/protoc-gen-validate:daf171c6cdb54629b5f51e345a79e4dd",
+            "buf.build/googleapis/googleapis:c17df5b2beca46928cc87d5656bd5343",
         ],
     )
     buf_dependencies(
         name = "buf_deps_fooapis",
         modules = [
-            "buf.build/acme/paymentapis:6e230f46113f498392c82d12b1a07b70",
-            "buf.build/acme/petapis:84a33a06f0954823a6f2a089fb1bb82e",
-            "buf.build/googleapis/googleapis:84c3cad756d2435982d9e3b72680fa96",
+            "buf.build/acme/paymentapis:9a877cf260e1488d869a31fce3bea26d",
+            "buf.build/acme/petapis:7abdb7802c8f4737a1a23a35ca8266ef",
+            "buf.build/googleapis/googleapis:c17df5b2beca46928cc87d5656bd5343",
         ],
     )
