@@ -49,14 +49,17 @@ generate: $(BIN)/license-header ## Regenerate BUILD files, repositories.bzl, lic
 	@# Tidy first so gazelle_update_repos regenerates repositories.bzl from
 	@# a clean go.mod.
 	$(GO) mod tidy
-	(cd examples/echo && $(GO) mod tidy)
 	$(BAZEL) run //:gazelle_update_repos
 	$(BAZEL) run //:gazelle
-	@# Each example is its own Bazel workspace. Refresh its MODULE.bazel.lock,
-	@# regenerate its BUILD files via gazelle, and format its proto files via
-	@# buf_format -- but only when the corresponding target exists, since not
-	@# every example has all three.
+	@# Each example is its own Bazel workspace. Tidy its go.mod, refresh its
+	@# MODULE.bazel.lock, regenerate BUILD files via gazelle, and format
+	@# protos via buf_format -- only when the corresponding file/target
+	@# exists, since not every example carries all four.
 	@for dir in examples/*/; do \
+		if [[ -f "$${dir}go.mod" ]]; then \
+			echo "$(GO) mod tidy in $${dir}"; \
+			(cd "$${dir}" && $(GO) mod tidy); \
+		fi; \
 		if [[ -f "$${dir}MODULE.bazel" ]]; then \
 			echo "$(BAZEL) mod deps in $${dir}"; \
 			(cd "$${dir}" && $(BAZEL) mod deps >/dev/null); \
