@@ -20,13 +20,13 @@ jobs:
     steps:
       # Caches and restores the bazelisk download directory, the bazel build directory.
       - name: Cache bazel
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ~/.cache/bazelisk
             ~/.cache/bazel
           key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: bazel test
         run: make test
   macos:
@@ -40,13 +40,13 @@ jobs:
     steps:
       # Caches and restores the bazelisk download directory, the bazel build directory.
       - name: Cache bazel
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ~/.cache/bazelisk
             /private/var/tmp/_bazel_runner
           key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: bazel test
         run: make test
   # Disabled due to error in protobuf on Windows
