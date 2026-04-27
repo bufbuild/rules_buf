@@ -11,6 +11,12 @@ jobs:
   # NOTE: Cache path doesn't support env expansion
   linux:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel: ["7.x", "8.x", "9.x"]
+    env:
+      USE_BAZEL_VERSION: ${{ matrix.bazel }}
     steps:
       # Caches and restores the bazelisk download directory, the bazel build directory.
       - name: Cache bazel
@@ -19,12 +25,18 @@ jobs:
           path: |
             ~/.cache/bazelisk
             ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-cache
+          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
       - uses: actions/checkout@v2
       - name: bazel test
         run: make test
   macos:
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bazel: ["7.x", "8.x", "9.x"]
+    env:
+      USE_BAZEL_VERSION: ${{ matrix.bazel }}
     steps:
       # Caches and restores the bazelisk download directory, the bazel build directory.
       - name: Cache bazel
@@ -33,13 +45,13 @@ jobs:
           path: |
             ~/.cache/bazelisk
             /private/var/tmp/_bazel_runner
-          key: ${{ runner.os }}-bazel-cache
+          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
       - uses: actions/checkout@v2
       - name: bazel test
         run: make test
-  # Disabled due to error in protobuf on Windoes
+  # Disabled due to error in protobuf on Windows
   # windows:
-  #   runs-on: windows-latest 
+  #   runs-on: windows-latest
   #   steps:
   #     # Caches and restores the bazelisk download directory, the bazel build directory.
   #     - name: Cache bazel
