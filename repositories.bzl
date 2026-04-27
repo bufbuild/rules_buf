@@ -33,8 +33,8 @@ def go_repositories():
     go_repository(
         name = "com_github_bazelbuild_buildtools",
         importpath = "github.com/bazelbuild/buildtools",
-        sum = "h1:FGzENZi+SX9I7h9xvMtRA3rel8hCEfyzSixteBgn7MU=",
-        version = "v0.0.0-20240918101019-be1c24cc9a44",
+        sum = "h1:khsR2MoXO+WButt3L5nnkAOGO17BAr0G/pGHZczF5/E=",
+        version = "v0.0.0-20260319080235-05d2ebe49b0f",
     )
     go_repository(
         name = "com_github_bazelbuild_rules_go",

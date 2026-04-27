@@ -30,6 +30,7 @@ declare_buf_toolchains(
  )
 """
 
+# buildifier: disable=canonical-repository
 _TOOLCHAIN_FILE = """
 load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
