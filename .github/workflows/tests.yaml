@@ -44,7 +44,9 @@ jobs:
         with:
           path: |
             ~/.cache/bazelisk
+            ~/Library/Caches/bazelisk
             /private/var/tmp/_bazel_runner
+            ~/Library/Caches/bazel
           key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
       - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: bazel test
