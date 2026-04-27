@@ -37,8 +37,10 @@ stardoc(
     out = "buf-rules.md",
     input = "//buf:defs.bzl",
     symbol_names = [
-        "buf_lint_test",
         "buf_breaking_test",
+        "buf_dependencies",
+        "buf_format",
+        "buf_lint_test",
     ],
     deps = [
         "//buf:defs",

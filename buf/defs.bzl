@@ -20,7 +20,9 @@
 The rules work alongside `proto_library` rule. They support,
 
 - Linting ([buf_lint_test](#buf_lint_test))
-- Breaking change detection ([buf_breaking_test](#buf_breaking_test)) 
+- Breaking change detection ([buf_breaking_test](#buf_breaking_test))
+- Formatting ([buf_format](#buf_format))
+- BSR module dependencies ([buf_dependencies](#buf_dependencies))
 
 Use [gazelle](/gazelle/buf) to auto generate all of these rules based on `buf.yaml`.
 
