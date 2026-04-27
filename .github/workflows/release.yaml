@@ -39,7 +39,7 @@ jobs:
               sha: commitTag.data.sha,
             });
   release:
-    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@a841d62420f41a87a601fb331f3c2c2cc088506e # v7.2.3
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@af28703814cf26522cf5e44d219efece91293123 # v7.4.0
     needs: create-release-tag
     with:
       release_files: rules_buf-*.tar.gz
