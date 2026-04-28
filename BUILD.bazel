@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier", "buildifier_test")
 load("@io_bazel_stardoc//stardoc:stardoc.bzl", "stardoc")
 
 # gazelle:prefix github.com/bufbuild/rules_buf
@@ -37,8 +37,10 @@ stardoc(
     out = "buf-rules.md",
     input = "//buf:defs.bzl",
     symbol_names = [
-        "buf_lint_test",
         "buf_breaking_test",
+        "buf_dependencies",
+        "buf_format",
+        "buf_lint_test",
     ],
     deps = [
         "//buf:defs",
@@ -47,4 +49,16 @@ stardoc(
 
 buildifier(
     name = "buildifier",
+)
+
+buildifier_test(
+    name = "buildifier_check",
+    exclude_patterns = [
+        "./.bazelbsp/**",
+        "./.tmp/**",
+        "./bazel-*/**",
+    ],
+    lint_mode = "warn",
+    no_sandbox = True,
+    workspace = "//:MODULE.bazel",
 )

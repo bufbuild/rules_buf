@@ -66,6 +66,8 @@ Refer to the [docs](https://buf.build/docs/cli/build-systems/bazel) or browse th
 - [buf_breaking_test](https://buf.build/docs/cli/build-systems/bazel#buf-breaking-test)
 - [buf_format](https://buf.build/docs/cli/build-systems/bazel#buf-format)
 
+See [docs/buf-rules.md](docs/buf-rules.md) for the full attribute reference, generated from the rule definitions.
+
 ## Gazelle Extension
 
 The repo also offers a Gazelle extension for generating the rules.

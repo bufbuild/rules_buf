@@ -30,6 +30,7 @@ declare_buf_toolchains(
  )
 """
 
+# buildifier: disable=canonical-repository
 _TOOLCHAIN_FILE = """
 load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
 
@@ -158,7 +159,7 @@ def _buf_download_releases_impl(ctx):
 
         ctx.report_progress("Downloading " + bin)
         url = "{}/{}/{}".format(repository_url, version, bin)
-        download_info = ctx.download(
+        ctx.download(
             url = url,
             sha256 = sum,
             executable = True,

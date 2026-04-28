@@ -9,11 +9,15 @@ MAKEFLAGS += --no-print-directory
 BIN := .tmp/bin
 COPYRIGHT_YEARS := 2021-2025
 LICENSE_IGNORE := -e /testdata/
-# Commit where bazel support was added
-LICENSE_HEADER_VERSION := dc4b633f0accc5f571c577325ce556a8e988ec4e
+LICENSE_HEADER_VERSION := v1.68.4
 # Set to use a different compiler. For example, `GO=go1.18rc1 make test`.
 GO ?= go
-BAZEL ?= bazel
+BAZEL ?= bazelisk
+# Pin Bazel to .bazelversion so a newer Bazel on PATH doesn't rewrite
+# MODULE.bazel.lock to a higher lockFileVersion. tests.yaml's matrix overrides
+# this via env to exercise multiple Bazel versions.
+USE_BAZEL_VERSION ?= $(shell cat .bazelversion)
+export USE_BAZEL_VERSION
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -33,11 +37,39 @@ test: ## Run unit tests
 	$(BAZEL) test //...
 
 .PHONY: format
-format:
+format: ## Format Starlark files with buildifier
 	$(BAZEL) run //:buildifier
 
+.PHONY: lint
+lint: ## Lint Starlark files with buildifier
+	$(BAZEL) test //:buildifier_check
+
 .PHONY: generate
-generate: $(BIN)/license-header ## Regenerate code and licenses
+generate: $(BIN)/license-header ## Regenerate BUILD files, repositories.bzl, license headers, and format
+	@# Tidy first so gazelle_update_repos regenerates repositories.bzl from
+	@# a clean go.mod.
+	$(GO) mod tidy
+	$(BAZEL) run //:gazelle_update_repos
+	$(BAZEL) run //:gazelle
+	@# Regenerate stardoc reference for the public buf rules.
+	$(BAZEL) build //:buf_rule_docs
+	install -m 0644 bazel-bin/buf-rules.md docs/buf-rules.md
+	@# Run go mod tidy, gazelle, and buf_format in each example that
+	@# defines them.
+	@for dir in examples/*/; do \
+		if [[ -f "$${dir}go.mod" ]]; then \
+			echo "$(GO) mod tidy in $${dir}"; \
+			(cd "$${dir}" && $(GO) mod tidy); \
+		fi; \
+		if (cd "$${dir}" && $(BAZEL) query //:gazelle >/dev/null 2>&1); then \
+			echo "$(BAZEL) run //:gazelle in $${dir}"; \
+			(cd "$${dir}" && $(BAZEL) run //:gazelle); \
+		fi; \
+		if (cd "$${dir}" && $(BAZEL) query //:buf_format >/dev/null 2>&1); then \
+			echo "$(BAZEL) run //:buf_format in $${dir}"; \
+			(cd "$${dir}" && $(BAZEL) run //:buf_format); \
+		fi; \
+	done
 	@# We want to operate on a list of modified and new files, excluding
 	@# deleted and ignored files. git-ls-files can't do this alone. comm -23 takes
 	@# two files and prints the union, dropping lines common to both (-3) and
@@ -51,6 +83,11 @@ generate: $(BIN)/license-header ## Regenerate code and licenses
 			--license-type apache \
 			--copyright-holder "Buf Technologies, Inc." \
 			--year-range "$(COPYRIGHT_YEARS)"
+	$(MAKE) format
+
+.PHONY: checkgenerate
+checkgenerate: generate ## Run generate and fail if anything changed
+	git diff --exit-code --stat
 
 $(BIN)/license-header: Makefile
 	@mkdir -p $(@D)

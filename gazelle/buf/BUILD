@@ -21,14 +21,14 @@ go_library(
     importpath = "github.com/bufbuild/rules_buf/gazelle/buf",
     visibility = ["//visibility:public"],
     deps = [
-        "@bazel_gazelle//config:go_default_library",
-        "@bazel_gazelle//label:go_default_library",
-        "@bazel_gazelle//language:go_default_library",
-        "@bazel_gazelle//language/proto:go_default_library",
-        "@bazel_gazelle//repo:go_default_library",
-        "@bazel_gazelle//resolve:go_default_library",
-        "@bazel_gazelle//rule:go_default_library",
-        "@com_github_bazelbuild_buildtools//build:go_default_library",
+        "@bazel_gazelle//config",
+        "@bazel_gazelle//label",
+        "@bazel_gazelle//language",
+        "@bazel_gazelle//language/proto",
+        "@bazel_gazelle//repo",
+        "@bazel_gazelle//resolve",
+        "@bazel_gazelle//rule",
+        "@com_github_bazelbuild_buildtools//build",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
 )
@@ -65,8 +65,8 @@ go_test(
     srcs = ["buf_test.go"],
     data = [":gazelle-buf"] + glob(["testdata/**"]),
     deps = [
-        "@bazel_gazelle//testtools:go_default_library",
+        "@bazel_gazelle//testtools",
         "@com_github_stretchr_testify//require",
-        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
+        "@io_bazel_rules_go//go/tools/bazel",
     ],
 )

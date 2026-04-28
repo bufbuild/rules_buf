@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""print_buf_version rule that exercises the buf toolchain."""
+
 _TOOLCHAIN = "@rules_buf//tools/buf:toolchain_type"
 
 def _print_buf_version_impl(ctx):
