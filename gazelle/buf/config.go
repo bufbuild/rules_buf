@@ -113,17 +113,21 @@ func loadConfig(gazelleConfig *config.Config, packageRelativePath string, file *
 	// Here we set the config if the directive is not present
 	if config.ModuleRoot && packageRelativePath != "" {
 		protoConfig := proto.GetProtoConfig(gazelleConfig)
-		stripImportPrefix := "/" + packageRelativePath
-		if protoConfig.StripImportPrefix == "" {
-			protoConfig.StripImportPrefix = stripImportPrefix
-		}
-		if protoConfig.StripImportPrefix != stripImportPrefix {
-			log.Printf(
-				"strip_import_prefix at %s should be %s but is %s",
-				packageRelativePath,
-				stripImportPrefix,
-				protoConfig.StripImportPrefix,
-			)
+		if protoConfig == nil {
+			log.Print("buf: proto language is not enabled; skipping strip_import_prefix configuration")
+		} else {
+			stripImportPrefix := "/" + packageRelativePath
+			if protoConfig.StripImportPrefix == "" {
+				protoConfig.StripImportPrefix = stripImportPrefix
+			}
+			if protoConfig.StripImportPrefix != stripImportPrefix {
+				log.Printf(
+					"strip_import_prefix at %s should be %s but is %s",
+					packageRelativePath,
+					stripImportPrefix,
+					protoConfig.StripImportPrefix,
+				)
+			}
 		}
 	}
 	if file == nil {
