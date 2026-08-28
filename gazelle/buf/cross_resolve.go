@@ -16,10 +16,10 @@ package buf
 
 import (
 	"path"
+	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/label"
-	"github.com/bazelbuild/bazel-gazelle/language/proto"
 	"github.com/bazelbuild/bazel-gazelle/resolve"
 )
 
@@ -46,9 +46,15 @@ func (*bufLang) CrossResolve(gazelleConfig *config.Config, ruleIndex *resolve.Ru
 	// Fall back to default buf_deps resolution
 	config := GetConfigForGazelleConfig(gazelleConfig)
 	depRepo := getRepoNameForPath(config.BufConfigFile.Pkg)
+
+	// Generate target name from the proto file name, not the directory name
+	// e.g., "nmts/v1/proto/ek/logical/interface.proto" -> "interface_proto"
+	protoFile := path.Base(importSpec.Imp)
+	targetName := strings.TrimSuffix(protoFile, ".proto") + "_proto"
+
 	return []resolve.FindResult{
 		{
-			Label: label.New(depRepo, path.Dir(importSpec.Imp), proto.RuleName(path.Dir(importSpec.Imp))),
+			Label: label.New(depRepo, path.Dir(importSpec.Imp), targetName),
 		},
 	}
 }
