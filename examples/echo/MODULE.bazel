@@ -42,8 +42,8 @@ buf = use_extension("@rules_buf//buf:extensions.bzl", "buf")
 
 # Override the default version of buf
 buf.toolchains(
-    sha256 = "1b37b75dc0a777a0cba17fa2604bc9906e55bb4c578823d8b7a8fe3fc9fe4439",
-    version = "v1.47.2",
+    sha256 = "b05b543026f48418579c3e37b9c4f9b776b895085e453775ded018a06e631823",
+    version = "v1.75.0",
 )
 
 # Allow people to use `bazel run @rules_buf_toolchains//:buf -- --version`

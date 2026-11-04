@@ -19,8 +19,8 @@ See https://bazel.build/docs/bzlmod#extension-definition
 load("//buf/internal:repo.bzl", "buf_dependencies")
 load("//buf/internal:toolchain.bzl", "buf_download_releases")
 
-_DEFAULT_VERSION = "v1.47.2"
-_DEFAULT_SHA256 = "1b37b75dc0a777a0cba17fa2604bc9906e55bb4c578823d8b7a8fe3fc9fe4439"
+_DEFAULT_VERSION = "v1.75.0"
+_DEFAULT_SHA256 = "b05b543026f48418579c3e37b9c4f9b776b895085e453775ded018a06e631823"
 _DEFAULT_TOOLCHAIN_NAME = "rules_buf_toolchains"
 _DEFAULT_DEPS = "buf_deps"
 
