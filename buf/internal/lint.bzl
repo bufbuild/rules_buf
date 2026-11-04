@@ -14,11 +14,9 @@
 
 """Defines buf_lint_test rule"""
 
-load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-load("@rules_proto//proto:proto_common.bzl", proto_toolchains = "toolchains")
+load("@com_google_protobuf//bazel/common:proto_info.bzl", "ProtoInfo")
 load(":plugin.bzl", "protoc_plugin_test")
-
-_PROTO_TOOLCHAIN_TYPE = "@rules_proto//proto:toolchain_type"
+load(":proto_toolchains.bzl", "PROTO_TOOLCHAIN_TYPE", "proto_toolchains")
 
 _DOC = """
 `buf_lint_test` is a test rule that lints one or more `proto_library` targets.
@@ -40,11 +38,11 @@ def _buf_lint_test_impl(ctx):
     files_to_include = []
     if ctx.file.config != None:
         files_to_include.append(ctx.file.config)
-    proto_toolchain_enabled = len(proto_toolchains.use_toolchain(_PROTO_TOOLCHAIN_TYPE)) > 0
+    proto_toolchain_enabled = len(proto_toolchains.use_toolchain(PROTO_TOOLCHAIN_TYPE)) > 0
     return protoc_plugin_test(
         ctx,
         proto_infos,
-        ctx.toolchains[_PROTO_TOOLCHAIN_TYPE].proto.proto_compiler.executable if proto_toolchain_enabled else ctx.executable._protoc,
+        ctx.toolchains[PROTO_TOOLCHAIN_TYPE].proto.proto_compiler.executable if proto_toolchain_enabled else ctx.executable._protoc,
         ctx.toolchains[_TOOLCHAIN].cli,
         config,
         files_to_include,
@@ -85,6 +83,6 @@ buf_lint_test = rule(
             "_protoc": attr.label(default = "@com_google_protobuf//:protoc", executable = True, cfg = "exec"),
         })
     ),
-    toolchains = [_TOOLCHAIN] + proto_toolchains.use_toolchain(_PROTO_TOOLCHAIN_TYPE),
+    toolchains = [_TOOLCHAIN] + proto_toolchains.use_toolchain(PROTO_TOOLCHAIN_TYPE),
     test = True,
 )
