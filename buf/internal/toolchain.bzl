@@ -98,8 +98,29 @@ def _detect_host_platform(ctx):
         goarch = "arm64"
     elif goarch == "x86_64":
         goarch = "amd64"
+    elif goarch == "armv7l":
+        goarch = "arm"
 
     return goos, goarch
+
+# Earliest buf (major, minor) release with binaries for each host, keyed by the
+# (os, cpu) pair returned from _detect_host_platform.
+_MIN_SUPPORTED_VERSIONS = {
+    ("darwin", "amd64"): (0, 0),
+    ("darwin", "arm64"): (0, 0),
+    ("freebsd", "amd64"): (1, 67),
+    ("freebsd", "arm64"): (1, 67),
+    ("linux", "amd64"): (0, 0),
+    ("linux", "arm"): (1, 47),
+    ("linux", "arm64"): (0, 0),
+    ("linux", "ppc64le"): (1, 54),
+    ("linux", "riscv64"): (1, 54),
+    ("linux", "s390x"): (1, 56),
+    ("openbsd", "amd64"): (1, 67),
+    ("openbsd", "arm64"): (1, 67),
+    ("windows", "amd64"): (0, 0),
+    ("windows", "arm64"): (0, 0),
+}
 
 def _buf_download_releases_impl(ctx):
     version = ctx.attr.version
@@ -120,16 +141,15 @@ def _buf_download_releases_impl(ctx):
     major_version = int(version_number[0])
     minor_version = int(version_number[1])
     os, cpu = _detect_host_platform(ctx)
-    if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64", "ppc64le", "s390x"]:
-        fail("Unsupported operating system or cpu architecture ")
+    min_version = _MIN_SUPPORTED_VERSIONS.get((os, cpu))
+    if min_version == None or (major_version, minor_version) < min_version:
+        fail("buf {} has no release for {}/{}".format(version, os, cpu))
     if os == "linux" and cpu == "arm64":
         cpu = "aarch64"
     if cpu == "amd64":
         cpu = "x86_64"
-    if cpu == "ppc64le" and (major_version < 1 or (major_version == 1 and minor_version < 54)):
-        fail("Unsupported operating system or cpu architecture ")
-    if cpu == "s390x" and (major_version < 1 or (major_version == 1 and minor_version < 56)):
-        fail("Unsupported operating system or cpu architecture ")
+    if cpu == "arm":
+        cpu = "armv7"
 
     ctx.report_progress("Downloading buf release hash")
     url = "{}/{}/sha256.txt".format(repository_url, version)
@@ -169,6 +189,10 @@ def _buf_download_releases_impl(ctx):
 
     if os == "darwin":
         os = "osx"
+
+    # Bazel's host platform uses @platforms//cpu:arm (aarch32), not armv7.
+    if cpu == "armv7":
+        cpu = "arm"
 
     ctx.file(
         "BUILD",
