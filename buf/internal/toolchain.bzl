@@ -120,16 +120,26 @@ def _buf_download_releases_impl(ctx):
     major_version = int(version_number[0])
     minor_version = int(version_number[1])
     os, cpu = _detect_host_platform(ctx)
+
+    is_supported = True
     if os not in ["linux", "darwin", "windows"] or cpu not in ["arm64", "amd64", "ppc64le", "s390x"]:
-        fail("Unsupported operating system or cpu architecture ")
+        is_supported = False
+    elif cpu == "ppc64le" and (major_version < 1 or (major_version == 1 and minor_version < 54)):
+        is_supported = False
+    elif cpu == "s390x" and (major_version < 1 or (major_version == 1 and minor_version < 56)):
+        is_supported = False
+
+    if not is_supported:
+        # No buf release for the host, create an empty repository instead.
+        ctx.file("WORKSPACE", "workspace(name = \"{name}\")".format(name = ctx.name))
+        ctx.file("toolchain.bzl", _TOOLCHAIN_FILE)
+        ctx.file("BUILD", "# No buf release available for {}/{}.\n".format(os, cpu))
+        return None
+
     if os == "linux" and cpu == "arm64":
         cpu = "aarch64"
     if cpu == "amd64":
         cpu = "x86_64"
-    if cpu == "ppc64le" and (major_version < 1 or (major_version == 1 and minor_version < 54)):
-        fail("Unsupported operating system or cpu architecture ")
-    if cpu == "s390x" and (major_version < 1 or (major_version == 1 and minor_version < 56)):
-        fail("Unsupported operating system or cpu architecture ")
 
     ctx.report_progress("Downloading buf release hash")
     url = "{}/{}/sha256.txt".format(repository_url, version)
