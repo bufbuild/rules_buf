@@ -13,12 +13,12 @@ This module is a beta, but we may make a few changes as we gather feedback from 
 `rules_buf` is published to the [Bazel Central Registry](https://registry.bazel.build/modules/rules_buf). Add the following to your `MODULE.bazel`:
 
 ```starlark
-bazel_dep(name = "rules_buf", version = "0.5.2")
+bazel_dep(name = "rules_buf", version = "0.6.1")
 
 buf = use_extension("@rules_buf//buf:extensions.bzl", "buf")
 
 # Pin the buf CLI version (optional; a default version is used otherwise).
-buf.toolchains(version = "v1.68.4")
+buf.toolchains(version = "v1.75.0")
 
 use_repo(buf, "rules_buf_toolchains")
 ```
@@ -32,10 +32,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_buf",
-    sha256 = "4a024a411996967c3a3f49b04765bd016169a2c79be3dc78aa62bfa2643850ef",
-    strip_prefix = "rules_buf-0.5.2",
+    sha256 = "abc07348eb4172e9641f95cc734356bff95c6280a6e1b1432d687b4d3be039f0",
+    strip_prefix = "rules_buf-0.6.1",
     urls = [
-        "https://github.com/bufbuild/rules_buf/releases/download/v0.5.2/rules_buf-0.5.2.tar.gz",
+        "https://github.com/bufbuild/rules_buf/releases/download/v0.6.1/rules_buf-0.6.1.tar.gz",
     ],
 )
 
@@ -43,7 +43,7 @@ load("@rules_buf//buf:repositories.bzl", "rules_buf_dependencies", "rules_buf_to
 
 rules_buf_dependencies()
 
-rules_buf_toolchains(version = "v1.68.4")
+rules_buf_toolchains(version = "v1.75.0")
 
 # rules_proto
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
@@ -74,6 +74,16 @@ The repo also offers a Gazelle extension for generating the rules.
 
 Please refer to the [gazelle section](https://buf.build/docs/cli/build-systems/bazel#gazelle) in the docs.
 
+With `WORKSPACE`, the extension requires Gazelle 0.45.0 or later. Load its Go dependencies after `gazelle_dependencies()`:
+
+```starlark
+load("@rules_buf//gazelle/buf:repositories.bzl", "gazelle_buf_dependencies")
+
+gazelle_buf_dependencies()
+```
+
+See [examples/gazelle](examples/gazelle) for a complete `WORKSPACE` setup.
+
 ## Development
 
 The repository follows the [official recommendation](https://bazel.build/rules/deploying) on deploying bazel rules.
@@ -84,10 +94,10 @@ All the rule definitions are in [buf/internal](buf/internal).
 Gazelle extension is in [gazelle/buf](gazelle/buf). Before looking at the code it would be best to understand the [architecture of gazelle](https://github.com/bazelbuild/bazel-gazelle/blob/master/Design.rst). The file structure is loosely based on the `go` and `proto` [extensions](https://github.com/bazelbuild/bazel-gazelle/tree/master/language) that are shipped with gazelle.
 They are also excellent to better understand the architecture.
 
-The main entry point to the extension is via the `NewLanguage` function in [gazelle/buf/buf.go](gazelle/buf/buf.go). Gazelle mostly depends on [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.34.0/language#Language) interface. Apart from that one can also implement some optional interfaces.
+The main entry point to the extension is via the `NewLanguage` function in [gazelle/buf/buf.go](gazelle/buf/buf.go). Gazelle mostly depends on [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.54.0/language#Language) interface. Apart from that one can also implement some optional interfaces.
 
 We implement the following interfaces,
 
-- [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.34.0/language#Language): Required. Used for build/test rule generation and label resolutions for these rules.
-- [`RepoImporter`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.34.0/language#RepoImporter): Optional. Used to generate `buf_dependencies` rule from `buf.yaml`/`buf.work.yaml`.
-- [`CrossResolver`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.34.0/resolve#CrossResolver): Optional. Used to resolve dependencies across extensions/languages. We use it to resolve any proto files that are part of `buf_dependencies` rules.
+- [`Language`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.54.0/language#Language): Required. Used for build/test rule generation and label resolutions for these rules.
+- [`RepoImporter`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.54.0/language#RepoImporter): Optional. Used to generate `buf_dependencies` rule from `buf.yaml`/`buf.work.yaml`.
+- [`CrossResolver`](https://pkg.go.dev/github.com/bazelbuild/bazel-gazelle@v0.54.0/resolve#CrossResolver): Optional. Used to resolve dependencies across extensions/languages. We use it to resolve any proto files that are part of `buf_dependencies` rules.
