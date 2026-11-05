@@ -1,11 +1,11 @@
 module echo
 
-go 1.25.0
+go 1.26.0
 
 require (
-	connectrpc.com/connect v1.18.1
-	golang.org/x/net v0.55.0
-	google.golang.org/protobuf v1.36.6
+	connectrpc.com/connect v1.21.1
+	golang.org/x/net v0.62.0
+	google.golang.org/protobuf v1.36.12
 )
 
-require golang.org/x/text v0.37.0 // indirect
+require golang.org/x/text v0.43.0 // indirect
