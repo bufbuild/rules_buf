@@ -1215,7 +1215,7 @@
     "@@rules_python~//python/extensions:python.bzl%python": {
       "general": {
         "bzlTransitiveDigest": "uHZmn4VCpelMhuk7Rz8Q5oK94ttURW5KkyvXa6hRTfk=",
-        "usagesDigest": "3uD9cewRufXChkpvDeS62rRg3mw8HprtmF6P9EJLB2A=",
+        "usagesDigest": "50FwMF+InxclBMf08KJZEjvadB97i0+VfTV9I5ADF5w=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {
