@@ -19,19 +19,35 @@ jobs:
         with:
           go-version: stable
           check-latest: true
-      - name: Cache bazel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Configure bazel caches
+        run: |
+          echo "common --disk_cache=${HOME}/.cache/bazel-disk" >> ~/.bazelrc
+          echo "common --repository_cache=${HOME}/.cache/bazel-repo" >> ~/.bazelrc
+      - name: Restore bazel caches
+        id: restore-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/bazelisk
-            ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-checkgenerate-${{ hashFiles('.bazelversion', 'MODULE.bazel.lock') }}
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ runner.os }}-bazel-checkgenerate-${{ hashFiles('.bazelversion', 'MODULE.bazel.lock', 'examples/**/MODULE.bazel.lock') }}
           restore-keys: |
             ${{ runner.os }}-bazel-checkgenerate-
       - name: Lint
         run: make lint
       - name: Check generated files
         run: make checkgenerate
+      # Pull requests only restore so they can't evict the caches main relies on.
+      - name: Save bazel caches
+        if: github.ref == 'refs/heads/main' && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/bazelisk
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
   examples:
     runs-on: ubuntu-latest
     steps:
@@ -39,12 +55,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Pin Bazel to .bazelversion
         run: echo "USE_BAZEL_VERSION=$(cat .bazelversion)" >> "$GITHUB_ENV"
-      - name: Cache bazel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Configure bazel caches
+        run: |
+          echo "common --disk_cache=${HOME}/.cache/bazel-disk" >> ~/.bazelrc
+          echo "common --repository_cache=${HOME}/.cache/bazel-repo" >> ~/.bazelrc
+      - name: Restore bazel caches
+        id: restore-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/bazelisk
-            ~/.cache/bazel
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
           key: ${{ runner.os }}-bazel-examples-${{ hashFiles('.bazelversion', 'examples/**/MODULE.bazel.lock') }}
           restore-keys: |
             ${{ runner.os }}-bazel-examples-
@@ -62,3 +84,13 @@ jobs:
             (cd "${dir}" && bazel build //... --incompatible_enable_proto_toolchain_resolution)
             echo "::endgroup::"
           done
+      # Pull requests only restore so they can't evict the caches main relies on.
+      - name: Save bazel caches
+        if: github.ref == 'refs/heads/main' && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/bazelisk
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
