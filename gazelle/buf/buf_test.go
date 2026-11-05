@@ -41,6 +41,7 @@ func TestBreaking(t *testing.T) {
 	testRunGazelle(t, "breaking_package")
 	testRunGazelle(t, "breaking_package_to_module")
 	testRunGazelle(t, "v2/breaking_module")
+	testRunGazelle(t, "v2/breaking_module_ignored_dirs")
 	testRunGazelle(t, "v2/breaking_package")
 	testRunGazelle(t, "v2/breaking_package_to_module")
 }
