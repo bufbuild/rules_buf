@@ -26,7 +26,8 @@ bzl_library(
     srcs = ["breaking.bzl"],
     deps = [
         ":plugin",
-        "@rules_proto//proto:defs",
+        ":proto_toolchains",
+        "@com_google_protobuf//bazel/common:proto_info_bzl",
     ],
 )
 
@@ -35,13 +36,20 @@ bzl_library(
     srcs = ["lint.bzl"],
     deps = [
         ":plugin",
-        "@rules_proto//proto:defs",
+        ":proto_toolchains",
+        "@com_google_protobuf//bazel/common:proto_info_bzl",
     ],
 )
 
 bzl_library(
     name = "plugin",
     srcs = ["plugin.bzl"],
+)
+
+bzl_library(
+    name = "proto_toolchains",
+    srcs = ["proto_toolchains.bzl"],
+    deps = ["@com_google_protobuf//bazel/common:proto_common_bzl"],
 )
 
 bzl_library(

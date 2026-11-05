@@ -55,3 +55,10 @@ jobs:
             (cd "${dir}" && bazel build //...)
             echo "::endgroup::"
           done
+      - name: Build examples with proto toolchain resolution
+        run: |
+          for dir in examples/bzlmod/ examples/echo/; do
+            echo "::group::bazel build in ${dir}"
+            (cd "${dir}" && bazel build //... --incompatible_enable_proto_toolchain_resolution)
+            echo "::endgroup::"
+          done

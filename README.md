@@ -1,6 +1,6 @@
 # rules_buf
 
-Bazel rules for [Buf](https://buf.build/). The rules work alongside the `proto_library` rule of [rules_proto](https://github.com/bazelbuild/rules_proto).
+Bazel rules for [Buf](https://buf.build/). The rules work alongside the `proto_library` rule of [protobuf](https://github.com/protocolbuffers/protobuf/tree/main/bazel).
 
 ## Status
 
