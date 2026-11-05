@@ -84,6 +84,11 @@ jobs:
             (cd "${dir}" && bazel build //... --incompatible_enable_proto_toolchain_resolution)
             echo "::endgroup::"
           done
+      # Runs the BCR presubmit test module. BCR's sandbox leaves $HOME
+      # read-only, so point HOME somewhere unwritable to match.
+      - name: Test BCR test module
+        working-directory: examples/bzlmod
+        run: bazel test //... --test_env=HOME=/nonexistent
       # Pull requests only restore so they can't evict the caches main relies on.
       - name: Save bazel caches
         if: github.ref == 'refs/heads/main' && steps.restore-cache.outputs.cache-hit != 'true'

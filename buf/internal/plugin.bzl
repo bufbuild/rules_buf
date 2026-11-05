@@ -20,6 +20,12 @@ call {} @{}
 exit /b %errorlevel%
 """
 
+# buf plugins create a cache directory on every run, and test sandboxes leave
+# $HOME read-only.
+_SH_PROTOC_SHIM = """export XDG_CACHE_HOME="${{XDG_CACHE_HOME:-$TEST_TMPDIR}}"
+{} @{}
+"""
+
 def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_include = [], protoc_args = []):
     """protoc_plugin_test creates a script file for a generic protoc plugin
 
@@ -85,7 +91,7 @@ def protoc_plugin_test(ctx, proto_infos, protoc, plugin, config, files_to_includ
         executable_file = ctx.actions.declare_file("{}.sh".format(ctx.label.name))
         ctx.actions.write(
             output = executable_file,
-            content = "{} @{}".format(protoc.short_path, args_file.short_path),
+            content = _SH_PROTOC_SHIM.format(protoc.short_path, args_file.short_path),
             is_executable = True,
         )
 
