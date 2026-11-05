@@ -16,13 +16,13 @@ package buf
 
 import (
 	"fmt"
-	"io/fs"
-	"os"
+	"path"
 	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
 	"github.com/bazelbuild/bazel-gazelle/language"
 	"github.com/bazelbuild/bazel-gazelle/rule"
+	"github.com/bazelbuild/bazel-gazelle/walk"
 )
 
 func (*bufLang) Fix(c *config.Config, f *rule.File) {}
@@ -54,7 +54,7 @@ func (*bufLang) GenerateRules(args language.GenerateArgs) language.GenerateResul
 		if config.BreakingImageTarget != "" && config.BreakingMode == BreakingModeModule {
 			breakingRule := generateBreakingRule(config, "buf")
 			result.Gen = append(result.Gen, breakingRule)
-			result.Imports = append(result.Imports, getProtoImportPaths(config, args.Dir))
+			result.Imports = append(result.Imports, getProtoImportPaths(config, args.Rel))
 		}
 	}
 	if args.File == nil {
@@ -129,27 +129,31 @@ func shouldRemoveSingleTargetBufRule(
 	return true
 }
 
-func getProtoImportPaths(config *Config, moduleRoot string) []string {
-	var targets []string
-	fs.WalkDir(
-		os.DirFS(moduleRoot),
-		".",
-		func(path string, dirEntry fs.DirEntry, err error) error {
-			if dirEntry.IsDir() {
-				return nil
-			}
-			if !strings.HasSuffix(dirEntry.Name(), ".proto") {
-				return nil
-			}
-			// Skip if we are in any of the excludes directories
-			if isWithinExcludes(config, path) {
-				return nil
-			}
-			targets = append(targets, path)
-			return nil
-		},
-	)
-	return targets
+// getProtoImportPaths walks Gazelle's directory cache so it skips the same
+// directories Gazelle does.
+func getProtoImportPaths(config *Config, moduleRel string) []string {
+	return appendProtoImportPaths(nil, config, moduleRel, "")
+}
+
+func appendProtoImportPaths(importPaths []string, config *Config, moduleRel string, dirRel string) []string {
+	dirInfo, err := walk.GetDirInfo(path.Join(moduleRel, dirRel))
+	if err != nil {
+		return importPaths
+	}
+	for _, fileName := range dirInfo.RegularFiles {
+		if !strings.HasSuffix(fileName, ".proto") {
+			continue
+		}
+		importPath := path.Join(dirRel, fileName)
+		if isWithinExcludes(config, importPath) {
+			continue
+		}
+		importPaths = append(importPaths, importPath)
+	}
+	for _, subdirName := range dirInfo.Subdirs {
+		importPaths = appendProtoImportPaths(importPaths, config, moduleRel, path.Join(dirRel, subdirName))
+	}
+	return importPaths
 }
 
 func generateEmptyRule(bufRule *rule.Rule) *rule.Rule {

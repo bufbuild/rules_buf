@@ -28,6 +28,7 @@ go_library(
         "@bazel_gazelle//repo",
         "@bazel_gazelle//resolve",
         "@bazel_gazelle//rule",
+        "@bazel_gazelle//walk",
         "@com_github_bazelbuild_buildtools//build",
         "@in_gopkg_yaml_v3//:yaml_v3",
     ],
