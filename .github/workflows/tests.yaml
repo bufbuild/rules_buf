@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 jobs:
   # Bazelisk is included in github runners
-  # Bazel cache: https://docs.bazel.build/versions/main/output_directories.html
   # NOTE: Cache path doesn't support env expansion
   linux:
     runs-on: ubuntu-latest
@@ -18,17 +17,34 @@ jobs:
     env:
       USE_BAZEL_VERSION: ${{ matrix.bazel }}
     steps:
-      # Caches and restores the bazelisk download directory, the bazel build directory.
-      - name: Cache bazel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configure bazel caches
+        run: |
+          echo "common --disk_cache=${HOME}/.cache/bazel-disk" >> ~/.bazelrc
+          echo "common --repository_cache=${HOME}/.cache/bazel-repo" >> ~/.bazelrc
+      - name: Restore bazel caches
+        id: restore-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/bazelisk
-            ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-${{ hashFiles('MODULE.bazel.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-${{ matrix.bazel }}-
       - name: bazel test
         run: make test
+      # Pull requests only restore so they can't evict the caches main relies on.
+      - name: Save bazel caches
+        if: github.ref == 'refs/heads/main' && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/bazelisk
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
   macos:
     runs-on: macos-latest
     strategy:
@@ -38,19 +54,34 @@ jobs:
     env:
       USE_BAZEL_VERSION: ${{ matrix.bazel }}
     steps:
-      # Caches and restores the bazelisk download directory, the bazel build directory.
-      - name: Cache bazel
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Configure bazel caches
+        run: |
+          echo "common --disk_cache=${HOME}/.cache/bazel-disk" >> ~/.bazelrc
+          echo "common --repository_cache=${HOME}/.cache/bazel-repo" >> ~/.bazelrc
+      - name: Restore bazel caches
+        id: restore-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ~/.cache/bazelisk
             ~/Library/Caches/bazelisk
-            /private/var/tmp/_bazel_runner
-            ~/Library/Caches/bazel
-          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-cache
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ runner.os }}-bazel-${{ matrix.bazel }}-${{ hashFiles('MODULE.bazel.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-${{ matrix.bazel }}-
       - name: bazel test
         run: make test
+      # Pull requests only restore so they can't evict the caches main relies on.
+      - name: Save bazel caches
+        if: github.ref == 'refs/heads/main' && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/Library/Caches/bazelisk
+            ~/.cache/bazel-disk
+            ~/.cache/bazel-repo
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
   # Disabled due to error in protobuf on Windows
   # windows:
   #   runs-on: windows-latest
